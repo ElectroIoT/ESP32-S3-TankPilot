@@ -16,9 +16,9 @@ SEC = {s[0]: s for s in SECTIONS}
 
 # page groups of the schematic guide: id, title, [sections]
 PAGES = [
- ("p1", "Page 1 - Power (DC jack, USB, HLK option)", ["power", "hlk", "usb"]),
- ("p2", "Page 2 - ESP32-C3 core", ["mcu"]),
- ("p3", "Page 3 - Sensor ports (ultrasonic, float, probes, LDR, DHT11)", ["ultra", "floats", "probes", "sens"]),
+ ("p1", "Sheet 1: Power (DC jack, 5 V terminal, USB-C, HLK option)", ["power", "hlk", "usb"]),
+ ("p2", "Sheet 2: ESP32-C3 core", ["mcu"]),
+ ("p3", "Sheet 3: Sensor ports (ultrasonic, float, probes, LDR, DHT11)", ["ultra", "floats", "probes", "sens"]),
 ]
 
 # BOM info by LCSC number: mpn, maker, stock, unit price, tier, status

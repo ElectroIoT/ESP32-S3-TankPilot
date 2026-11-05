@@ -1,8 +1,7 @@
 """Generate the HTML pages and BOM files for TankPilot. Run from the repo root:
     python -X utf8 -I tools/gen_docs.py
-Writes docs/page1-power.html, page2-esp32-core.html, page3-sensors.html (BOM + wiring), docs/schematic-guide.html,
-docs/connection-diagram.html, docs/pcb-section-guide.html, docs/images/pcb-floorplan.svg/png and
-hardware/bom/tank-node-bom-v1.csv. All connections are PLANNED (no schematic exists yet)."""
+Writes docs/bom.html, wiring-by-section.html, schematic-sections.html, pcb-floorplan.html (same look as the HexRelay variants pages),
+docs/images/pcb-floorplan.svg and hardware/bom/*. All connections are PLANNED (no schematic exists yet)."""
 import os, sys, csv, html
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import data as D
@@ -13,26 +12,73 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 os.makedirs(os.path.join(DOCS, "images"), exist_ok=True)
 
-CSS = """:root{--bg:#f3f1fb;--fg:#1c2330;--mut:#5b6677;--card:#fff;--line:#c9d1dc;--board:#e8efe4}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1017;--fg:#e8ebf2;--mut:#9aa5b5;--card:#171c26;--line:#323b49;--board:#1c2a20}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,Segoe UI,sans-serif}main{max-width:1320px;margin:0 auto;padding:16px 16px 56px}
-.hero{border-radius:16px;padding:18px 22px;color:#fff;background:linear-gradient(120deg,#ff4d4d,#ff9f43 25%,#2fbf71 50%,#4895ef 75%,#a66cff);box-shadow:0 6px 20px rgba(0,0,0,.18)}
-.hero h1{margin:0;font-size:1.5rem;text-shadow:0 1px 3px rgba(0,0,0,.35)}.hero p{margin:6px 0 0;font-size:14px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-.warn{background:var(--card);border-left:5px solid #ff4d4d;border-radius:8px;padding:8px 12px;margin:14px 0;font-size:13px}
-h2{font-size:1.15rem;margin:0 0 8px}h3{font-size:1rem;margin:14px 0 6px}.mut{color:var(--mut);font-size:13px}.cnt{font-weight:400;font-size:13px;color:var(--mut);margin-left:8px}
-.card{background:var(--card);border-radius:14px;padding:14px;margin:14px 0;border-left:8px solid var(--c,#607d8b);box-shadow:0 2px 10px rgba(0,0,0,.08)}.card h2{color:var(--c,var(--fg))}
-.scroll{overflow-x:auto}nav{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-nav a,.chip{padding:4px 10px;border-radius:14px;color:#fff;text-decoration:none;font-size:12px;font-weight:700}.bar{height:8px;background:var(--line);border-radius:5px;overflow:hidden;min-width:140px}.bar div{height:100%;background:#2fbf71;width:0}
-table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600;white-space:nowrap}
-td.num{text-align:right;font-variant-numeric:tabular-nums}tr.ok td,.step.ok span{opacity:.42;text-decoration:line-through}input.ck{width:18px;height:18px}
-.tag{display:inline-block;background:#ff4d4d;color:#fff;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700}.opt{background:#9aa5b5}
-button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:5px 12px;cursor:pointer}ul.rules li,ol.steps li{margin:5px 0}
-.step{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line)}a{color:#3b82f6}.rec{border-left:4px solid #2fbf71;padding:6px 12px;background:rgba(47,191,113,.1);border-radius:6px;margin:8px 0}
-svg.plan,svg.dia{max-width:100%;height:auto}svg.dia text{fill:var(--fg);font-family:system-ui,Segoe UI,sans-serif}.ref{font-size:12px;font-weight:700}.role{font-size:10.5px;fill:var(--mut)!important}.lab{font-size:9.5px;fill:var(--mut)!important}
+CSS = """:root{--bg:#f4f6fb;--card:#fff;--ink:#16202f;--fg:#16202f;--mut:#64748b;--mute:#64748b;--line:#e2e8f0;--acc:#2563eb;--board:#e8efe4}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#131c2e;--ink:#e6edf7;--fg:#e6edf7;--mut:#93a3b8;--mute:#93a3b8;--line:#243049;--acc:#60a5fa;--board:#16251d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+header{padding:36px 16px 70px;background:linear-gradient(120deg,#0f172a,#1e3a8a 55%,#0e7490);color:#fff}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header h1{margin:0 0 6px;font-size:clamp(24px,4vw,36px)}
+header p{margin:0;opacity:.85}
+header nav a{color:#fff;background:#ffffff22;padding:5px 12px;border-radius:99px;margin:10px 8px 0 0;text-decoration:none;font-size:13.5px;display:inline-block}
+header nav a.on{background:#fff;color:#0f172a;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:-48px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.stat b{display:block;font-size:26px}.stat span{color:var(--mut);font-size:13px}
+.top{margin-top:-48px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 8px}
+.bar input[type=search],.bar input[type=number]{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
+.bar input[type=search]{flex:1;min-width:200px}.bar input[type=number]{width:80px}
+button{padding:9px 14px;border:0;border-radius:10px;background:var(--acc);color:#fff;font:inherit;cursor:pointer}
+button.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:6px 0 20px}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#10b981,#22d3ee);transition:width .3s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:0 0 18px;overflow:hidden}
+.card>h2{margin:0;padding:12px 16px;font-size:17px;color:#fff;background:var(--c,#475569);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card>*:not(h2){margin-left:16px;margin-right:16px}.card>h2+*{margin-top:12px}.card>*:last-child{margin-bottom:16px}
+.card>h2 .cnt,.card>h2 label{color:#fff}.cnt{font-weight:400;font-size:13px;opacity:.92}
+h3{font-size:1rem;margin:16px 0 6px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px;font-size:14px}
+th,td{padding:8px 10px;text-align:left;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);border-top:0;white-space:nowrap}
+td.num,td.n{text-align:right;white-space:nowrap}
+tr.ok,tr.done{opacity:.5}tr.ok td,.step.ok span{text-decoration:line-through}
+input.ck{width:18px;height:18px}
+.mpn{display:block;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+.note{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}.mut{color:var(--mut);font-size:13px}
+a{color:var(--acc)}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11.5px;font-weight:600;background:#dcfce7;color:#166534}
+.tag.LISTING{background:#fef3c7;color:#92400e}.tag.opt{background:#e2e8f0;color:#334155}.tag.VERIFIED{background:#dcfce7;color:#166534}
+@media (prefers-color-scheme:dark){.tag{background:#14532d;color:#bbf7d0}.tag.LISTING{background:#78350f;color:#fde68a}.tag.opt{background:#334155;color:#e2e8f0}}
+.warn{background:var(--card);border-left:5px solid #dc2626;border-radius:8px;padding:8px 12px;margin:16px 0;font-size:13px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.rec{border-left:4px solid #10b981;padding:6px 12px;background:rgba(16,185,129,.1);border-radius:6px;margin:12px 0}
+.chips{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px}
+.chips a,.chip{padding:4px 10px;border-radius:14px;color:#fff;text-decoration:none;font-size:12px;font-weight:700}
+.pbar{height:8px;background:var(--line);border-radius:5px;overflow:hidden;min-width:140px}.pbar div{height:100%;background:#10b981;width:0}
+ul.rules li,ol.steps li{margin:5px 0}.step{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line)}
+svg.plan,svg.dia{max-width:100%;height:auto}svg.dia text{fill:var(--ink);font-family:system-ui,Segoe UI,sans-serif}.ref{font-size:12px;font-weight:700}.role{font-size:10.5px;fill:var(--mut)!important}.lab{font-size:9.5px;fill:var(--mut)!important}
 .pin{font-size:11px}.net{font-size:11px;font-weight:700}.flag{font-size:10px;font-weight:700;fill:#10151c!important}.pill{font-size:11px;font-weight:700;fill:#fff!important}
-.bx{cursor:pointer}.bx.ok{opacity:.35}.w{cursor:pointer;transition:opacity .15s}svg.hl .w{opacity:.15}svg.hl .w.on{opacity:1}.w.done line{stroke-dasharray:4 4}.pt{cursor:pointer}.pt.ok rect{fill-opacity:.1;stroke-dasharray:.6 .6}.pt.ok text{opacity:.4}
-.legend span{display:inline-block;margin-right:12px;font-size:12px;color:var(--mut)}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:middle}
-.wire{display:inline-block;width:46px;height:7px;border-radius:4px;vertical-align:middle}@media print{nav{display:none}}"""
+.bx{cursor:pointer}.bx.ok{opacity:.35}
+.w{cursor:pointer;transition:opacity .15s}svg.hl .w{opacity:.15}svg.hl .w.on{opacity:1}.w.done line{stroke-dasharray:4 4}.pt{cursor:pointer}.pt.ok rect{fill-opacity:.1;stroke-dasharray:.6 .6}.pt.ok text{opacity:.4}
+.legend{margin:12px 0}.legend span{display:inline-block;margin-right:12px;font-size:12px;color:var(--mut)}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:middle}
+footer{color:var(--mut);font-size:13px;padding:10px 0 40px}
+@media print{header{background:#fff;color:#000}.bar,button,.chips{display:none}}"""
+
+NAV = [("bom.html", "BOM"), ("wiring-by-section.html", "Wiring"), ("schematic-sections.html", "Schematic"), ("pcb-floorplan.html", "PCB floorplan")]
+HEAD_SUB = "ESP32-C3 water tank sensor node &middot; ultrasonic, float, 5-probe, LDR, DHT11 &middot; LCSC listings read 2026-11-05 &middot; Sheet N here = Sheet N on every page"
+
+
+def head(title, sub, nav="", active="bom.html", stats=""):
+    nv = "".join(f'<a class="{"on" if f == active else ""}" href="{f}">{n}</a>' for f, n in NAV)
+    return (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title)}</title><style>{CSS}</style></head><body>'
+            f'<header><div class="wrap"><h1>{e(title)}</h1><p>{sub}</p><nav>{nv}</nav></div></header><div class="wrap">' + stats +
+            '<div class="warn"><b>Plan stage.</b> Planned design, not a finished schematic or PCB: nets come from PLAN.md, pin names and footprints must be checked in EasyEDA and against datasheets. The optional HLK 230 V block involves mains voltage: engineer review before any mains power; use the 5 V adapter or USB if unsure.</div>' + nav)
+
+
+def links():
+    return '<footer id="top-all">Generated by <code>tools/gen_docs.py</code>. Prices are the first LCSC tier shown and change daily; stock is from the check date. Datasheets of some parts are not read yet (see PLAN.md, section 11).</footer>'
+
 
 NETCOL = {"GND": "#8a93a3", "+5V": "#fb8c00", "+5V_HLK": "#fb8c00", "DC_IN": "#fb8c00", "DC_F": "#fb8c00", "VBUS": "#fb8c00", "+3V3": "#f4b400"}
 RAILS = ("+5V", "+5V_HLK", "VBUS", "+3V3")
@@ -46,17 +92,6 @@ def ncol(n):
     if n.startswith(("FLOAT", "US_", "ECHO")): return "#2fbf71"
     if n in ("EN", "BOOT", "EXP", "LDR", "DHT") or n.startswith(("LED",)): return "#a66cff"
     return "#00bcd4"
-
-
-def head(title, sub, nav=""):
-    return (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title)}</title><style>{CSS}</style></head><body><main>'
-            f'<div class="hero"><h1>{e(title)}</h1><p>{sub}</p></div>'
-            '<div class="warn"><b>Plan stage.</b> Planned design, not a finished schematic or PCB: nets come from PLAN.md, pin names and footprints must be checked in EasyEDA and against datasheets. The optional HLK 230 V block involves mains voltage: engineer review before any mains power; use the 5 V adapter or USB if unsure.</div>' + nav)
-
-
-def links():
-    return ('<p class="mut" id="top-all">Pages: <a href="page1-power.html">1 Power</a> &middot; <a href="page2-esp32-core.html">2 ESP32-C3 core</a> &middot; <a href="page3-sensors.html">3 Sensors</a> &middot; '
-            '<a href="schematic-guide.html">schematic guide</a> &middot; <a href="connection-diagram.html">connection map</a> &middot; <a href="pcb-section-guide.html">PCB layout guide</a></p>')
 
 
 # ------------------------------------------------------------------ BOM files
@@ -136,71 +171,104 @@ def section_svg(sid):
 D_RAILS = set(RAILS)
 
 
-# ------------------------------------------------------------------ combined BOM + wiring pages
-PAGE_FILES = {"p1": "page1-power.html", "p2": "page2-esp32-core.html", "p3": "page3-sensors.html"}
-PAGE_BY = {p[0]: p for p in D.PAGES}
+def tagcls(status):
+    return "VERIFIED" if status.startswith("VERIFIED") else "LISTING"
 
 
-def sec_cost(sid):
-    return sum(p[4] * D.INFO[p[3]][3] for p in D.PARTS if p[1] == sid)
+def sheet_color(secs):
+    return D.SEC[secs[0]][2]
 
 
-def page_combo(pid):
-    _, ptitle, secs = PAGE_BY[pid]
-    refs = [p[0] for p in D.PARTS if p[1] in secs]
-    n_pieces = sum(p[4] for p in D.PARTS if p[1] in secs)
-    cost = sum(sec_cost(s) for s in secs)
-    nav = "<nav>"
-    for k in PAGE_FILES:
-        col = D.SEC[PAGE_BY[k][2][0]][2]
-        cur = ";outline:3px solid var(--fg)" if k == pid else ""
-        nav += f'<a style="background:{col}{cur}" href="{PAGE_FILES[k]}">{e(PAGE_BY[k][1])}</a>'
-    nav += "</nav>"
-    sub = (f"BOM and wiring together: for every section the parts table (tick each part when placed in EasyEDA) sits above its pin-to-net diagram. "
-           f"Tick a part and its box in the diagram fades; click a wire to mark the net wired. {len(refs)} part lines, {n_pieces} pieces, about ${cost:.2f} on this page. Progress is saved in this browser.")
-    o = [head("TankPilot - " + ptitle, sub, nav)]
-    o.append('<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><progress id="pg" value="0" max="1" style="width:240px"></progress><span id="pt" class="mut"></span><input type="search" id="q" placeholder="Filter parts" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)"><button id="rs">Reset ticks</button></div>')
-    o.append('<p class="legend"><span><i style="background:#e53935"></i>AC (optional HLK)</span><span><i style="background:#fb8c00"></i>5 V / VBUS</span><span><i style="background:#f4b400"></i>3.3 V</span><span><i style="background:#8a93a3"></i>GND</span><span><i style="background:#2fbf71"></i>sensor signals</span><span><i style="background:#ec407a"></i>probes</span><span><i style="background:#8e24aa"></i>USB</span><span><i style="background:#a66cff"></i>MCU control</span><span><i style="background:#00bcd4"></i>other nets</span></p>')
+def page_bom():
+    total = len(D.PARTS)
     tot = D.totals()
-    if pid == "p1":
-        o.append('<div class="rec"><b>Whole board: about USD %.2f</b> (%d pieces); <b>USD %.2f without</b> the optional HLK 230 V parts (USD %.2f: HLK-5M05, fuse + clips, varistor, AC terminal, diode, capacitor). PCB, sensors, enclosure and the 5 V adapter are not included. Stock and prices change daily (LCSC tiers from 2026-11-05 / 2026-10-28).</div>' % (tot[0], D.TOTAL_PIECES, tot[2], tot[1]))
-    for sid in secs:
-        _, title, col, desc = D.SEC[sid]
-        parts = [p for p in D.PARTS if p[1] == sid]
-        o.append(f'<section class="card" id="sec-{sid}" data-sec="{sid}" style="--c:{col}"><h2>{e(title)}<span class="cnt">{len(parts)} parts, about ${sec_cost(sid):.2f} &middot; <span class="pdone">0</span> placed &middot; <span class="secprog"></span></span></h2><p class="mut">{e(desc)}</p>')
-        o.append('<div class="scroll"><table><thead><tr><th></th><th>Ref</th><th>Part</th><th>LCSC #</th><th>MPN</th><th>Qty</th><th>Stock</th><th>$</th></tr></thead><tbody>')
-        for ref, s, name, c, q, pins in parts:
-            mpn, mk, st, pr, tier, status = D.INFO[c]
-            opt = ' <span class="tag opt">optional</span>' if ref in D.OPTIONAL else ""
-            o.append(f'<tr data-ref="{ref}"><td><input type="checkbox" class="ck" data-k="{ref}"></td><td><b>{ref}</b></td><td>{e(name)}{opt}</td><td><a href="https://www.lcsc.com/product-detail/{c}.html" target="_blank" rel="noopener">{c}</a></td><td>{e(mpn)}</td><td>{q}</td><td class="mut">{st}</td><td class="mut">{pr:.4f}</td></tr>')
-        o.append('</tbody></table></div><h3>Wiring (pin to net)</h3><div class="scroll">' + section_svg(sid) + '</div></section>')
-    o.append(links() + COMBO_JS)
+    stats = ('<div class="stats top">'
+             f'<div class="stat"><b>{D.TOTAL_PIECES}</b><span>parts per board</span></div>'
+             f'<div class="stat"><b>{len(D.PAGES)}</b><span>schematic sheets</span></div>'
+             f'<div class="stat"><b id="cost">${tot[0]:.2f}</b><span>parts cost, 1st price tier</span></div>'
+             '<div class="stat"><b id="ticked">0%</b><span>ticked off</span></div></div>')
+    o = [head("TankPilot - Bill of materials", HEAD_SUB, "", "bom.html", stats)]
+    o.append('<div class="bar"><input type="search" id="q" placeholder="Search ref, MPN, C-number, function..."><label>Boards <input type="number" id="boards" min="1" value="1"></label>'
+             '<label><input type="checkbox" id="hlk" checked> include optional HLK 230 V parts</label><button id="copy">Copy all C-numbers</button><button class="ghost" id="reset">Clear ticks</button></div><div class="prog"><i id="pbar"></i></div>')
+    o.append('<div class="rec"><b>Whole board about USD %.2f</b> (%d pieces); <b>USD %.2f without</b> the optional HLK 230 V parts (USD %.2f: HLK-5M05, fuse + clips, varistor, AC terminal, diode, capacitor). PCB, sensors, enclosure and the 5 V adapter are not included.</div>' % (tot[0], D.TOTAL_PIECES, tot[2], tot[1]))
+    for n, (pid, ptitle, secs) in enumerate(D.PAGES, 1):
+        parts = [p for p in D.PARTS if p[1] in secs]
+        cost = sum(p[4] * D.INFO[p[3]][3] for p in parts)
+        o.append(f'<section class="card" id="{pid}" style="--c:{sheet_color(secs)}"><h2>{e(ptitle)}<span class="cnt">{len(parts)} lines, {sum(p[4] for p in parts)} pieces, about ${cost:.2f}</span></h2>')
+        o.append('<div class="scroll"><table><thead><tr><th></th><th>Ref</th><th>Function</th><th>Part</th><th>LCSC #</th><th>Qty</th><th>Stock</th><th>$ each</th></tr></thead><tbody>')
+        for sid in secs:
+            o.append(f'<tr><td colspan="8" style="background:{D.SEC[sid][2]}22"><b>{e(D.SEC[sid][1])}</b></td></tr>')
+            for ref, s, name, c, q, pins in D.PARTS:
+                if s != sid:
+                    continue
+                mpn, mk, st, pr, tier, status = D.INFO[c]
+                opt = ref in D.OPTIONAL or s == "hlk"
+                tg = ' <span class="tag opt">optional</span>' if opt else ""
+                o.append(f'<tr data-ref="{ref}" data-sub="{q*pr:.4f}" data-opt="{1 if s == "hlk" else 0}" data-c="{c}" data-q="{q}"><td><input type="checkbox" class="ck" data-k="{ref}"></td><td class="ref"><b>{ref}</b></td>'
+                         f'<td class="f">{e(name)}{tg}</td><td><span class="mpn">{e(mpn)}</span><span class="note">{e(mk)}</span><span class="tag {tagcls(status)}">{e(status.split(";")[0].split(" ")[0])}</span><span class="note">{e(status)}</span></td>'
+                         f'<td><a href="https://www.lcsc.com/product-detail/{c}.html" target="_blank" rel="noopener">{c}</a></td><td class="n">{q}</td><td class="n">{st}</td><td class="n">{pr:.4f} <span class="note">{tier}</span></td></tr>')
+        o.append("</tbody></table></div></section>")
+    o.append(links() + """<script>
+const K='tank-bom-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
+const rows=[...document.querySelectorAll('tr[data-ref]')],cks=[...document.querySelectorAll('.ck')];
+function money(){const b=Math.max(1,+document.getElementById('boards').value||1),inc=document.getElementById('hlk').checked;let s=0;
+ rows.forEach(r=>{const off=r.dataset.opt==='1'&&!inc;r.style.opacity=off?'.3':'';if(!off)s+=+r.dataset.sub});document.getElementById('cost').textContent='$'+(s*b).toFixed(2)}
+function upd(){const n=cks.filter(c=>c.checked).length;document.getElementById('ticked').textContent=Math.round(100*n/cks.length)+'%';document.getElementById('pbar').style.width=(100*n/cks.length)+'%';
+ rows.forEach(r=>r.classList.toggle('done',r.querySelector('.ck').checked));try{localStorage.setItem(K,JSON.stringify(Object.fromEntries(cks.filter(c=>c.checked).map(c=>[c.dataset.k,1]))))}catch(e){}}
+cks.forEach(c=>{c.checked=!!st[c.dataset.k];c.addEventListener('change',upd)});
+document.getElementById('reset').onclick=()=>{cks.forEach(c=>c.checked=false);upd()};
+document.getElementById('boards').oninput=money;document.getElementById('hlk').onchange=money;
+document.getElementById('q').oninput=ev=>{const v=ev.target.value.toLowerCase();rows.forEach(r=>r.style.display=r.innerText.toLowerCase().includes(v)?'':'none')};
+document.getElementById('copy').onclick=()=>{const b=Math.max(1,+document.getElementById('boards').value||1),inc=document.getElementById('hlk').checked,m={};
+ rows.forEach(r=>{if(r.dataset.opt==='1'&&!inc)return;m[r.dataset.c]=(m[r.dataset.c]||0)+(+r.dataset.q)*b});
+ const t=Object.entries(m).map(([c,q])=>c+','+q).join('\\n');const btn=document.getElementById('copy');
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{btn.textContent='Copied '+Object.keys(m).length+' lines (C#,qty)'},()=>{prompt('Copy:',t)})};
+upd();money();
+</script></div></body></html>""")
     return "".join(o)
 
 
-COMBO_JS = """<script>
-const K='tank-combo-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
-const cks=[...document.querySelectorAll('.ck')],svgs=[...document.querySelectorAll('svg.dia')];
+EXTERNAL = [
+ ("5 V in (J1, J10 or J5)", "Regulated <b>5 V only</b>. Use <b>one</b> of: J1 DC jack 5.5 / 2.1 mm (centre +), J10 2-pin screw terminal (pin 1 = +5 V, pin 2 = GND) or USB-C J5. The PTC F1 limits to about 0.5 A on J1 / J10. Never 12 V."),
+ ("Optional mains (J9, HLK block)", "L and N from a breaker, strain-relieved, in an IP65 box, away from the probe wiring. Leave the whole HLK block off unless an engineer has reviewed it. Mains is near water here."),
+ ("Ultrasonic (J2)", "Pin 1 +5 V, pin 2 TRIG, pin 3 ECHO, pin 4 GND (JSN-SR04T: match your module's labels). ECHO is divided to 3.3 V on the board."),
+ ("Float switch (J3)", "Two wires, either way round, dry contact only (never mains or the pump contactor on the same wires). One float input only."),
+ ("Probes (J4 + J8)", "J4: 1 COM, 2 = 20 %, 3 = 40 %. J8: 1 = 60 %, 2 = 80 %, 3 = FULL. With the 5-probe kit use COM + 4 levels and leave one terminal empty. Wire COM to the longest probe."),
+ ("LDR (J11)", "Two wires to an LDR, either way round, up to a few metres of cable."),
+ ("DHT11 (J12)", "Pin 1 +3V3, pin 2 DATA, pin 3 GND. Check your DHT11 board's pin order first."),
+ ("Expansion (J6, not fitted)", "Pin 1 +5 V, pin 2 +3V3, pin 3 GND, pin 4 IO2 (shared with the LDR input)."),
+ ("USB-C (J5)", "Programming, logs and 5 V. Native USB, no USB-UART chip: hold BOOT while plugging in if the first flash fails."),
+]
+
+
+def page_wiring():
+    o = [head("TankPilot - Wiring by section", HEAD_SUB.replace("LCSC listings read 2026-11-05 &middot; ", ""), "", "wiring-by-section.html")]
+    o.append('<p class="legend"><span><i style="background:#e53935"></i>AC (optional HLK)</span><span><i style="background:#fb8c00"></i>5 V / VBUS</span><span><i style="background:#f4b400"></i>3.3 V</span><span><i style="background:#8a93a3"></i>GND</span><span><i style="background:#2fbf71"></i>sensor signals</span><span><i style="background:#ec407a"></i>probes</span><span><i style="background:#8e24aa"></i>USB</span><span><i style="background:#a66cff"></i>MCU control</span><span><i style="background:#00bcd4"></i>other nets</span></p>')
+    o.append('<section class="card" style="--c:#1e3a8a"><h2>System wiring (connection map)</h2>' + map_body() + '</section>')
+    o.append('<section class="card" style="--c:#dc2626"><h2>External wiring (what you connect by hand)</h2><div class="scroll"><table><thead><tr><th>Connection</th><th>How</th></tr></thead><tbody>'
+             + "".join(f"<tr><td><b>{a}</b></td><td>{b}</td></tr>" for a, b in EXTERNAL) + '</tbody></table></div></section>')
+    o.append('<div class="bar"><progress id="pg" value="0" max="1" style="width:240px"></progress><span id="pt" class="mut"></span><button class="ghost" id="rs">Clear ticks</button></div><p class="mut">Pin-to-net per section: each box is a part (dashed = optional); the flag on a pin is the net name, put the same net label in EasyEDA and the pins join. Hover a wire to highlight its net, click to mark it wired (saved in this browser).</p>')
+    for n, (pid, ptitle, secs) in enumerate(D.PAGES, 1):
+        o.append(f'<section class="card" id="{pid}" style="--c:{sheet_color(secs)}"><h2>{e(ptitle)}</h2>')
+        for sid in secs:
+            _, title, col, desc = D.SEC[sid]
+            o.append(f'<div data-sec="{sid}" class="sec"><h3 style="color:{col}">{e(title)} <span class="mut secprog"></span></h3><p class="mut">{e(desc)}</p><div class="scroll">{section_svg(sid)}</div></div>')
+        o.append("</section>")
+    o.append(links() + """<script>
+const K='tank-wiring-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
+const svgs=[...document.querySelectorAll('svg.dia')];
 function nets(svg){return [...new Set([...svg.querySelectorAll('.w[data-net]')].map(w=>w.dataset.net))]}
-function apply(){let pd=0,nd=0,nt=0;
- cks.forEach(c=>{const on=!!st['p|'+c.dataset.k];c.checked=on;c.closest('tr').classList.toggle('ok',on);if(on)pd++});
- document.querySelectorAll('g.bx').forEach(g=>g.classList.toggle('ok',!!st['p|'+g.dataset.ref]));
- document.querySelectorAll('section.card[data-sec]').forEach(sec=>{const sid=sec.dataset.sec,svg=sec.querySelector('svg.dia'),ns=nets(svg);let d=0;
-  svg.querySelectorAll('.w[data-net]').forEach(w=>w.classList.toggle('done',!!st['n|'+sid+'|'+w.dataset.net]));ns.forEach(n=>{if(st['n|'+sid+'|'+n])d++});
-  sec.querySelector('.secprog').textContent=d+' / '+ns.length+' nets wired';sec.querySelector('.pdone').textContent=sec.querySelectorAll('.ck:checked').length+' / '+sec.querySelectorAll('.ck').length;nd+=d;nt+=ns.length});
- const total=cks.length+nt,done=pd+nd;document.getElementById('pg').max=total;document.getElementById('pg').value=done;document.getElementById('pt').textContent=pd+' / '+cks.length+' parts, '+nd+' / '+nt+' nets';
- try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
-cks.forEach(c=>c.addEventListener('change',()=>{if(c.checked)st['p|'+c.dataset.k]=1;else delete st['p|'+c.dataset.k];apply()}));
-svgs.forEach(svg=>{const sid=svg.closest('section').dataset.sec;
- svg.querySelectorAll('g.bx').forEach(g=>g.addEventListener('click',()=>{const k='p|'+g.dataset.ref;if(st[k])delete st[k];else st[k]=1;apply()}));
- svg.querySelectorAll('.w[data-net]').forEach(w=>{
+function apply(){let done=0,total=0;svgs.forEach(svg=>{const sid=svg.dataset.sec,ns=nets(svg);let d=0;
+ svg.querySelectorAll('.w[data-net]').forEach(w=>w.classList.toggle('done',!!st[sid+'|'+w.dataset.net]));ns.forEach(n=>{if(st[sid+'|'+n])d++});
+ svg.closest('.sec').querySelector('.secprog').textContent=d+' / '+ns.length+' nets wired';done+=d;total+=ns.length});
+ document.getElementById('pg').max=total;document.getElementById('pg').value=done;document.getElementById('pt').textContent=done+' / '+total+' nets wired';try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
+svgs.forEach(svg=>{const sid=svg.dataset.sec;svg.querySelectorAll('.w[data-net]').forEach(w=>{
  w.addEventListener('mouseenter',()=>{svg.classList.add('hl');svg.querySelectorAll('.w[data-net="'+w.dataset.net+'"]').forEach(x=>x.classList.add('on'))});
  w.addEventListener('mouseleave',()=>{svg.classList.remove('hl');svg.querySelectorAll('.w.on').forEach(x=>x.classList.remove('on'))});
- w.addEventListener('click',()=>{const k='n|'+sid+'|'+w.dataset.net;if(st[k])delete st[k];else st[k]=1;apply()})})});
-document.getElementById('rs').onclick=()=>{if(confirm('Clear all ticks on all TankPilot pages?')){st={};apply()}};
-document.getElementById('q').oninput=ev=>{const v=ev.target.value.toLowerCase();document.querySelectorAll('tbody tr').forEach(r=>r.style.display=r.innerText.toLowerCase().includes(v)?'':'none')};
-apply();
-</script></main></body></html>"""
+ w.addEventListener('click',()=>{const k=sid+'|'+w.dataset.net;if(st[k])delete st[k];else st[k]=1;apply()})})});
+document.getElementById('rs').onclick=()=>{if(confirm('Clear all net ticks?')){st={};apply()}};apply();
+</script></div></body></html>""")
+    return "".join(o)
 
 
 # ------------------------------------------------------------------ connection map
@@ -222,7 +290,7 @@ def arrow(pts, col, label="", dashed=False, lx=None, ly=None):
     return s
 
 
-def page_map():
+def map_body():
     cols = ["#fb8c00", "#f4b400", "#2fbf71", "#ec407a", "#8e24aa", "#e53935", "#00bcd4"]
     s = ['<svg viewBox="0 0 1240 700" width="1240" class="dia" style="color:var(--fg)"><defs>']
     for c in cols:
@@ -250,8 +318,8 @@ def page_map():
           ("4", "PROBE_COM", "C11 to J4 pin 1"), ("7", "FLOAT1", "J3 via R8, R4"), ("10", "DHT", "J12 pin 2, R23 10 k pull-up"), ("20", "US_TRIG", "J2 pin 2"), ("21", "US_ECHO", "J2 pin 3 via R15 / R16"),
           ("8", "LED_ST", "LED2 via R7"), ("9", "BOOT / PAIR", "SW2"), ("18 / 19", "USB D- / D+", "J5 via U3"), ("2", "LDR (ADC)", "J11 via R24, R22 divider, C15; also J6 pin 4"), ("EN", "EN", "SW1, R3, C8")]
     tab = "".join(f"<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td></tr>" for a, b, c in gp)
-    return (head("TankPilot - connection map", "Block-level map: power sources, 3.3 V, ESP32-C3, USB, ultrasonic, float and probe ports, with the optional HLK 230 V block.") + leg + f'<div class="scroll" style="background:var(--card);border-radius:12px;padding:8px">{"".join(s)}</div>'
-            f'<h2 style="margin-top:22px">GPIO assignment (ESP32-C3-MINI-1)</h2><div class="scroll"><table><thead><tr><th>GPIO</th><th>Net</th><th>Goes to</th></tr></thead><tbody>{tab}</tbody></table></div><p class="mut">GPIO11 to 17 belong to the module flash; GPIO2, 8, 9 are strapping pins (2 = LDR input with a 10 k pull-up, 8 LED only, 9 BOOT).</p>' + links() + "</main></body></html>")
+    return (leg + f'<div class="scroll" style="background:var(--card);border-radius:12px;padding:8px">{"".join(s)}</div>'
+            f'<h3>GPIO assignment (ESP32-C3-MINI-1)</h3><div class="scroll"><table><thead><tr><th>GPIO</th><th>Net</th><th>Goes to</th></tr></thead><tbody>{tab}</tbody></table></div><p class="mut">GPIO11 to 17 belong to the module flash; GPIO2, 8, 9 are strapping pins (2 = LDR input with a 10 k pull-up, 8 LED only, 9 BOOT).</p>')
 
 
 # ------------------------------------------------------------------ schematic guide
@@ -295,8 +363,8 @@ FINAL = ["Every net label is used at least twice. One GND, one +5V, one +3V3. AC
 
 def page_schem():
     total = len(D.PARTS) + sum(len(v) for v in PAGE_STEPS.values()) + len(SETUP) + len(FINAL)
-    o = [head("TankPilot - schematic build guide (EasyEDA Pro web)", "Draw the schematic by hand, page by page: parts to search by LCSC number, wiring steps in order, net names, checks. Progress is saved in this browser.",
-              f'<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5"><progress id="pg" value="0" max="{total}" style="width:220px"></progress><span id="pt" class="mut"></span><button id="rs">Reset ticks</button></div>')]
+    o = [head("TankPilot - Schematic by section", "Draw the schematic by hand, sheet by sheet: parts to search by LCSC number, wiring steps in order, net names, checks. Progress is saved in this browser.",
+              f'<div class="bar"><progress id="pg" value="0" max="{total}" style="width:220px"></progress><span id="pt" class="mut"></span><button class="ghost" id="rs">Reset ticks</button></div>', "schematic-sections.html")]
     o.append('<section class="card" id="setup"><h2>0. Setup</h2>' + "".join(f'<div class="step"><input type="checkbox" class="ck" data-k="setup{i}"><span><b>{i}.</b> {e(s)}</span></div>' for i, s in enumerate(SETUP, 1)) + "</section>")
     for n, (pid, ptitle, secs) in enumerate(D.PAGES, 1):
         col = D.SEC[secs[0]][2]
@@ -315,7 +383,7 @@ const K='tank-schem-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||
 const cks=[...document.querySelectorAll('.ck')];
 function upd(){const n=cks.filter(c=>c.checked).length;document.getElementById('pg').value=n;document.getElementById('pt').textContent=n+' / '+cks.length+' done';cks.forEach(c=>{const r=c.closest('tr')||c.closest('.step');if(r)r.classList.toggle('ok',c.checked)});try{localStorage.setItem(K,JSON.stringify(Object.fromEntries(cks.filter(c=>c.checked).map(c=>[c.dataset.k,1]))))}catch(e){}}
 cks.forEach(c=>{c.checked=!!st[c.dataset.k];c.addEventListener('change',upd)});document.getElementById('rs').onclick=()=>{cks.forEach(c=>c.checked=false);upd()};upd();
-</script></main></body></html>""")
+</script></div></body></html>""")
     return "".join(o)
 
 
@@ -408,8 +476,8 @@ def parts_table(block):
 def page_pcb():
     total = len(PL.L)
     used = sum(v[2] * v[3] for v in PL.L.values())
-    o = [head("TankPilot - PCB layout guide by block", "100 x 70 mm, 2 layers. One zoomed drawing, one dashed silkscreen box and one X / Y table per block; tick each part as you place it in EasyEDA (saved in this browser).",
-              '<nav>' + '<a style="background:#607d8b" href="#size">Board size</a><a style="background:#607d8b" href="#plan">Floor plan</a>' + "".join(f'<a style="background:{b[2]}" href="#{b[0]}">{e(b[1])}</a>' for b in PL.BLOCKS) + f'<a style="background:#607d8b" href="#nets">Nets</a><a style="background:#607d8b" href="#steps">Steps</a><span class="mut">placed <b id="tot">0</b> / {total}</span><div class="bar"><div id="barfill"></div></div><button id="reset">Reset ticks</button></nav>')]
+    o = [head("TankPilot - PCB floorplan 100 x 70 mm", "100 x 70 mm, 2 layers. One zoomed drawing, one dashed silkscreen box and one X / Y table per block; tick each part as you place it in EasyEDA (saved in this browser).",
+              '<div class="chips">' + '<a style="background:#607d8b" href="#size">Board size</a><a style="background:#607d8b" href="#plan">Floor plan</a>' + "".join(f'<a style="background:{b[2]}" href="#{b[0]}">{e(b[1])}</a>' for b in PL.BLOCKS) + f'<a style="background:#607d8b" href="#nets">Nets</a><a style="background:#607d8b" href="#steps">Steps</a><span class="mut">placed <b id="tot">0</b> / {total}</span><div class="pbar"><div id="barfill"></div></div><button class="ghost" id="reset">Reset ticks</button></div>', "pcb-floorplan.html")]
     o.append(f'<section class="card" id="size"><h2>Board size: 100 x 70 mm</h2><div class="rec"><b>2 layers, 1.6 mm FR-4, 1 oz copper, 100 x 70 mm, 3 mm corners, four M3 holes (3.2 mm, non-plated, no pad).</b> Parts add up to about {used:.0f} mm&sup2; of 7000 mm&sup2; ({used/70:.0f} %). The size is set by the optional 230 V block: the HLK-5M05 module alone is 38 x 23 mm and needs the fuse, varistor, AC terminal and a 6.4 mm slot. <b>Without the HLK block</b> the board shrinks to about 60 x 50 mm (nothing right of x 58 mm is needed). Both stay under 100 x 100 mm, the cheapest PCB price tier.</div>'
              f'<h3>Outline, holes, slot</h3><div class="scroll"><table><thead><tr><th>Item</th><th>X mm</th><th>Y mm</th><th>Size</th></tr></thead><tbody><tr><td>Board outline</td><td class="num">0 - 100</td><td class="num">0 - 70</td><td>100 x 70, corner radius 3 mm</td></tr>'
              + "".join(f'<tr><td>MH{i} M3 hole</td><td class="num">{hx:.1f}</td><td class="num">{hy:.1f}</td><td>3.2 mm, non-plated, no pad</td></tr>' for i, (hx, hy) in enumerate(PL.HOLES, 1))
@@ -434,7 +502,7 @@ function apply(){const total=document.querySelectorAll('#plan .pt').length;docum
 function tog(r){if(st[r])delete st[r];else st[r]=1;apply()}
 document.querySelectorAll('.pt').forEach(g=>g.addEventListener('click',()=>tog(g.dataset.ref)));document.querySelectorAll('input.ck').forEach(c=>c.addEventListener('change',()=>tog(c.dataset.k)));
 document.getElementById('reset').onclick=()=>{st={};apply()};apply();
-</script></main></body></html>""")
+</script></div></body></html>""")
     return "".join(o)
 
 
@@ -448,11 +516,14 @@ def standalone_svg():
 
 def main():
     write_bom()
-    for k, fn in PAGE_FILES.items():
-        open(os.path.join(DOCS, fn), "w", encoding="utf-8").write(page_combo(k))
-    open(os.path.join(DOCS, "schematic-guide.html"), "w", encoding="utf-8").write(page_schem())
-    open(os.path.join(DOCS, "connection-diagram.html"), "w", encoding="utf-8").write(page_map())
-    open(os.path.join(DOCS, "pcb-section-guide.html"), "w", encoding="utf-8").write(page_pcb())
+    for old in ("bom-by-section.html", "wiring-by-section.html", "connection-diagram.html", "schematic-guide.html", "pcb-section-guide.html", "page1-power.html", "page2-esp32-core.html", "page3-sensors.html"):
+        f = os.path.join(DOCS, old)
+        if os.path.exists(f) and old != "wiring-by-section.html":
+            os.remove(f)
+    open(os.path.join(DOCS, "bom.html"), "w", encoding="utf-8").write(page_bom())
+    open(os.path.join(DOCS, "wiring-by-section.html"), "w", encoding="utf-8").write(page_wiring())
+    open(os.path.join(DOCS, "schematic-sections.html"), "w", encoding="utf-8").write(page_schem())
+    open(os.path.join(DOCS, "pcb-floorplan.html"), "w", encoding="utf-8").write(page_pcb())
     open(os.path.join(DOCS, "images", "pcb-floorplan.svg"), "w", encoding="utf-8").write(standalone_svg())
     open(os.path.join(ROOT, "hardware", "bom", "bom-table.md"), "w", encoding="utf-8").write(bom_md())
     pr = PL.check()

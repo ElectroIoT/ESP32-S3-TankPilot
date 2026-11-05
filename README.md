@@ -12,10 +12,9 @@ Small low-cost board for the water tank. One board, three sensor ports, use whic
 | What | Where |
 |---|---|
 | Plan | [PLAN.md](PLAN.md) |
-| LCSC BOM v1 (68 pieces, about $10.4; $6.7 without HLK) | [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv), [page 1](docs/page1-power.html) |
-| Connection map | [docs/connection-diagram.html](docs/connection-diagram.html) |
-| BOM + wiring, 3 pages | [docs/page1-power.html](docs/page1-power.html), [page 2](docs/page2-esp32-core.html), [page 3](docs/page3-sensors.html) |
-| Schematic guide | [docs/schematic-guide.html](docs/schematic-guide.html) |
-| PCB placement guide (100 x 70 mm) | [docs/pcb-section-guide.html](docs/pcb-section-guide.html) |
+| BOM (68 pieces, about $10.4; $6.7 without HLK) | [docs/bom.html](docs/bom.html), [CSV](hardware/bom/tank-node-bom-v1.csv) |
+| Wiring (system map, external wiring, pin-to-net) | [docs/wiring-by-section.html](docs/wiring-by-section.html) |
+| Schematic by section | [docs/schematic-sections.html](docs/schematic-sections.html) |
+| PCB floorplan 100 x 70 mm | [docs/pcb-floorplan.html](docs/pcb-floorplan.html) |
 
 License: [MIT](LICENSE).

@@ -74,7 +74,7 @@ Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided 
 All 15 usable GPIOs are assigned. A UART-type ultrasonic module (A02YYUW) uses GPIO20 / GPIO21 as UART1 pins remapped in firmware.
 
 ## 6. BOM (LCSC, looked up 2026-11-05)
-Source: [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv); the BOM and wiring together, in three pages, are [docs/page1-power.html](docs/page1-power.html), [page 2](docs/page2-esp32-core.html), [page 3](docs/page3-sensors.html) and [hardware/bom/bom-table.md](hardware/bom/bom-table.md). **68 pieces, about USD 10.39 in total; about USD 6.74 without the optional HLK 230 V block** (PCB and sensors not included). Stock and prices change daily.
+Source: [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv); the BOM page is [docs/bom.html](docs/bom.html) and [hardware/bom/bom-table.md](hardware/bom/bom-table.md). **68 pieces, about USD 10.39 in total; about USD 6.74 without the optional HLK 230 V block** (PCB and sensors not included). Stock and prices change daily.
 
 Power now has **three sources (the DC jack J1 or the 2-pin screw terminal J10 for 5 V DC, USB-C, or the optional HLK), OR-ed with Schottky diodes D2 / D3 / D4**: 5 V DC jack J1 (PTC F1 + TVS D1), USB-C J5 (VBUS), and the **optional HLK-5M05 (230 V AC to 5 V, U8)** with its fuse F2, varistor RV1 and AC terminal J9. The HLK block is DNP by default. It is a **mains circuit next to a water tank: engineer review required before any build**; the datasheet asks for a 0.5 A slow fuse and a 10D561K varistor, the board has a milled isolation slot, and the box must be IP65 with the mains part separated from the probe wiring.
 
@@ -111,9 +111,9 @@ Power now has **three sources (the DC jack J1 or the 2-pin screw terminal J10 fo
 
 ## 7. PCB size and placement (for your EasyEDA layout)
 - **Size: 100 x 70 mm with the HLK 230 V block (about 60 x 50 mm if you leave that block out), 2 layers, 1.6 mm, 1 oz.** Four M3 holes, non-plated, 4 mm from the corners. Under the 100 x 100 mm cheapest tier.
-- **Thirteen silkscreen blocks**, each part inside its own rectangle (ULTRASONIC, FLOAT SWITCH, DHT11, 5 V POWER, 5 V IN TERMINAL, LDR, USB-C, PROBES, ESP32-C3, EXPANSION, HLK 5V OUT, HLK 230 V, AC IN 230 V): see [docs/pcb-section-guide.html](docs/pcb-section-guide.html) with X / Y tables and the checked floor plan (planning estimates, not EasyEDA footprints; checker reports 0 problems).
+- **Thirteen silkscreen blocks**, each part inside its own rectangle (ULTRASONIC, FLOAT SWITCH, DHT11, 5 V POWER, 5 V IN TERMINAL, LDR, USB-C, PROBES, ESP32-C3, EXPANSION, HLK 5V OUT, HLK 230 V, AC IN 230 V): see [docs/pcb-floorplan.html](docs/pcb-floorplan.html) with X / Y tables and the checked floor plan (planning estimates, not EasyEDA footprints; checker reports 0 problems).
 - Mains zone on the right, isolation slot (1.3 mm) at x 77.4 to 78.7, low-voltage parts at least 3.2 mm from the mains-only parts; U1 antenna end at the top edge with nothing above it.
-- Other pages: [connection map](docs/connection-diagram.html), [schematic guide](docs/schematic-guide.html).
+- Other pages: [wiring](docs/wiring-by-section.html), [schematic](docs/schematic-sections.html).
 - **Water and outdoors:** plastic IP65 box near the tank; conformal coating recommended; keep probe and float cables away from the antenna.
 
 ## 7b. Extra ports added 2026-11-05
