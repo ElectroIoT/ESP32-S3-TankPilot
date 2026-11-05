@@ -1,0 +1,28 @@
+Refs,Qty,Function,LCSC #,MPN,Manufacturer,Stock,Unit price USD,Tier,Status,Line total USD,Optional (HLK 230 V block)
+J1,1,DC barrel jack 5.5/2.1 mm: external 5 V in,C136744,DC-005-20A,Korean Hroparts,24115,0.1398,5+,"LISTING 2026-11-05; 2.0 mm centre pin variant, 2.1 mm plugs fit: check",0.1398,
+F1,1,"PTC fuse 0.5 A 6 V, 1206",C163512,1206L050YR,Littelfuse,11040,0.0742,10+,LISTING 2026-11-05; alt ASMD1206-050 C135338,0.0742,
+D1,1,TVS 5 V (SMAJ5.0A) across the supply,C5121739,SMAJ5.0A,Prosemi,1750,0.1056,20+,LISTING 2026-11-05 (other suppliers); cheaper alt C2991090 at 280+,0.1056,
+"D2, D3, D4",3,OPTIONAL Schottky OR-ing: HLK to +5V / Schottky OR-ing: DC jack to +5V / Schottky OR-ing: ,C2758511,UMW SS34B,UMW,77840,0.0378,20+,LISTING (same as BorePilot),0.1134,
+C1,1,470 uF 16 V bulk on +5V,C47344174,ERG16V470M8X12,JIERR,64670,0.0579,10+,LISTING,0.0579,
+U2,1,"AP2112K-3.3 LDO, SOT-25",C51118,AP2112K-3.3TRG1,Diodes Inc,4510,0.1792,5+,LISTING (stock from 2026-10-28),0.1792,
+"C2, C3, C4",3,10 uF 1206,C9807,CL31A106KAHNNNE,Samsung,493250,0.053,10+,VERIFIED listing 2026-10-28,0.1590,
+"C5, C6, C7, C8, C9, C10, C14, C12, C13",9,100 nF 1206 / 100 nF 1206 on +5V / 100 nF 1206 on VBUS / 100 nF 1206 on the sensor +5V / O,C24497,CL31B104KBCNNNC,Samsung,125980,0.0222,20+,VERIFIED listing 2026-10-28,0.1998,
+"J9, J3, J7",3,Float switch 1 terminal 2P (dry contact) / Float switch 2 terminal 2P (dry contact) / OPTI,C474952,KF128-5.08-2P-AA,Cixi Kefa,51090,0.1944,5+,LISTING; rating not read,0.5832,
+F2,1,OPTIONAL fuse 0.5 A slow-blow 5x20 (ships separately),C142727,0218.500MXP,Littelfuse,900,0.2257,5+,"LISTING 2026-10-28; 0.5 A slow-blow 5x20, HLK datasheet value",0.2257,yes
+F2H,2,OPTIONAL 5x20 fuse clips (2 pieces),C3131,BLX-A XC-7,Xucheng,85140,0.0854,5+,"LISTING 2026-10-28; 2 clips per fuse, rating to confirm",0.1708,yes
+RV1,1,OPTIONAL varistor 560 V (10D561K) across L-N,C2839517,10D561K,Surging,38910,0.0494,10+,LISTING 2026-10-28; varistor value from the HLK datasheet,0.0494,yes
+U8,1,OPTIONAL HLK-5M05 AC-DC 5 V 1 A module,C209907,HLK-5M05,Hi-Link,3052,2.9474,1+,"VERIFIED + datasheet read (BorePilot work); 38 x 23 x 18 mm, 90-265 VAC, 3000 VAC isolation",2.9474,yes
+J5,1,USB-C 16-pin receptacle (programming and 5 V),C165948,TYPE-C-31-M-12,Korean Hroparts,283620,0.1886,5+,VERIFIED 2026-10-28 (same as BorePilot),0.1886,
+"U3, U4, U5, U6, U7",5,OPTIONAL USBLC6 ESD: 40 % + 60 % / OPTIONAL USBLC6 ESD: 80 % + FULL / OPTIONAL USBLC6 ESD:,C7519,USBLC6-2SC6,ST,39325,0.1814,5+,LISTING (stock from 2026-10-28),0.9070,
+"R1, R2",2,5.1 k 1206,C26033,1206W4F5101T5E,Uni-Royal,166000,0.005,100+,VERIFIED listing,0.0100,
+U1,1,ESP32-C3-MINI-1-N4 module,C2838502,ESP32-C3-MINI-1-N4,Espressif,15184,3.0672,1+,LISTING 2026-11-05; datasheet v1.7 pin table read,3.0672,
+"SW1, SW2",2,BOOT / PAIR button (GPIO9) / Reset button (EN),C318884,TS-1187A-B-A-B,XKB,887660,0.0208,20+,LISTING (stock from 2026-10-28),0.0416,
+"R3, R4, R5",3,10 k 1206,C17902,1206W4F1002T5E,Uni-Royal,1059900,0.0079,100+,VERIFIED listing,0.0237,
+LED1,1,Red LED: power (3.3 V),C965798,XL-1608SURC-04,Xinglight,270700,0.0057,100+,"LISTING (red, inferred from name)",0.0057,
+"R6, R7, R15, R8, R9, R10, R11, R12, R13, R14",10,1 k 1206,C4410,1206W4F1001T5E,Uni-Royal,655650,0.0086,50+,VERIFIED listing,0.0860,
+LED2,1,Green LED: status (GPIO8),C2986059,19-217/GHC-YR1S2/6T,Everlight,718400,0.018,50+,"LISTING (green, inferred from name)",0.0180,
+"J6, J2",2,OPTIONAL expansion header 1x4 (5V / Ultrasonic sensor header 1x4 (JSN-SR04T / HC-SR04),C2691448,PZ254V-11-04P,XFCN,591680,0.0264,20+,LISTING (stock from 2026-10-28),0.0528,
+R16,1,"2 k 1206, ECHO divider to GND",C17944,1206W4F2001T5E,Uni-Royal,1321900,0.0078,100+,LISTING 2026-11-05,0.0078,
+"J4, J8",2,Probe terminal 3P: 60 % / Probe terminal 3P: COM,C474953,KF128-5.08-3P-AA,Cixi Kefa,8510,0.3251,5+,LISTING (stock from 2026-10-28); no 6P part on LCSC,0.6502,
+C11,1,1 uF 1206 coupling capacitor on PROBE_COM (no DC in the water),C1848,CL31B105KBHNNNE,Samsung,147470,0.0628,10+,LISTING 2026-11-05,0.0628,
+"R17, R18, R19, R20, R21",5,470 k 1206,C17997,1206W4F4703T5E,Uni-Royal,9000,0.0074,100+,LISTING 2026-11-05; value to tune on the bench,0.0370,

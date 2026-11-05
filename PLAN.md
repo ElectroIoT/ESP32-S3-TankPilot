@@ -73,44 +73,47 @@ Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided 
 
 All 15 usable GPIOs are assigned. A UART-type ultrasonic module (A02YYUW) uses GPIO20 / GPIO21 as UART1 pins remapped in firmware.
 
-## 6. BOM (LCSC, looked up 2026-11-05; "verified" = C# matched on the page earlier in the BorePilot work)
-Source: [hardware/bom/tank-node-bom-v0.csv](hardware/bom/tank-node-bom-v0.csv). Prices are the lowest tier shown (USD) and change daily; resistor and capacitor counts are estimates.
+## 6. BOM (LCSC, looked up 2026-11-05)
+Source: [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv); the full table by section is in [docs/bom-by-section.html](docs/bom-by-section.html) and [hardware/bom/bom-table.md](hardware/bom/bom-table.md). **65 pieces, about USD 10.16 in total; about USD 6.52 without the optional HLK 230 V block** (PCB and sensors not included). Stock and prices change daily.
 
-| Ref | Qty | Function | MPN | LCSC | Stock | Unit $ (tier) | Status |
-|---|---|---|---|---|---|---|---|
-| U1 | 1 | ESP32-C3 module, 4 MB flash, PCB antenna (default MCU) | ESP32-C3-MINI-1-N4 | [C2838502](https://www.lcsc.com/product-detail/C2838502.html) | 15184 | 3.0672 (1+) | LISTING 2026-11-05 |
-| U2 | 1 | 3.3 V LDO 600 mA SOT-25 | AP2112K-3.3TRG1 | [C51118](https://www.lcsc.com/product-detail/C51118.html) | 4510 | 0.1792 (5+) | LISTING (stock from 2026-10-28) |
-| U3,U4,U5 | 3 | ESD array: USB D+/D- (U3) and 2 field-input pairs (U4 floats, U5 probes) | USBLC6-2SC6 | [C7519](https://www.lcsc.com/product-detail/C7519.html) | 39325 | 0.1814 (5+) | LISTING (stock from 2026-10-28) |
-| J1 | 1 | DC barrel jack 5.5/2.1 mm, 5 V in | DC-005-20A | [C136744](https://www.lcsc.com/product-detail/C136744.html) | 24115 | 0.1398 (5+) | LISTING 2026-11-05; '20A' = 2.0 mm centre pin, 2.1 mm plugs fit - check |
-| J5 | 1 | USB-C 16-pin receptacle (programming and 5 V) | TYPE-C-31-M-12 | [C165948](https://www.lcsc.com/product-detail/C165948.html) | 283620 | 0.1886 (5+) | VERIFIED 2026-10-28 (same as BorePilot) |
-| F1 | 1 | PTC resettable fuse 0.5 A 6 V, 1206 | 1206L050YR | [C163512](https://www.lcsc.com/product-detail/C163512.html) | 11040 | 0.0742 (10+) | LISTING 2026-11-05; alt ASMD1206-050 C135338 |
-| D1 | 1 | TVS 5 V on the supply, SMA | SMAJ5.0A | [C5121739](https://www.lcsc.com/product-detail/C5121739.html) | 1750 | 0.1056 (20+) | LISTING 2026-11-05 (other suppliers); cheaper alt C2991090 at 280+ |
-| D2,D3 | 2 | Schottky OR-ing: DC jack and USB VBUS to +5V | UMW SS34B | [C2758511](https://www.lcsc.com/product-detail/C2758511.html) | 77840 | 0.0378 (20+) | LISTING (same as BorePilot) |
-| J2 | 1 | 1x4 2.54 header: ultrasonic sensor (5V, TRIG, ECHO, GND) | PZ254V-11-04P | [C2691448](https://www.lcsc.com/product-detail/C2691448.html) | 591680 | 0.0264 (20+) | LISTING (stock from 2026-10-28) |
-| J3,J7 | 2 | 2P 5.08 screw terminal x2: float switch 1 (J3) and float switch 2 (J7), dry contact to GND | KF128-5.08-2P-AA | [C474952](https://www.lcsc.com/product-detail/C474952.html) | 51090 | 0.1944 (5+) | LISTING; rating not read |
-| J4 | 1 | 3P 5.08 screw terminal: conductive probes (COM, LOW, HIGH) | KF128-5.08-3P-AA | [C474953](https://www.lcsc.com/product-detail/C474953.html) | 8510 | 0.3251 (5+) | LISTING (stock from 2026-10-28) |
-| J6 | 1 | 1x6 2.54 header: expansion (5V, 3V3, GND, IO3, IO20, IO21), not fitted by default | PZ254V-11-06P | [C492405](https://www.lcsc.com/product-detail/C492405.html) | 70720 | 0.0410 (20+) | LISTING (stock from 2026-10-28) |
-| SW1,SW2 | 2 | Tact switches: EN reset, BOOT / PAIR | TS-1187A-B-A-B | [C318884](https://www.lcsc.com/product-detail/C318884.html) | 887660 | 0.0208 (20+) | LISTING (stock from 2026-10-28) |
-| LED1 | 1 | 0603 red LED: power | XL-1608SURC-04 | [C965798](https://www.lcsc.com/product-detail/C965798.html) | 270700 | 0.0057 (100+) | LISTING |
-| LED2 | 1 | 0603 green LED: status | 19-217/GHC-YR1S2/6T | [C2986059](https://www.lcsc.com/product-detail/C2986059.html) | 718400 | 0.0180 (50+) | LISTING |
-| C1 | 1 | 470 uF 16 V electrolytic 5 V bulk | ERG16V470M8X12 | [C47344174](https://www.lcsc.com/product-detail/C47344174.html) | 64670 | 0.0579 (10+) | LISTING |
-| C2,C3,C4 | 3 | 10 uF 1206 (LDO in/out, module 3V3) | CL31A106KAHNNNE | [C9807](https://www.lcsc.com/product-detail/C9807.html) | 493250 | 0.0530 (10+) | VERIFIED listing 2026-10-28 |
-| C5-C10 | 6 | 100 nF 1206 decoupling and filter | CL31B104KBCNNNC | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | 0.0222 (20+) | VERIFIED listing 2026-10-28 |
-| C11 | 1 | 1 uF 1206 coupling capacitor on the probe COM line (blocks DC across the water) | CL31B105KBHNNNE | [C1848](https://www.lcsc.com/product-detail/C1848.html) | 147470 | 0.0628 (10+) | LISTING 2026-11-05 |
-| R1,R2 | 2 | 5.1 k 1206 USB-C CC1 and CC2 | 1206W4F5101T5E | [C26033](https://www.lcsc.com/product-detail/C26033.html) | 166000 | 0.0050 (100+) | VERIFIED listing |
-| R3-R5 | 3 | 10 k 1206: EN pull-up, float pull-ups (2) | 1206W4F1002T5E | [C17902](https://www.lcsc.com/product-detail/C17902.html) | 1059900 | 0.0079 (100+) | VERIFIED listing |
-| R6-R12 | 7 | 1 k 1206: LED series (2), float series (2), probe series (2), echo series (1) | 1206W4F1001T5E | [C4410](https://www.lcsc.com/product-detail/C4410.html) | 655650 | 0.0086 (50+) | VERIFIED listing; count estimated |
-| R13 | 1 | 2 k 1206: echo divider lower leg (5 V to 3.3 V) | 1206W4F2001T5E | [C17944](https://www.lcsc.com/product-detail/C17944.html) | 1321900 | 0.0078 (100+) | LISTING 2026-11-05 |
-| R14,R15 | 2 | 470 k 1206: probe line pull-downs (LOW, HIGH) | 1206W4F4703T5E | [C17997](https://www.lcsc.com/product-detail/C17997.html) | 9000 | 0.0074 (100+) | LISTING 2026-11-05; value to tune on the bench |
+Power now has **three sources, OR-ed with Schottky diodes D2 / D3 / D4**: 5 V DC jack J1 (PTC F1 + TVS D1), USB-C J5 (VBUS), and the **optional HLK-5M05 (230 V AC to 5 V, U8)** with its fuse F2, varistor RV1 and AC terminal J9. The HLK block is DNP by default. It is a **mains circuit next to a water tank: engineer review required before any build**; the datasheet asks for a 0.5 A slow fuse and a 10D561K varistor, the board has a milled isolation slot, and the box must be IP65 with the mains part separated from the probe wiring.
 
-**Rough parts total: about USD 6.7** (59 pieces, PCB and sensors not included). Sensors you supply: JSN-SR04T about Rs 400 to 600, float switch about Rs 100 to 300, the probe kit (your Amazon item), a 5 V adapter.
+| Refs | Qty | Function | LCSC | Stock | Unit $ (tier) | Status |
+|---|---|---|---|---|---|---|
+| J1 | 1 | DC barrel jack 5.5/2.1 mm: external 5 V in | [C136744](https://www.lcsc.com/product-detail/C136744.html) DC-005-20A | 24115 | 0.1398 (5+) | LISTING 2026-11-05; 2.0 mm centre pin variant, 2.1 mm plugs fit: check |
+| F1 | 1 | PTC fuse 0.5 A 6 V, 1206 | [C163512](https://www.lcsc.com/product-detail/C163512.html) 1206L050YR | 11040 | 0.0742 (10+) | LISTING 2026-11-05; alt ASMD1206-050 C135338 |
+| D1 | 1 | TVS 5 V (SMAJ5.0A) across the supply | [C5121739](https://www.lcsc.com/product-detail/C5121739.html) SMAJ5.0A | 1750 | 0.1056 (20+) | LISTING 2026-11-05 (other suppliers); cheaper alt C2991090 at 280+ |
+| D2, D3, D4 | 3 | OPTIONAL Schottky OR-ing: HLK to +5V / Schottky OR-ing: DC jack to +5V / Schottky OR-ing:  | [C2758511](https://www.lcsc.com/product-detail/C2758511.html) UMW SS34B | 77840 | 0.0378 (20+) | LISTING (same as BorePilot) |
+| C1 | 1 | 470 uF 16 V bulk on +5V | [C47344174](https://www.lcsc.com/product-detail/C47344174.html) ERG16V470M8X12 | 64670 | 0.0579 (10+) | LISTING |
+| U2 | 1 | AP2112K-3.3 LDO, SOT-25 | [C51118](https://www.lcsc.com/product-detail/C51118.html) AP2112K-3.3TRG1 | 4510 | 0.1792 (5+) | LISTING (stock from 2026-10-28) |
+| C2, C3, C4 | 3 | 10 uF 1206 | [C9807](https://www.lcsc.com/product-detail/C9807.html) CL31A106KAHNNNE | 493250 | 0.0530 (10+) | VERIFIED listing 2026-10-28 |
+| C5, C6, C7, C8, C9, C10, C14, C12, C13 | 9 | 100 nF 1206 / 100 nF 1206 on +5V / 100 nF 1206 on VBUS / 100 nF 1206 on the sensor +5V / O | [C24497](https://www.lcsc.com/product-detail/C24497.html) CL31B104KBCNNNC | 125980 | 0.0222 (20+) | VERIFIED listing 2026-10-28 |
+| J9, J3, J7 | 3 | Float switch 1 terminal 2P (dry contact) / Float switch 2 terminal 2P (dry contact) / OPTI | [C474952](https://www.lcsc.com/product-detail/C474952.html) KF128-5.08-2P-AA | 51090 | 0.1944 (5+) | LISTING; rating not read |
+| F2 | 1 | OPTIONAL fuse 0.5 A slow-blow 5x20 (ships separately) | [C142727](https://www.lcsc.com/product-detail/C142727.html) 0218.500MXP | 900 | 0.2257 (5+) | LISTING 2026-10-28; 0.5 A slow-blow 5x20, HLK datasheet value |
+| F2H | 2 | OPTIONAL 5x20 fuse clips (2 pieces) | [C3131](https://www.lcsc.com/product-detail/C3131.html) BLX-A XC-7 | 85140 | 0.0854 (5+) | LISTING 2026-10-28; 2 clips per fuse, rating to confirm |
+| RV1 | 1 | OPTIONAL varistor 560 V (10D561K) across L-N | [C2839517](https://www.lcsc.com/product-detail/C2839517.html) 10D561K | 38910 | 0.0494 (10+) | LISTING 2026-10-28; varistor value from the HLK datasheet |
+| U8 | 1 | OPTIONAL HLK-5M05 AC-DC 5 V 1 A module | [C209907](https://www.lcsc.com/product-detail/C209907.html) HLK-5M05 | 3052 | 2.9474 (1+) | VERIFIED + datasheet read (BorePilot work); 38 x 23 x 18 mm, 90-265 VAC, 3000 VAC isolation |
+| J5 | 1 | USB-C 16-pin receptacle (programming and 5 V) | [C165948](https://www.lcsc.com/product-detail/C165948.html) TYPE-C-31-M-12 | 283620 | 0.1886 (5+) | VERIFIED 2026-10-28 (same as BorePilot) |
+| U3, U4, U5, U6, U7 | 5 | OPTIONAL USBLC6 ESD: 40 % + 60 % / OPTIONAL USBLC6 ESD: 80 % + FULL / OPTIONAL USBLC6 ESD: | [C7519](https://www.lcsc.com/product-detail/C7519.html) USBLC6-2SC6 | 39325 | 0.1814 (5+) | LISTING (stock from 2026-10-28) |
+| R1, R2 | 2 | 5.1 k 1206 | [C26033](https://www.lcsc.com/product-detail/C26033.html) 1206W4F5101T5E | 166000 | 0.0050 (100+) | VERIFIED listing |
+| U1 | 1 | ESP32-C3-MINI-1-N4 module | [C2838502](https://www.lcsc.com/product-detail/C2838502.html) ESP32-C3-MINI-1-N4 | 15184 | 3.0672 (1+) | LISTING 2026-11-05; datasheet v1.7 pin table read |
+| SW1, SW2 | 2 | BOOT / PAIR button (GPIO9) / Reset button (EN) | [C318884](https://www.lcsc.com/product-detail/C318884.html) TS-1187A-B-A-B | 887660 | 0.0208 (20+) | LISTING (stock from 2026-10-28) |
+| R3, R4, R5 | 3 | 10 k 1206 | [C17902](https://www.lcsc.com/product-detail/C17902.html) 1206W4F1002T5E | 1059900 | 0.0079 (100+) | VERIFIED listing |
+| LED1 | 1 | Red LED: power (3.3 V) | [C965798](https://www.lcsc.com/product-detail/C965798.html) XL-1608SURC-04 | 270700 | 0.0057 (100+) | LISTING (red, inferred from name) |
+| R6, R7, R15, R8, R9, R10, R11, R12, R13, R14 | 10 | 1 k 1206 | [C4410](https://www.lcsc.com/product-detail/C4410.html) 1206W4F1001T5E | 655650 | 0.0086 (50+) | VERIFIED listing |
+| LED2 | 1 | Green LED: status (GPIO8) | [C2986059](https://www.lcsc.com/product-detail/C2986059.html) 19-217/GHC-YR1S2/6T | 718400 | 0.0180 (50+) | LISTING (green, inferred from name) |
+| J6, J2 | 2 | OPTIONAL expansion header 1x4 (5V / Ultrasonic sensor header 1x4 (JSN-SR04T / HC-SR04) | [C2691448](https://www.lcsc.com/product-detail/C2691448.html) PZ254V-11-04P | 591680 | 0.0264 (20+) | LISTING (stock from 2026-10-28) |
+| R16 | 1 | 2 k 1206, ECHO divider to GND | [C17944](https://www.lcsc.com/product-detail/C17944.html) 1206W4F2001T5E | 1321900 | 0.0078 (100+) | LISTING 2026-11-05 |
+| J4, J8 | 2 | Probe terminal 3P: 60 % / Probe terminal 3P: COM | [C474953](https://www.lcsc.com/product-detail/C474953.html) KF128-5.08-3P-AA | 8510 | 0.3251 (5+) | LISTING (stock from 2026-10-28); no 6P part on LCSC |
+| C11 | 1 | 1 uF 1206 coupling capacitor on PROBE_COM (no DC in the water) | [C1848](https://www.lcsc.com/product-detail/C1848.html) CL31B105KBHNNNE | 147470 | 0.0628 (10+) | LISTING 2026-11-05 |
+| R17, R18, R19, R20, R21 | 5 | 470 k 1206 | [C17997](https://www.lcsc.com/product-detail/C17997.html) 1206W4F4703T5E | 9000 | 0.0074 (100+) | LISTING 2026-11-05; value to tune on the bench |
 
-## 7. PCB size and placement hints (for your EasyEDA layout)
-- **Size: 70 x 50 mm, 2 layers, 1.6 mm, 1 oz** (the two 3P probe terminals alone are about 31 mm wide). Four M3 holes, 3.2 mm, non-plated, 4 mm from the corners. This stays far under the 100 x 100 mm cheapest-tier limit.
-- **Edges:** left edge J1 (DC jack) and J5 (USB-C); top edge J2 (ultrasonic header), J3 and J7 (floats) and J6; bottom edge J4 and J8 side by side (the six probe wires, cable entry downward). Module U1 at the right edge with its **antenna end over the board edge or a copper keep-out under it** (ESP32-C3-MINI-1 has a PCB antenna): nothing under the antenna.
-- **Silkscreen:** one dashed box per port with its title (ULTRASONIC, FLOAT 1, FLOAT 2, PROBES, POWER, USB) like the BorePilot guide; label every terminal pin (COM, 20%, 40%, 60%, 80%, FULL, F, GND, 5V, TRIG, ECHO) and "5 V DC ONLY" at the jack.
-- **Placement:** U2 and its capacitors next to C1; F1, D1, D2 and D3 between the jack and C1; U3 close to J5; U4 and U5 close to their terminals; R12 / R13 near U1's echo pin; decoupling caps next to U1's 3V3 pin.
-- **Water and outdoors:** put the board in a plastic IP65 box near the tank; conformal coating recommended; keep probe and float cables away from the antenna.
+## 7. PCB size and placement (for your EasyEDA layout)
+- **Size: 100 x 70 mm with the HLK 230 V block (about 60 x 50 mm if you leave that block out), 2 layers, 1.6 mm, 1 oz.** Four M3 holes, non-plated, 4 mm from the corners. Under the 100 x 100 mm cheapest tier.
+- **Nine silkscreen blocks**, each part inside its own rectangle (ULTRASONIC, FLOAT 1 / 2, 5 V POWER, USB-C, PROBES, ESP32-C3, EXPANSION, HLK 5V OUT, HLK 230 V): see [docs/pcb-section-guide.html](docs/pcb-section-guide.html) with X / Y tables and the checked floor plan (planning estimates, not EasyEDA footprints; checker reports 0 problems).
+- Mains zone on the right, isolation slot (1.3 mm) at x 77.4 to 78.7, low-voltage parts at least 3.2 mm from the mains-only parts; U1 antenna end at the top edge with nothing above it.
+- Other pages: [connection map](docs/connection-diagram.html), [wiring by section](docs/wiring-by-section.html), [schematic guide](docs/schematic-guide.html).
+- **Water and outdoors:** plastic IP65 box near the tank; conformal coating recommended; keep probe and float cables away from the antenna.
 
 ## 8. Level measurement, auto-start logic, Home Assistant and display (requirements from 2026-11-05)
 
