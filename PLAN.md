@@ -13,7 +13,7 @@ A small low-cost board that sits at the water tank, measures the water level in 
 | Power | 5 V DC adapter (barrel jack) or USB-C | J1 DC jack, J5 USB-C |
 | Expansion | spare GPIO, 3V3, 5V | J6, 1x4 header (5V, 3V3, GND, IO2), not fitted by default |
 
-**Assumption to confirm (Q1):** your Amazon link was cut off and I could not open it. You answered that the probe kit has 5 or 6 wires: I designed **COM + 5 level probes (20, 40, 60, 80, FULL = 6 wires)**. If your kit has a different wiring (for example a 12/24 V controller board instead of bare probes), tell me.
+**Your probe kit (Q1, answered 2026-11-05):** Imagine Technologies stainless steel sensors, 5 probes with coloured wires about 1.5 m long, Rs 299 (part IT05SS, Amazon B0GT55JTZR, page read 2026-11-05). Listed for 25 / 50 / 75 / 100 % levels. With 5 probes you use **COM + 4 levels (25, 50, 75, 100 %)**; the fifth level terminal stays empty (firmware: not fitted). A 3-probe pack (Rs 199) would give the full 20/40/60/80/FULL. Wire gauge not stated: check on arrival; join a longer cable if the box is not next to the tank.
 
 ## 2. Which MCU: advice
 | Option | Price (LCSC) | Wi-Fi / BLE | ESP-NOW | Verdict |
@@ -171,11 +171,11 @@ No hardware or project change is needed for this. When you want the tank level o
 ## 10. Open questions
 | # | Question | Default |
 |---|---|---|
-| Q1 | What exactly is the Amazon probe terminal (3 stainless probes + controller)? Please paste the full link or the product title. | 3 probes: COM, LOW, HIGH |
+| Q1 | **ANSWERED 2026-11-05:** Imagine Technologies 5-probe set (IT05SS): COM + 4 levels; optional extra 3-pack for 20 %. | decided |
 | Q2 | **ANSWERED 2026-11-05:** 5 or 6 wires: COM + level probes 20 %, 40 %, 60 %, 80 %, FULL. | decided |
 | Q3 | **ANSWERED 2026-11-05:** you own the Robocraze waterproof sensor (JSN-SR04T type, Rs 345): 5 V, 25 to 450 cm, TRIG / ECHO. The board still supports HC-SR04 and A02YYUW. | JSN-SR04T first |
 | Q4 | OK that the probe circuit is untested and may need resistor changes? | yes, bench-tune |
-| Q12 | Is Wi-Fi coverage good at the tank? (If not: external-antenna module or a nearby access point.) | assume good |
+| Q12 | **ANSWERED 2026-11-05:** Wi-Fi reaches the tank with no problem, so the on-board antenna module (ESP32-C3-MINI-1) is enough. | decided |
 | Q5 | Power only from the 5 V adapter, or also battery / solar later? | adapter + USB only |
 | Q6 | Name: TankPilot or another? (collision check still to do) | working name |
 | Q9 | **ANSWERED 2026-11-05:** you have the HYDRO FLOW float switch (single cable float, 3 m, mains-type pump float). Used as FLOAT 1 dry contact only. | decided |
