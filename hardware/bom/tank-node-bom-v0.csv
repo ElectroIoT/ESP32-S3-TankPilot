@@ -1,0 +1,25 @@
+Ref,Qty,Function,MPN,Manufacturer,LCSC #,Stock,Unit price USD,Tier,Status
+U1,1,"ESP32-C3 module, 4 MB flash, PCB antenna (default MCU)",ESP32-C3-MINI-1-N4,Espressif,C2838502,15184,3.0672,1+,LISTING 2026-11-05
+U2,1,3.3 V LDO 600 mA SOT-25,AP2112K-3.3TRG1,Diodes Inc,C51118,4510,0.1792,5+,LISTING (stock from 2026-10-28)
+"U3,U4,U5",3,"ESD array: USB D+/D- (U3) and 2 field-input pairs (U4 floats, U5 probes)",USBLC6-2SC6,ST,C7519,39325,0.1814,5+,LISTING (stock from 2026-10-28)
+J1,1,"DC barrel jack 5.5/2.1 mm, 5 V in",DC-005-20A,Korean Hroparts,C136744,24115,0.1398,5+,"LISTING 2026-11-05; '20A' = 2.0 mm centre pin, 2.1 mm plugs fit - check"
+J5,1,USB-C 16-pin receptacle (programming and 5 V),TYPE-C-31-M-12,Korean Hroparts,C165948,283620,0.1886,5+,VERIFIED 2026-10-28 (same as BorePilot)
+F1,1,"PTC resettable fuse 0.5 A 6 V, 1206",1206L050YR,Littelfuse,C163512,11040,0.0742,10+,LISTING 2026-11-05; alt ASMD1206-050 C135338
+D1,1,"TVS 5 V on the supply, SMA",SMAJ5.0A,Prosemi,C5121739,1750,0.1056,20+,LISTING 2026-11-05 (other suppliers); cheaper alt C2991090 at 280+
+"D2,D3",2,Schottky OR-ing: DC jack and USB VBUS to +5V,UMW SS34B,UMW,C2758511,77840,0.0378,20+,LISTING (same as BorePilot)
+J2,1,"1x4 2.54 header: ultrasonic sensor (5V, TRIG, ECHO, GND)",PZ254V-11-04P,XFCN,C2691448,591680,0.0264,20+,LISTING (stock from 2026-10-28)
+"J3,J7",2,"2P 5.08 screw terminal x2: float switch 1 (J3) and float switch 2 (J7), dry contact to GND",KF128-5.08-2P-AA,Cixi Kefa,C474952,51090,0.1944,5+,LISTING; rating not read
+J4,1,"3P 5.08 screw terminal: conductive probes (COM, LOW, HIGH)",KF128-5.08-3P-AA,Cixi Kefa,C474953,8510,0.3251,5+,LISTING (stock from 2026-10-28)
+J6,1,"1x6 2.54 header: expansion (5V, 3V3, GND, IO3, IO20, IO21), not fitted by default",PZ254V-11-06P,XFCN,C492405,70720,0.041,20+,LISTING (stock from 2026-10-28)
+"SW1,SW2",2,"Tact switches: EN reset, BOOT / PAIR",TS-1187A-B-A-B,XKB,C318884,887660,0.0208,20+,LISTING (stock from 2026-10-28)
+LED1,1,0603 red LED: power,XL-1608SURC-04,Xinglight,C965798,270700,0.0057,100+,LISTING
+LED2,1,0603 green LED: status,19-217/GHC-YR1S2/6T,Everlight,C2986059,718400,0.018,50+,LISTING
+C1,1,470 uF 16 V electrolytic 5 V bulk,ERG16V470M8X12,JIERR,C47344174,64670,0.0579,10+,LISTING
+"C2,C3,C4",3,"10 uF 1206 (LDO in/out, module 3V3)",CL31A106KAHNNNE,Samsung,C9807,493250,0.053,10+,VERIFIED listing 2026-10-28
+C5-C10,6,100 nF 1206 decoupling and filter,CL31B104KBCNNNC,Samsung,C24497,125980,0.0222,20+,VERIFIED listing 2026-10-28
+C11,1,1 uF 1206 coupling capacitor on the probe COM line (blocks DC across the water),CL31B105KBHNNNE,Samsung,C1848,147470,0.0628,10+,LISTING 2026-11-05
+"R1,R2",2,5.1 k 1206 USB-C CC1 and CC2,1206W4F5101T5E,Uni-Royal,C26033,166000,0.005,100+,VERIFIED listing
+R3-R5,3,"10 k 1206: EN pull-up, float pull-ups (2)",1206W4F1002T5E,Uni-Royal,C17902,1059900,0.0079,100+,VERIFIED listing
+R6-R12,7,"1 k 1206: LED series (2), float series (2), probe series (2), echo series (1)",1206W4F1001T5E,Uni-Royal,C4410,655650,0.0086,50+,VERIFIED listing; count estimated
+R13,1,2 k 1206: echo divider lower leg (5 V to 3.3 V),1206W4F2001T5E,Uni-Royal,C17944,1321900,0.0078,100+,LISTING 2026-11-05
+"R14,R15",2,"470 k 1206: probe line pull-downs (LOW, HIGH)",1206W4F4703T5E,Uni-Royal,C17997,9000,0.0074,100+,LISTING 2026-11-05; value to tune on the bench

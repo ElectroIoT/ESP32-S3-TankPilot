@@ -1,0 +1,38 @@
+# Local copies of manufacturer datasheets (copyrighted; see hardware/datasheets/README.md for URLs)
+hardware/datasheets/*.pdf
+hardware/datasheets/*.txt
+hardware/datasheets/lcsc/
+
+# Python
+__pycache__/
+*.pyc
+
+# ESP-IDF
+firmware/build/
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/managed_components/
+firmware/dependencies.lock
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.env
+.env
+lcsc_keys*.json
