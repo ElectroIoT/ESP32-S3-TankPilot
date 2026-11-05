@@ -29,14 +29,19 @@ small("R16", 15.5, 63.5)
 small("C14", 10.5, 59.5)
 # ---- float ports (top edge)
 put("J3", 24.5, 66, 10.2, 8)
-put("J7", 36, 66, 10.2, 8)
 small("R8", 22, 58.5)
 small("R4", 27, 58.5)
 small("C12", 32, 58.5)
-small("R9", 37, 58.5)
-small("R5", 22, 55)
-small("C13", 27, 55)
 put("U4", 33, 55, *SOT6)
+# ---- DHT11 header (top edge, where the second float used to be)
+put("J12", 39.5, 66, 2.5, 7.6)
+put("R23", 39.5, 59.5, 4.6, 2.6, 90)
+# ---- extra 5 V terminal and LDR (low-voltage free area right of the MCU)
+put("J10", 66, 61.2, 10.2, 8)
+put("J11", 66, 52.2, 10.2, 8)
+small("R22", 61.9, 44.4)
+small("R24", 66.6, 44.4)
+small("C15", 71.3, 44.4)
 # ---- 5 V power (left side)
 put("J1", 7.5, 43, 14.5, 9)
 small("F1", 19, 46)
@@ -92,14 +97,18 @@ put("J9", 95, 38, 8, 10.2)
 # id, title, colour, refs, (x0, y0, x1, y1) silkscreen rectangle
 BLOCKS = [
     ("ultra", "ULTRASONIC", "#2fbf71", ["J2", "R15", "R16", "C14"], (7.4, 57.5, 18.8, 70.0)),
-    ("floats", "FLOAT 1 / FLOAT 2", "#00bcd4", ["J3", "J7", "R8", "R4", "C12", "R9", "R5", "C13", "U4"], (19.4, 53.2, 42.0, 70.0)),
+    ("floats", "FLOAT SWITCH", "#00bcd4", ["J3", "R8", "R4", "C12", "U4"], (19.4, 53.2, 35.2, 70.0)),
+    ("dht", "DHT11", "#8bc34a", ["J12", "R23"], (36.6, 56.9, 42.4, 70.0)),
     ("power", "5 V POWER", "#ff9f43", ["J1", "F1", "D1", "D2", "D3", "C1", "U2", "C2", "C3", "C5"], (0.0, 34.4, 42.0, 51.8)),
     ("usb", "USB-C", "#4895ef", ["J5", "R1", "R2", "U3", "C7"], (0.0, 21.8, 24.0, 33.2)),
     ("probes", "PROBES (COM + 5)", "#ec407a", ["J4", "J8", "C11", "R10", "R11", "R12", "R13", "R14", "R17", "R18", "R19", "R20", "R21", "U5", "U6", "U7"], (7.4, 0.0, 45.5, 21.0)),
     ("mcu", "ESP32-C3", "#a66cff", ["U1", "SW1", "SW2", "R3", "C8", "C10", "C4", "C9", "LED1", "R6", "LED2", "R7"], (43.0, 26.8, 57.8, 69.6)),
     ("exp", "EXPANSION", "#9aa5b5", ["J6"], (59.0, 65.8, 70.5, 70.0)),
     ("hlk_out", "HLK 5V OUT", "#ff7043", ["D4", "C6"], (50.5, 9.0, 57.4, 20.6)),
-    ("hlk", "HLK 230 V (OPTION)", "#ff4d4d", ["U8", "F2", "RV1", "J9"], (58.4, 7.6, 99.4, 60.0)),
+    ("vin", "5 V IN (TERMINAL)", "#ff9f43", ["J10"], (59.4, 57.0, 72.6, 65.4)),
+    ("ldr", "LDR (LIGHT)", "#c0ca33", ["J11", "R22", "R24", "C15"], (59.4, 42.6, 73.8, 56.4)),
+    ("hlk", "HLK 230 V (OPTION)", "#ff4d4d", ["U8"], (58.4, 7.6, 99.4, 31.6)),
+    ("hlk_ac", "AC IN 230 V (OPTION)", "#ff4d4d", ["F2", "RV1", "J9"], (79.3, 32.2, 99.4, 60.0)),
 ]
 REF_BLOCK = {r: b[0] for b in BLOCKS for r in b[3]}
 
@@ -119,7 +128,7 @@ def check():
     prob = []
     rs = {k: rect(v) for k, v in L.items()}
     keys = list(rs)
-    edge = {"J1", "J2", "J3", "J7", "J4", "J8", "J5", "J6", "J9"}
+    edge = {"J1", "J2", "J3", "J4", "J8", "J5", "J6", "J9", "J12"}
     for i in range(len(keys)):
         a = rs[keys[i]]
         inside = a[0] >= 0.5 and a[1] >= 0.5 and a[2] <= BOARD_W - 0.5 and a[3] <= BOARD_H - 0.5

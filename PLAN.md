@@ -51,7 +51,7 @@ flowchart LR
 **USB-C (J5).** Same part as BorePilot (C165948): 5.1 k on CC1 / CC2, D+ / D- through U3 to GPIO19 / GPIO18; native USB programming, no CH340. EN and BOOT buttons for recovery. BOOT also works as the **PAIR** button (hold 3 s after power-up).
 
 ## 5. GPIO table (ESP32-C3-MINI-1)
-Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided for sensors (GPIO8 drives only the status LED, GPIO9 is BOOT, GPIO2 goes to the expansion header only). GPIO11 to GPIO17 are used by the module's flash and are not available.
+Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided for sensors (GPIO8 drives only the status LED, GPIO9 is BOOT, GPIO2 is the LDR input). GPIO11 to GPIO17 are used by the module's flash and are not available.
 
 | GPIO | Net | Dir | Notes |
 |---|---|---|---|
@@ -62,33 +62,33 @@ Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided 
 | 5 | PROBE_80 | in | same |
 | 6 | PROBE_FULL | in | same |
 | 7 | FLOAT1 | in | pull-up, dry contact |
-| 10 | FLOAT2 | in | pull-up, dry contact |
+| 10 | DHT | io | DHT11 data on J12, 10 k pull-up (the second float input was dropped for this) |
 | 20 | US_TRIG | out | to J2 TRIG (UART0 pin, USB is used for logs) |
 | 21 | US_ECHO | in | from J2 ECHO through the divider |
 | 8 | LED_ST | out | green LED2 (strapping pin: LED only) |
 | 9 | BOOT / PAIR | in | SW2 to GND |
 | 18 / 19 | USB_DN / USB_DP | io | J5 through U3 |
-| 2 | EXP | io | J6 expansion header (strapping pin: keep it unloaded at boot) |
+| 2 | LDR | in (ADC1) | LDR on J11: 1 k series, 10 k pull-up to 3V3, 100 nF; also on J6 pin 4. Strapping pin: dark / unplugged = high at boot; bright light could pull it low (unverified, bench check) |
 | EN | EN | in | SW1, 10 k pull-up, 100 nF |
 
 All 15 usable GPIOs are assigned. A UART-type ultrasonic module (A02YYUW) uses GPIO20 / GPIO21 as UART1 pins remapped in firmware.
 
 ## 6. BOM (LCSC, looked up 2026-11-05)
-Source: [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv); the full table by section is in [docs/bom-by-section.html](docs/bom-by-section.html) and [hardware/bom/bom-table.md](hardware/bom/bom-table.md). **65 pieces, about USD 10.16 in total; about USD 6.52 without the optional HLK 230 V block** (PCB and sensors not included). Stock and prices change daily.
+Source: [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv); the full table by section is in [docs/bom-by-section.html](docs/bom-by-section.html) and [hardware/bom/bom-table.md](hardware/bom/bom-table.md). **68 pieces, about USD 10.39 in total; about USD 6.74 without the optional HLK 230 V block** (PCB and sensors not included). Stock and prices change daily.
 
-Power now has **three sources, OR-ed with Schottky diodes D2 / D3 / D4**: 5 V DC jack J1 (PTC F1 + TVS D1), USB-C J5 (VBUS), and the **optional HLK-5M05 (230 V AC to 5 V, U8)** with its fuse F2, varistor RV1 and AC terminal J9. The HLK block is DNP by default. It is a **mains circuit next to a water tank: engineer review required before any build**; the datasheet asks for a 0.5 A slow fuse and a 10D561K varistor, the board has a milled isolation slot, and the box must be IP65 with the mains part separated from the probe wiring.
+Power now has **three sources (the DC jack J1 or the 2-pin screw terminal J10 for 5 V DC, USB-C, or the optional HLK), OR-ed with Schottky diodes D2 / D3 / D4**: 5 V DC jack J1 (PTC F1 + TVS D1), USB-C J5 (VBUS), and the **optional HLK-5M05 (230 V AC to 5 V, U8)** with its fuse F2, varistor RV1 and AC terminal J9. The HLK block is DNP by default. It is a **mains circuit next to a water tank: engineer review required before any build**; the datasheet asks for a 0.5 A slow fuse and a 10D561K varistor, the board has a milled isolation slot, and the box must be IP65 with the mains part separated from the probe wiring.
 
 | Refs | Qty | Function | LCSC | Stock | Unit $ (tier) | Status |
 |---|---|---|---|---|---|---|
 | J1 | 1 | DC barrel jack 5.5/2.1 mm: external 5 V in | [C136744](https://www.lcsc.com/product-detail/C136744.html) DC-005-20A | 24115 | 0.1398 (5+) | LISTING 2026-11-05; 2.0 mm centre pin variant, 2.1 mm plugs fit: check |
+| J10, J9, J3, J11 | 4 | 5 V DC screw terminal 2P (+5 V / Float switch terminal 2P (dry contact) / LDR screw termin | [C474952](https://www.lcsc.com/product-detail/C474952.html) KF128-5.08-2P-AA | 51090 | 0.1944 (5+) | LISTING; rating not read |
 | F1 | 1 | PTC fuse 0.5 A 6 V, 1206 | [C163512](https://www.lcsc.com/product-detail/C163512.html) 1206L050YR | 11040 | 0.0742 (10+) | LISTING 2026-11-05; alt ASMD1206-050 C135338 |
 | D1 | 1 | TVS 5 V (SMAJ5.0A) across the supply | [C5121739](https://www.lcsc.com/product-detail/C5121739.html) SMAJ5.0A | 1750 | 0.1056 (20+) | LISTING 2026-11-05 (other suppliers); cheaper alt C2991090 at 280+ |
 | D2, D3, D4 | 3 | OPTIONAL Schottky OR-ing: HLK to +5V / Schottky OR-ing: DC jack to +5V / Schottky OR-ing:  | [C2758511](https://www.lcsc.com/product-detail/C2758511.html) UMW SS34B | 77840 | 0.0378 (20+) | LISTING (same as BorePilot) |
 | C1 | 1 | 470 uF 16 V bulk on +5V | [C47344174](https://www.lcsc.com/product-detail/C47344174.html) ERG16V470M8X12 | 64670 | 0.0579 (10+) | LISTING |
 | U2 | 1 | AP2112K-3.3 LDO, SOT-25 | [C51118](https://www.lcsc.com/product-detail/C51118.html) AP2112K-3.3TRG1 | 4510 | 0.1792 (5+) | LISTING (stock from 2026-10-28) |
 | C2, C3, C4 | 3 | 10 uF 1206 | [C9807](https://www.lcsc.com/product-detail/C9807.html) CL31A106KAHNNNE | 493250 | 0.0530 (10+) | VERIFIED listing 2026-10-28 |
-| C5, C6, C7, C8, C9, C10, C14, C12, C13 | 9 | 100 nF 1206 / 100 nF 1206 on +5V / 100 nF 1206 on VBUS / 100 nF 1206 on the sensor +5V / O | [C24497](https://www.lcsc.com/product-detail/C24497.html) CL31B104KBCNNNC | 125980 | 0.0222 (20+) | VERIFIED listing 2026-10-28 |
-| J9, J3, J7 | 3 | Float switch 1 terminal 2P (dry contact) / Float switch 2 terminal 2P (dry contact) / OPTI | [C474952](https://www.lcsc.com/product-detail/C474952.html) KF128-5.08-2P-AA | 51090 | 0.1944 (5+) | LISTING; rating not read |
+| C5, C6, C7, C8, C9, C10, C14, C12, C15 | 9 | 100 nF 1206 / 100 nF 1206 on +5V / 100 nF 1206 on VBUS / 100 nF 1206 on the sensor +5V / O | [C24497](https://www.lcsc.com/product-detail/C24497.html) CL31B104KBCNNNC | 125980 | 0.0222 (20+) | VERIFIED listing 2026-10-28 |
 | F2 | 1 | OPTIONAL fuse 0.5 A slow-blow 5x20 (ships separately) | [C142727](https://www.lcsc.com/product-detail/C142727.html) 0218.500MXP | 900 | 0.2257 (5+) | LISTING 2026-10-28; 0.5 A slow-blow 5x20, HLK datasheet value |
 | F2H | 2 | OPTIONAL 5x20 fuse clips (2 pieces) | [C3131](https://www.lcsc.com/product-detail/C3131.html) BLX-A XC-7 | 85140 | 0.0854 (5+) | LISTING 2026-10-28; 2 clips per fuse, rating to confirm |
 | RV1 | 1 | OPTIONAL varistor 560 V (10D561K) across L-N | [C2839517](https://www.lcsc.com/product-detail/C2839517.html) 10D561K | 38910 | 0.0494 (10+) | LISTING 2026-10-28; varistor value from the HLK datasheet |
@@ -98,22 +98,30 @@ Power now has **three sources, OR-ed with Schottky diodes D2 / D3 / D4**: 5 V DC
 | R1, R2 | 2 | 5.1 k 1206 | [C26033](https://www.lcsc.com/product-detail/C26033.html) 1206W4F5101T5E | 166000 | 0.0050 (100+) | VERIFIED listing |
 | U1 | 1 | ESP32-C3-MINI-1-N4 module | [C2838502](https://www.lcsc.com/product-detail/C2838502.html) ESP32-C3-MINI-1-N4 | 15184 | 3.0672 (1+) | LISTING 2026-11-05; datasheet v1.7 pin table read |
 | SW1, SW2 | 2 | BOOT / PAIR button (GPIO9) / Reset button (EN) | [C318884](https://www.lcsc.com/product-detail/C318884.html) TS-1187A-B-A-B | 887660 | 0.0208 (20+) | LISTING (stock from 2026-10-28) |
-| R3, R4, R5 | 3 | 10 k 1206 | [C17902](https://www.lcsc.com/product-detail/C17902.html) 1206W4F1002T5E | 1059900 | 0.0079 (100+) | VERIFIED listing |
+| R3, R4, R22, R23 | 4 | 10 k 1206 | [C17902](https://www.lcsc.com/product-detail/C17902.html) 1206W4F1002T5E | 1059900 | 0.0079 (100+) | VERIFIED listing |
 | LED1 | 1 | Red LED: power (3.3 V) | [C965798](https://www.lcsc.com/product-detail/C965798.html) XL-1608SURC-04 | 270700 | 0.0057 (100+) | LISTING (red, inferred from name) |
-| R6, R7, R15, R8, R9, R10, R11, R12, R13, R14 | 10 | 1 k 1206 | [C4410](https://www.lcsc.com/product-detail/C4410.html) 1206W4F1001T5E | 655650 | 0.0086 (50+) | VERIFIED listing |
+| R6, R7, R15, R8, R24, R10, R11, R12, R13, R14 | 10 | 1 k 1206 | [C4410](https://www.lcsc.com/product-detail/C4410.html) 1206W4F1001T5E | 655650 | 0.0086 (50+) | VERIFIED listing |
 | LED2 | 1 | Green LED: status (GPIO8) | [C2986059](https://www.lcsc.com/product-detail/C2986059.html) 19-217/GHC-YR1S2/6T | 718400 | 0.0180 (50+) | LISTING (green, inferred from name) |
 | J6, J2 | 2 | OPTIONAL expansion header 1x4 (5V / Ultrasonic sensor header 1x4 (JSN-SR04T / HC-SR04) | [C2691448](https://www.lcsc.com/product-detail/C2691448.html) PZ254V-11-04P | 591680 | 0.0264 (20+) | LISTING (stock from 2026-10-28) |
 | R16 | 1 | 2 k 1206, ECHO divider to GND | [C17944](https://www.lcsc.com/product-detail/C17944.html) 1206W4F2001T5E | 1321900 | 0.0078 (100+) | LISTING 2026-11-05 |
+| J12 | 1 | DHT11 header 1x3 (3V3, DATA, GND) | [C492402](https://www.lcsc.com/product-detail/C492402.html) PZ254V-11-03P | not read | 0.0200 (20+) | LISTING 2026-11-05 (1x3 header; stock and price not shown on the page, price estimated from the 4P part) |
 | J4, J8 | 2 | Probe terminal 3P: 60 % / Probe terminal 3P: COM | [C474953](https://www.lcsc.com/product-detail/C474953.html) KF128-5.08-3P-AA | 8510 | 0.3251 (5+) | LISTING (stock from 2026-10-28); no 6P part on LCSC |
 | C11 | 1 | 1 uF 1206 coupling capacitor on PROBE_COM (no DC in the water) | [C1848](https://www.lcsc.com/product-detail/C1848.html) CL31B105KBHNNNE | 147470 | 0.0628 (10+) | LISTING 2026-11-05 |
 | R17, R18, R19, R20, R21 | 5 | 470 k 1206 | [C17997](https://www.lcsc.com/product-detail/C17997.html) 1206W4F4703T5E | 9000 | 0.0074 (100+) | LISTING 2026-11-05; value to tune on the bench |
 
 ## 7. PCB size and placement (for your EasyEDA layout)
 - **Size: 100 x 70 mm with the HLK 230 V block (about 60 x 50 mm if you leave that block out), 2 layers, 1.6 mm, 1 oz.** Four M3 holes, non-plated, 4 mm from the corners. Under the 100 x 100 mm cheapest tier.
-- **Nine silkscreen blocks**, each part inside its own rectangle (ULTRASONIC, FLOAT 1 / 2, 5 V POWER, USB-C, PROBES, ESP32-C3, EXPANSION, HLK 5V OUT, HLK 230 V): see [docs/pcb-section-guide.html](docs/pcb-section-guide.html) with X / Y tables and the checked floor plan (planning estimates, not EasyEDA footprints; checker reports 0 problems).
+- **Thirteen silkscreen blocks**, each part inside its own rectangle (ULTRASONIC, FLOAT SWITCH, DHT11, 5 V POWER, 5 V IN TERMINAL, LDR, USB-C, PROBES, ESP32-C3, EXPANSION, HLK 5V OUT, HLK 230 V, AC IN 230 V): see [docs/pcb-section-guide.html](docs/pcb-section-guide.html) with X / Y tables and the checked floor plan (planning estimates, not EasyEDA footprints; checker reports 0 problems).
 - Mains zone on the right, isolation slot (1.3 mm) at x 77.4 to 78.7, low-voltage parts at least 3.2 mm from the mains-only parts; U1 antenna end at the top edge with nothing above it.
 - Other pages: [connection map](docs/connection-diagram.html), [wiring by section](docs/wiring-by-section.html), [schematic guide](docs/schematic-guide.html).
 - **Water and outdoors:** plastic IP65 box near the tank; conformal coating recommended; keep probe and float cables away from the antenna.
+
+## 7b. Extra ports added 2026-11-05
+- **J10:** 2-pin screw terminal for an external 5 V supply (in addition to the DC jack J1; same net, use one at a time).
+- **Probes:** two 3-pin terminals J4 + J8 = 6 wires (COM + 5 levels). The 5-probe kit you chose uses COM + 4 of them.
+- **J11 + R22 / R24 / C15:** LDR (light sensor) on a 2-pin terminal, read by the ADC on GPIO2.
+- **J12 + R23:** DHT11 on a 1x3 header (3V3, DATA, GND) on GPIO10. **Check the pin order of your DHT11 board** before ordering.
+- **Trade-off:** all usable GPIOs were already used, so the **second float input (FLOAT2 / old J7) was removed** to free GPIO10 for the DHT11. One float input remains (J3).
 
 ## 8. Level measurement, auto-start logic, Home Assistant and display (requirements from 2026-11-05)
 

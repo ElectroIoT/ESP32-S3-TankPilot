@@ -3,12 +3,13 @@ All connections are PLANNED (no schematic exists yet). Pin names follow the plan
 
 # id, title, colour, description
 SECTIONS = [
- ("power", "5 V POWER (DC jack, USB, 3.3 V)", "#ff9f43", "5 V from the DC jack (fuse + TVS) or USB-C or the optional HLK module, OR-ed with Schottky diodes, then an AP2112K 3.3 V LDO."),
+ ("power", "5 V POWER (DC jack, USB, 3.3 V)", "#ff9f43", "5 V from the DC jack J1 or the 2-pin screw terminal J10 (both through the PTC fuse + TVS), or USB-C, or the optional HLK module, OR-ed with Schottky diodes, then an AP2112K 3.3 V LDO."),
  ("hlk", "HLK 230 V -> 5 V (OPTIONAL)", "#ff4d4d", "Optional mains supply: AC in terminal, fuse, varistor and the HLK-5M05 module. Leave all of these parts off if you power the board from a 5 V adapter."),
  ("usb", "USB-C PROGRAMMING", "#4895ef", "C165948 USB-C, native USB on GPIO18 / GPIO19, 5.1 k CC resistors, ESD part."),
  ("mcu", "ESP32-C3 CORE", "#a66cff", "ESP32-C3-MINI-1-N4 module, EN / BOOT buttons, status LEDs, decoupling, expansion header."),
  ("ultra", "ULTRASONIC PORT", "#2fbf71", "J2 header for JSN-SR04T / HC-SR04: +5V, TRIG, ECHO (5 V to 3.3 V divider), GND."),
- ("floats", "FLOAT SWITCH PORTS", "#00bcd4", "J3 and J7: two dry-contact float switch inputs, with pull-ups, series resistors, filter capacitors and ESD."),
+ ("floats", "FLOAT SWITCH PORTS", "#00bcd4", "J3: one dry-contact float switch input, with pull-up, series resistor, filter capacitor and ESD (the second float input was dropped to free GPIO10 for the DHT11)."),
+ ("sens", "EXTRA SENSORS (LDR light, DHT11)", "#8bc34a", "J11 2-pin terminal for an LDR (light sensor) with a 10 k divider into the ADC pin GPIO2, and J12 3-pin header for a DHT11 temperature / humidity sensor on GPIO10 with a 10 k pull-up."),
  ("probes", "PROBE PORT (COM + 5 LEVELS)", "#ec407a", "J4 + J8: COM (AC-coupled drive) and five level probes 20 / 40 / 60 / 80 / FULL, each with a series resistor and a pull-down."),
 ]
 SEC = {s[0]: s for s in SECTIONS}
@@ -17,7 +18,7 @@ SEC = {s[0]: s for s in SECTIONS}
 PAGES = [
  ("p1", "Page 1 - Power (DC jack, USB, HLK option)", ["power", "hlk", "usb"]),
  ("p2", "Page 2 - ESP32-C3 core", ["mcu"]),
- ("p3", "Page 3 - Sensor ports (ultrasonic, floats, probes)", ["ultra", "floats", "probes"]),
+ ("p3", "Page 3 - Sensor ports (ultrasonic, float, probes, LDR, DHT11)", ["ultra", "floats", "probes", "sens"]),
 ]
 
 # BOM info by LCSC number: mpn, maker, stock, unit price, tier, status
@@ -30,6 +31,7 @@ INFO = {
  "C163512": ("1206L050YR", "Littelfuse", 11040, 0.0742, "10+", "LISTING 2026-11-05; alt ASMD1206-050 C135338"),
  "C5121739": ("SMAJ5.0A", "Prosemi", 1750, 0.1056, "20+", "LISTING 2026-11-05 (other suppliers); cheaper alt C2991090 at 280+"),
  "C2758511": ("UMW SS34B", "UMW", 77840, 0.0378, "20+", "LISTING (same as BorePilot)"),
+ "C492402": ("PZ254V-11-03P", "XFCN", "not read", 0.02, "20+", "LISTING 2026-11-05 (1x3 header; stock and price not shown on the page, price estimated from the 4P part)"),
  "C2691448": ("PZ254V-11-04P", "XFCN", 591680, 0.0264, "20+", "LISTING (stock from 2026-10-28)"),
  "C474952": ("KF128-5.08-2P-AA", "Cixi Kefa", 51090, 0.1944, "5+", "LISTING; rating not read"),
  "C474953": ("KF128-5.08-3P-AA", "Cixi Kefa", 8510, 0.3251, "5+", "LISTING (stock from 2026-10-28); no 6P part on LCSC"),
@@ -55,6 +57,7 @@ INFO = {
 PARTS = [
  # ---- power
  ("J1", "power", "DC barrel jack 5.5/2.1 mm: external 5 V in", "C136744", 1, "1 tip +=DC_IN,2 sleeve -=GND,3 switch=-"),
+ ("J10", "power", "5 V DC screw terminal 2P (+5 V, GND): external 5 V in", "C474952", 1, "1 +5V=DC_IN,2 GND=GND"),
  ("F1", "power", "PTC fuse 0.5 A 6 V, 1206", "C163512", 1, "1=DC_IN,2=DC_F"),
  ("D1", "power", "TVS 5 V (SMAJ5.0A) across the supply", "C5121739", 1, "A=GND,K=DC_F"),
  ("D2", "power", "Schottky OR-ing: DC jack to +5V", "C2758511", 1, "A=DC_F,K=+5V"),
@@ -79,7 +82,7 @@ PARTS = [
  ("R2", "usb", "5.1 k 1206, CC2 pull-down", "C26033", 1, "1=CC2,2=GND"),
  ("C7", "usb", "100 nF 1206 on VBUS", "C24497", 1, "1=VBUS,2=GND"),
  # ---- mcu
- ("U1", "mcu", "ESP32-C3-MINI-1-N4 module", "C2838502", 1, "1 GND=GND,2 GND=GND,3 3V3=+3V3,5 IO2=EXP,6 IO3=PROBE_60,8 EN=EN,11 GND=GND,12 IO0=PROBE_20,13 IO1=PROBE_40,14 GND=GND,16 IO10=FLOAT2,18 IO4=PROBE_COM,19 IO5=PROBE_80,20 IO6=PROBE_FULL,21 IO7=FLOAT1,22 IO8=LED_ST,23 IO9=BOOT,26 IO18=USB_DN,27 IO19=USB_DP,30 RXD0 IO20=US_TRIG,31 TXD0 IO21=US_ECHO,36-53 GND pads=GND"),
+ ("U1", "mcu", "ESP32-C3-MINI-1-N4 module", "C2838502", 1, "1 GND=GND,2 GND=GND,3 3V3=+3V3,5 IO2=LDR,6 IO3=PROBE_60,8 EN=EN,11 GND=GND,12 IO0=PROBE_20,13 IO1=PROBE_40,14 GND=GND,16 IO10=DHT,18 IO4=PROBE_COM,19 IO5=PROBE_80,20 IO6=PROBE_FULL,21 IO7=FLOAT1,22 IO8=LED_ST,23 IO9=BOOT,26 IO18=USB_DN,27 IO19=USB_DP,30 RXD0 IO20=US_TRIG,31 TXD0 IO21=US_ECHO,36-53 GND pads=GND"),
  ("SW1", "mcu", "Reset button (EN)", "C318884", 1, "1=EN,3=GND"),
  ("SW2", "mcu", "BOOT / PAIR button (GPIO9)", "C318884", 1, "1=BOOT,3=GND"),
  ("R3", "mcu", "10 k 1206, EN pull-up", "C17902", 1, "1=+3V3,2=EN"),
@@ -91,22 +94,25 @@ PARTS = [
  ("R6", "mcu", "1 k 1206, LED1 series", "C4410", 1, "1=+3V3,2=LED1_A"),
  ("LED2", "mcu", "Green LED: status (GPIO8)", "C2986059", 1, "A=LED2_A,K=GND"),
  ("R7", "mcu", "1 k 1206, LED2 series", "C4410", 1, "1=LED_ST,2=LED2_A"),
- ("J6", "mcu", "OPTIONAL expansion header 1x4 (5V, 3V3, GND, IO2)", "C2691448", 1, "1=+5V,2=+3V3,3=GND,4=EXP"),
+ ("J6", "mcu", "OPTIONAL expansion header 1x4 (5V, 3V3, GND, IO2 shared with the LDR input)", "C2691448", 1, "1=+5V,2=+3V3,3=GND,4=LDR"),
  # ---- ultrasonic
  ("J2", "ultra", "Ultrasonic sensor header 1x4 (JSN-SR04T / HC-SR04)", "C2691448", 1, "1 +5V=+5V,2 TRIG=US_TRIG,3 ECHO=ECHO_5V,4 GND=GND"),
  ("R15", "ultra", "1 k 1206, ECHO series (divider top)", "C4410", 1, "1=ECHO_5V,2=US_ECHO"),
  ("R16", "ultra", "2 k 1206, ECHO divider to GND", "C17944", 1, "1=US_ECHO,2=GND"),
  ("C14", "ultra", "100 nF 1206 on the sensor +5V", "C24497", 1, "1=+5V,2=GND"),
  # ---- floats
- ("J3", "floats", "Float switch 1 terminal 2P (dry contact)", "C474952", 1, "1=FLOAT1_T,2=GND"),
- ("J7", "floats", "Float switch 2 terminal 2P (dry contact)", "C474952", 1, "1=FLOAT2_T,2=GND"),
+ ("J3", "floats", "Float switch terminal 2P (dry contact)", "C474952", 1, "1=FLOAT1_T,2=GND"),
  ("R8", "floats", "1 k 1206, FLOAT1 series", "C4410", 1, "1=FLOAT1_T,2=FLOAT1"),
- ("R9", "floats", "1 k 1206, FLOAT2 series", "C4410", 1, "1=FLOAT2_T,2=FLOAT2"),
  ("R4", "floats", "10 k 1206, FLOAT1 pull-up", "C17902", 1, "1=+3V3,2=FLOAT1"),
- ("R5", "floats", "10 k 1206, FLOAT2 pull-up", "C17902", 1, "1=+3V3,2=FLOAT2"),
  ("C12", "floats", "100 nF 1206, FLOAT1 filter", "C24497", 1, "1=FLOAT1,2=GND"),
- ("C13", "floats", "100 nF 1206, FLOAT2 filter", "C24497", 1, "1=FLOAT2,2=GND"),
- ("U4", "floats", "USBLC6-2SC6 ESD for both float lines", "C7519", 1, "1 I/O1=FLOAT1_T,6 I/O1=FLOAT1_T,3 I/O2=FLOAT2_T,4 I/O2=FLOAT2_T,5 VBUS=+3V3,2 GND=GND"),
+ ("U4", "floats", "USBLC6-2SC6 ESD for the float line (second channel unused)", "C7519", 1, "1 I/O1=FLOAT1_T,6 I/O1=FLOAT1_T,3 I/O2=-,4 I/O2=-,5 VBUS=+3V3,2 GND=GND"),
+ # ---- extra sensors
+ ("J11", "sens", "LDR screw terminal 2P (light sensor on a cable)", "C474952", 1, "1=LDR_T,2=GND"),
+ ("R24", "sens", "1 k 1206, LDR series", "C4410", 1, "1=LDR_T,2=LDR"),
+ ("R22", "sens", "10 k 1206, LDR divider pull-up", "C17902", 1, "1=+3V3,2=LDR"),
+ ("C15", "sens", "100 nF 1206, LDR filter", "C24497", 1, "1=LDR,2=GND"),
+ ("J12", "sens", "DHT11 header 1x3 (3V3, DATA, GND)", "C492402", 1, "1 +3V3=+3V3,2 DATA=DHT,3 GND=GND"),
+ ("R23", "sens", "10 k 1206, DHT11 data pull-up", "C17902", 1, "1=+3V3,2=DHT"),
  # ---- probes
  ("J4", "probes", "Probe terminal 3P: COM, 20 %, 40 %", "C474953", 1, "1 COM=PROBE_COM_T,2 20%=PROBE_20_T,3 40%=PROBE_40_T"),
  ("J8", "probes", "Probe terminal 3P: 60 %, 80 %, FULL", "C474953", 1, "1 60%=PROBE_60_T,2 80%=PROBE_80_T,3 FULL=PROBE_FULL_T"),

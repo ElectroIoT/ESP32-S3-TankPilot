@@ -44,7 +44,7 @@ def ncol(n):
     if n.startswith(("USB_", "CC")): return "#8e24aa"
     if n.startswith("PROBE"): return "#ec407a"
     if n.startswith(("FLOAT", "US_", "ECHO")): return "#2fbf71"
-    if n in ("EN", "BOOT", "EXP") or n.startswith(("LED",)): return "#a66cff"
+    if n in ("EN", "BOOT", "EXP", "LDR", "DHT") or n.startswith(("LED",)): return "#a66cff"
     return "#00bcd4"
 
 
@@ -214,13 +214,13 @@ def page_map():
     for c in cols:
         s.append(f'<marker id="ah{c[1:]}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="{c}"/></marker>')
     s.append("</defs>")
-    s.append(box(20, 20, 330, 150, "#ff9f43", "5 V INPUTS (use any one)", ["J1 DC jack 5.5/2.1 mm  (5 V adapter)", "F1 PTC 0.5 A + D1 TVS, D2 Schottky", "J5 USB-C (VBUS) + D3 Schottky", "D4 Schottky from the HLK module (option)"]))
+    s.append(box(20, 20, 330, 150, "#ff9f43", "5 V INPUTS (use any one)", ["J1 DC jack 5.5/2.1 mm  or J10 2-pin terminal", "F1 PTC 0.5 A + D1 TVS, D2 Schottky", "J5 USB-C (VBUS) + D3 Schottky", "D4 Schottky from the HLK module (option)"]))
     s.append(box(20, 210, 330, 130, "#ff4d4d", "HLK 230 V OPTION (leave off if unsure)", ["J9 AC in (L, N)", "F2 fuse 0.5 A + RV1 varistor", "U8 HLK-5M05  230 V AC -> 5 V 1 A", "isolation slot to the low-voltage side"], dash=True))
     s.append(box(420, 20, 330, 150, "#ff9f43", "+5 V RAIL AND 3.3 V", ["C1 470 uF bulk, C2 / C5 decoupling", "U2 AP2112K-3.3 LDO", "+3V3 to the ESP32 and the sensor ports", "LED1 power LED"]))
-    s.append(box(420, 210, 330, 190, "#a66cff", "ESP32-C3 CORE", ["U1 ESP32-C3-MINI-1-N4 (PCB antenna)", "SW1 EN reset, SW2 BOOT / PAIR", "LED2 status (GPIO8), J6 expansion", "GPIO0, 1, 3, 5, 6 = probes 20..FULL", "GPIO4 = probe COM, GPIO7 / 10 = floats", "GPIO20 TRIG, GPIO21 ECHO"]))
+    s.append(box(420, 210, 330, 190, "#a66cff", "ESP32-C3 CORE", ["U1 ESP32-C3-MINI-1-N4 (PCB antenna)", "SW1 EN reset, SW2 BOOT / PAIR", "LED2 status (GPIO8), J6 expansion", "GPIO0, 1, 3, 5, 6 = probes 20..FULL", "GPIO4 = probe COM, GPIO7 = float", "GPIO2 = LDR (ADC), GPIO10 = DHT11", "GPIO20 TRIG, GPIO21 ECHO"]))
     s.append(box(820, 20, 400, 150, "#8e24aa", "USB-C PROGRAMMING (J5)", ["native USB: GPIO18 D-, GPIO19 D+", "U3 USBLC6 ESD, R1 / R2 5.1 k on CC1 / CC2", "flash, logs, 5 V power", "no USB-UART chip"]))
     s.append(box(820, 210, 400, 120, "#2fbf71", "ULTRASONIC (J2)", ["+5V, TRIG, ECHO (5 V), GND", "R15 1 k + R16 2 k divider on ECHO", "JSN-SR04T / HC-SR04 / A02YYUW"]))
-    s.append(box(820, 360, 400, 130, "#00bcd4", "FLOAT SWITCHES (J3, J7)", ["dry contact to GND, 3 m cable ok", "R8 / R9 1 k, R4 / R5 10 k pull-up, C12 / C13", "U4 ESD (clamps to 3.3 V)"]))
+    s.append(box(820, 360, 400, 130, "#00bcd4", "FLOAT SWITCH (J3)", ["dry contact to GND, 3 m cable ok", "R8 1 k, R4 10 k pull-up, C12 100 nF", "U4 ESD (clamps to 3.3 V)", "LDR J11 (GPIO2) and DHT11 J12 (GPIO10) are on pages 3 and the PCB guide"]))
     s.append(box(420, 450, 800, 220, "#ec407a", "PROBES (J4 + J8): COM + 20 %, 40 %, 60 %, 80 %, FULL", ["GPIO4 PROBE_COM -> C11 1 uF -> J4 COM (AC only, no DC in the water)", "five probe wires -> R10..R14 1 k -> GPIO0, GPIO1, GPIO3, GPIO5, GPIO6", "R17..R21 470 k pull-downs: a wet probe follows the AC burst, a dry one stays low", "U5 / U6 / U7 optional ESD on the six terminal lines", "level = highest wet probe (20 / 40 / 60 / 80 / FULL)"]))
     s.append(arrow([(350, 95), (420, 95)], cols[0], "+5V", lx=358, ly=88))
     s.append(arrow([(350, 270), (385, 270), (385, 140), (420, 140)], cols[5], "+5V_HLK", lx=360, ly=262))
@@ -228,22 +228,22 @@ def page_map():
     s.append(arrow([(820, 100), (750, 100)], cols[4], "VBUS", lx=760, ly=94))
     s.append(arrow([(985, 170), (985, 190), (790, 190), (790, 260), (750, 260)], cols[4], "D+ D-", lx=800, ly=250))
     s.append(arrow([(820, 270), (750, 270)], cols[2], "TRIG / ECHO", lx=752, ly=262))
-    s.append(arrow([(820, 420), (790, 420), (790, 300), (750, 300)], cols[2], "FLOAT1/2", lx=752, ly=316))
+    s.append(arrow([(820, 420), (790, 420), (790, 300), (750, 300)], cols[2], "FLOAT1", lx=752, ly=316))
     s.append(arrow([(585, 450), (585, 400)], cols[3], "PROBE_*", lx=592, ly=432))
     s.append("</svg>")
     leg = '<p class="legend"><span><i style="background:#fb8c00"></i>5 V</span><span><i style="background:#f4b400"></i>3.3 V</span><span><i style="background:#2fbf71"></i>ultrasonic / float signals</span><span><i style="background:#ec407a"></i>probes</span><span><i style="background:#8e24aa"></i>USB</span><span><i style="background:#e53935"></i>230 V option</span></p>'
     gp = [("0", "PROBE_20", "J4 pin 2 via R10 / R17"), ("1", "PROBE_40", "J4 pin 3 via R11 / R18"), ("3", "PROBE_60", "J8 pin 1 via R12 / R19"), ("5", "PROBE_80", "J8 pin 2 via R13 / R20"), ("6", "PROBE_FULL", "J8 pin 3 via R14 / R21"),
-          ("4", "PROBE_COM", "C11 to J4 pin 1"), ("7", "FLOAT1", "J3 via R8, R4"), ("10", "FLOAT2", "J7 via R9, R5"), ("20", "US_TRIG", "J2 pin 2"), ("21", "US_ECHO", "J2 pin 3 via R15 / R16"),
-          ("8", "LED_ST", "LED2 via R7"), ("9", "BOOT / PAIR", "SW2"), ("18 / 19", "USB D- / D+", "J5 via U3"), ("2", "EXP", "J6 pin 4"), ("EN", "EN", "SW1, R3, C8")]
+          ("4", "PROBE_COM", "C11 to J4 pin 1"), ("7", "FLOAT1", "J3 via R8, R4"), ("10", "DHT", "J12 pin 2, R23 10 k pull-up"), ("20", "US_TRIG", "J2 pin 2"), ("21", "US_ECHO", "J2 pin 3 via R15 / R16"),
+          ("8", "LED_ST", "LED2 via R7"), ("9", "BOOT / PAIR", "SW2"), ("18 / 19", "USB D- / D+", "J5 via U3"), ("2", "LDR (ADC)", "J11 via R24, R22 divider, C15; also J6 pin 4"), ("EN", "EN", "SW1, R3, C8")]
     tab = "".join(f"<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td></tr>" for a, b, c in gp)
     return (head("TankPilot - connection map", "Block-level map: power sources, 3.3 V, ESP32-C3, USB, ultrasonic, float and probe ports, with the optional HLK 230 V block.") + leg + f'<div class="scroll" style="background:var(--card);border-radius:12px;padding:8px">{"".join(s)}</div>'
-            f'<h2 style="margin-top:22px">GPIO assignment (ESP32-C3-MINI-1)</h2><div class="scroll"><table><thead><tr><th>GPIO</th><th>Net</th><th>Goes to</th></tr></thead><tbody>{tab}</tbody></table></div><p class="mut">GPIO11 to 17 belong to the module flash; GPIO2, 8, 9 are strapping pins (2 only on the expansion header, 8 LED only, 9 BOOT).</p>' + links() + "</main></body></html>")
+            f'<h2 style="margin-top:22px">GPIO assignment (ESP32-C3-MINI-1)</h2><div class="scroll"><table><thead><tr><th>GPIO</th><th>Net</th><th>Goes to</th></tr></thead><tbody>{tab}</tbody></table></div><p class="mut">GPIO11 to 17 belong to the module flash; GPIO2, 8, 9 are strapping pins (2 = LDR input with a 10 k pull-up, 8 LED only, 9 BOOT).</p>' + links() + "</main></body></html>")
 
 
 # ------------------------------------------------------------------ schematic guide
 PAGE_STEPS = {
  "p1": [
-  ("J1 DC jack: pin 1 (tip, +) to net <b>DC_IN</b>, pin 2 (sleeve, -) to GND. Add F1 (PTC) from DC_IN to <b>DC_F</b>, D1 TVS from DC_F to GND (cathode at DC_F).", "power"),
+  ("J1 DC jack: pin 1 (tip, +) to net <b>DC_IN</b>, pin 2 (sleeve, -) to GND. Add F1 (PTC) from DC_IN to <b>DC_F</b>, D1 TVS from DC_F to GND (cathode at DC_F). <b>J10</b> (2-pin screw terminal, +5 V and GND) joins the same nets as J1: pin 1 to DC_IN, pin 2 to GND; use J1 or J10, not both at once.", "power"),
   ("D2: anode DC_F, cathode <b>+5V</b>. D3: anode <b>VBUS</b>, cathode +5V. C1 470 uF (+ to +5V), C2 and C5 on +5V to GND.", "power"),
   ("U2 AP2112K: VIN and EN to +5V, GND to GND, VOUT to <b>+3V3</b>; C3 10 uF on +3V3. Check the symbol pin order (VIN 1, GND 2, EN 3, NC 4, VOUT 5).", "power"),
   ("OPTIONAL HLK block: J9 L and N to nets AC_L and AC_N; F2 from AC_L to <b>AC_LF</b> (F2H = its two clips); RV1 across AC_LF and AC_N; U8 AC pins to AC_LF / AC_N, +Vo to <b>+5V_HLK</b>, -Vo to GND; D4 from +5V_HLK to +5V; C6 on +5V_HLK. Draw a MAINS WARNING box around AC_L / AC_N / AC_LF.", "hlk"),
@@ -254,15 +254,17 @@ PAGE_STEPS = {
   ("Place U1 ESP32-C3-MINI-1-N4 (C2838502). Pins 1, 2, 11, 14 and the pad pins 36-53 to GND, pin 3 to +3V3. Add C4 10 uF and C9, C10 100 nF on +3V3.", "mcu"),
   ("EN (pin 8): R3 10 k to +3V3, C8 100 nF to GND, SW1 to GND. BOOT: SW2 from net <b>BOOT</b> (pin 23, GPIO9) to GND. Tact switch pins 1+2 are joined, 3+4 are joined: use pin 1 and pin 3.", "mcu"),
   ("USB: pin 26 (IO18) to <b>USB_DN</b>, pin 27 (IO19) to <b>USB_DP</b> (page 1).", "mcu"),
-  ("Net labels on the sensor pins: pin 12 IO0 <b>PROBE_20</b>, pin 13 IO1 <b>PROBE_40</b>, pin 6 IO3 <b>PROBE_60</b>, pin 19 IO5 <b>PROBE_80</b>, pin 20 IO6 <b>PROBE_FULL</b>, pin 18 IO4 <b>PROBE_COM</b>, pin 21 IO7 <b>FLOAT1</b>, pin 16 IO10 <b>FLOAT2</b>, pin 30 (IO20) <b>US_TRIG</b>, pin 31 (IO21) <b>US_ECHO</b>.", "mcu"),
-  ("LED_ST: pin 22 (IO8) to R7 1 k to LED2 (green) to GND. LED1 (red) with R6 1 k from +3V3 to GND (power LED). EXP: pin 5 (IO2) to J6 pin 4; J6 pins 1 +5V, 2 +3V3, 3 GND (not fitted by default).", "mcu"),
+  ("Net labels on the sensor pins: pin 12 IO0 <b>PROBE_20</b>, pin 13 IO1 <b>PROBE_40</b>, pin 6 IO3 <b>PROBE_60</b>, pin 19 IO5 <b>PROBE_80</b>, pin 20 IO6 <b>PROBE_FULL</b>, pin 18 IO4 <b>PROBE_COM</b>, pin 21 IO7 <b>FLOAT1</b>, pin 16 IO10 <b>DHT</b>, pin 5 IO2 <b>LDR</b>, pin 30 (IO20) <b>US_TRIG</b>, pin 31 (IO21) <b>US_ECHO</b>.", "mcu"),
+  ("LED_ST: pin 22 (IO8) to R7 1 k to LED2 (green) to GND. LED1 (red) with R6 1 k from +3V3 to GND (power LED). LDR: pin 5 (IO2) also to J6 pin 4; J6 pins 1 +5V, 2 +3V3, 3 GND (not fitted by default).", "mcu"),
   ("Leave the NC pins (4, 7, 9, 10, 15, 17, 24, 25, 28, 29, 32-35) unconnected with No-Connect flags. Nothing except SW2 on GPIO9.", "mcu"),
  ],
  "p3": [
   ("<b>Ultrasonic J2</b>: pin 1 +5V (C14 100 nF to GND), pin 2 TRIG to net US_TRIG, pin 3 ECHO to net <b>ECHO_5V</b>, pin 4 GND. R15 1 k from ECHO_5V to <b>US_ECHO</b>, R16 2 k from US_ECHO to GND (5 V to 3.3 V divider).", "ultra"),
-  ("<b>Floats J3, J7</b>: pin 1 to <b>FLOAT1_T</b> / <b>FLOAT2_T</b>, pin 2 to GND. R8 / R9 1 k from the terminal net to FLOAT1 / FLOAT2; R4 / R5 10 k from +3V3 to FLOAT1 / FLOAT2; C12 / C13 100 nF from FLOAT1 / FLOAT2 to GND. U4 USBLC6: pins 1+6 FLOAT1_T, pins 3+4 FLOAT2_T, pin 5 +3V3, pin 2 GND.", "floats"),
+  ("<b>Float J3</b>: pin 1 to <b>FLOAT1_T</b>, pin 2 to GND. R8 1 k from FLOAT1_T to FLOAT1; R4 10 k from +3V3 to FLOAT1; C12 100 nF from FLOAT1 to GND. U4 USBLC6: pins 1+6 FLOAT1_T, pins 3 and 4 no-connect, pin 5 +3V3, pin 2 GND.", "floats"),
   ("<b>Probes J4 + J8</b>: J4 pin 1 COM = <b>PROBE_COM_T</b>, pin 2 = PROBE_20_T, pin 3 = PROBE_40_T; J8 pin 1 = PROBE_60_T, pin 2 = PROBE_80_T, pin 3 = PROBE_FULL_T. C11 1 uF from PROBE_COM to PROBE_COM_T (blocks DC).", "probes"),
   ("Each probe line: 1 k series (R10 to R14) from PROBE_xx_T to PROBE_xx, then 470 k (R17 to R21) from PROBE_xx to GND. OPTIONAL ESD U5 (COM + 20 %), U6 (40 % + 60 %), U7 (80 % + FULL): terminal-side nets on pins 1+6 and 3+4, pin 5 +3V3, pin 2 GND.", "probes"),
+  ("<b>LDR J11</b> (2-pin terminal for an LDR on a cable): pin 1 = <b>LDR_T</b>, pin 2 = GND. R24 1 k from LDR_T to net <b>LDR</b>; R22 10 k from +3V3 to LDR; C15 100 nF from LDR to GND. LDR goes to GPIO2 (ADC1). Dark = high voltage, bright = low (invert in firmware). GPIO2 is a strapping pin: bench check that bright light at reset does not stop the boot (<b>unverified</b>).", "sens"),
+  ("<b>DHT11 J12</b> (1x3 header): pin 1 +3V3, pin 2 DATA = net <b>DHT</b> (to GPIO10), pin 3 GND. R23 10 k from +3V3 to DHT. <b>Check the pin order of your DHT11 board</b>: bare sensors are VCC, DATA, NC, GND; 3-pin modules are often DATA, VCC, GND or VCC, DATA, GND.", "sens"),
  ],
 }
 PAGE_NOTES = {
@@ -310,14 +312,18 @@ REF_NAME = {p[0]: p[2] for p in D.PARTS}
 REF_C = {p[0]: p[3] for p in D.PARTS}
 BLOCK_NOTES = {
  "ultra": ["J2 on the top edge (cable goes up); R15 / R16 divider right next to the ECHO pin; C14 on the +5V pin."],
- "floats": ["J3 and J7 on the top edge, cables out to the top. Pull-ups, series resistors, filter capacitors and the ESD part U4 sit directly under the terminals.", "Keep both float lines short and away from the antenna side."],
+ "floats": ["J3 on the top edge, cable out to the top. Pull-up, series resistor, filter capacitor and the ESD part U4 sit directly under the terminal.", "Keep the float line short and away from the antenna side."],
+ "dht": ["J12 3-pin header on the top edge (DHT11 plugs in or goes on a short cable); R23 pull-up just below it.", "Check the pin order of your DHT11 against J12 before ordering."],
+ "vin": ["J10 2-pin screw terminal (+5 V, GND) for an external 5 V supply; silkscreen + and - and 5 V DC ONLY. Joins the DC jack net before the PTC fuse F1."],
+ "ldr": ["J11 2-pin terminal for the LDR on a cable; R24, R22 and C15 right below it, close to each other.", "GPIO2 is a strapping pin, so keep the line short."],
+ "hlk_ac": ["OPTIONAL: J9 (AC in), F2 fuse clips and RV1 on the mains side right of the slot, at least 6.4 mm from low-voltage copper. Leave all of it off if you power the board from 5 V."],
  "power": ["J1 DC jack on the left edge, then F1, D1 (TVS) and the Schottky diodes in a row to C1; U2 and its capacitors next to C1.", "Silkscreen: 5 V DC ONLY at the jack, + / - polarity mark."],
  "usb": ["J5 USB-C on the left edge, shield tabs to the edge. D+ / D- as a short pair straight through U3 to the ESP32; R1 / R2 at the CC pins."],
  "probes": ["J4 and J8 side by side on the bottom edge, cables down. Series resistors right above the terminals, pull-downs and the optional ESD parts above them; C11 next to the COM terminal.", "Keep these lines far from the antenna and from the 230 V option."],
  "mcu": ["U1 at the top right: antenna end to the top edge, nothing above it (no copper, no parts, no pour).", "SW1 / SW2 on the lower side, LEDs and decoupling around the module; C4 / C9 / C10 close to the 3V3 pin."],
- "exp": ["J6 optional 1x4 header on the top edge (5V, 3V3, GND, IO2)."],
+ "exp": ["J6 optional 1x4 header on the top edge (5V, 3V3, GND, IO2 shared with the LDR input)."],
  "hlk_out": ["D4 and C6 just left of the HLK +5V pins, inside the low-voltage zone."],
- "hlk": ["OPTIONAL 230 V block: leave every part of it off if you use a 5 V adapter or USB. U8 lies across the slot: AC pins at the right end, 5 V pins at the left end; check the real pin pitch.", "F2 (fuse clips), RV1 and J9 stay on the mains side (right of the slot) at least 6.4 mm from low-voltage copper. Mains is near water here: enclosure IP65 and an engineer review are required."],
+ "hlk": ["OPTIONAL 230 V block: leave U8 off if you use a 5 V adapter or USB. U8 lies across the slot: AC pins at the right end, 5 V pins at the left end; check the real pin pitch.", "Mains is near water here: enclosure IP65 and an engineer review are required."],
 }
 NETS = [("AC_L, AC_N, AC_LF (option)", "1.0 mm min, 6.4 mm to low-voltage copper", "Mains side only, right of the slot."), ("+5V_HLK, +5V, DC_F", "0.8 mm", "Peak about 0.5 A."), ("+3V3", "0.6 mm", "ESP32-C3 bursts to about 0.35 A."),
         ("GND", "pour on both layers", "Low-voltage side only; no pour on the mains side or across the slot."), ("USB_DP / USB_DN", "0.2 mm pair, 90 ohm", "Short, no stubs."), ("PROBE_*, FLOAT*, US_*, others", "0.25 mm", "Plain signals; keep probe lines away from the antenna."),
@@ -394,7 +400,7 @@ def page_pcb():
              f'<h3>Outline, holes, slot</h3><div class="scroll"><table><thead><tr><th>Item</th><th>X mm</th><th>Y mm</th><th>Size</th></tr></thead><tbody><tr><td>Board outline</td><td class="num">0 - 100</td><td class="num">0 - 70</td><td>100 x 70, corner radius 3 mm</td></tr>'
              + "".join(f'<tr><td>MH{i} M3 hole</td><td class="num">{hx:.1f}</td><td class="num">{hy:.1f}</td><td>3.2 mm, non-plated, no pad</td></tr>' for i, (hx, hy) in enumerate(PL.HOLES, 1))
              + f'<tr><td>Isolation slot (HLK block only)</td><td class="num">{PL.SLOT["x"]:.1f} - {PL.SLOT["x"]+PL.SLOT["w"]:.1f}</td><td class="num">{PL.SLOT["y0"]:.0f} - {PL.SLOT["y1"]:.0f}</td><td>{PL.SLOT["w"]} mm wide, routed</td></tr></tbody></table></div>'
-             '<h3>Edge plan</h3><ul class="rules"><li><b>Top edge:</b> J2 (ultrasonic), J3 and J7 (floats), J6 (expansion), antenna end of the ESP32-C3 module.</li><li><b>Left edge:</b> J1 (DC jack) and J5 (USB-C).</li><li><b>Bottom edge:</b> J4 and J8 (probe terminals, cables down).</li><li><b>Right side:</b> optional 230 V block with J9 (AC in).</li></ul>'
+             '<h3>Edge plan</h3><ul class="rules"><li><b>Top edge:</b> J2 (ultrasonic), J3 (float), J12 (DHT11), J6 (expansion), antenna end of the ESP32-C3 module.</li><li><b>Left edge:</b> J1 (DC jack) and J5 (USB-C).</li><li><b>Bottom edge:</b> J4 and J8 (probe terminals, cables down).</li><li><b>Right side:</b> J10 (5 V terminal) and J11 (LDR) in the free low-voltage area, then the optional 230 V block with J9 (AC in) on the far right.</li></ul>'
              '<p class="mut">Silkscreen box per block: one dashed rectangle with its title on the Top Silkscreen layer (as in the BorePilot guide). The checker confirmed: no overlaps, no part outside its own box, no box touching a mounting hole or another box, 3.2 mm from low-voltage parts to the mains parts, and nothing above the antenna end.</p></section>')
     o.append('<section class="card" id="plan"><h2>Floor plan<span class="cnt">dashed boxes = silkscreen boxes; dashed part outlines = optional parts; click a part to tick it</span></h2><div class="scroll">' + board_svg() + '</div></section>')
     for b in PL.BLOCKS:
