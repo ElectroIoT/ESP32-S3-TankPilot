@@ -3,17 +3,17 @@
 Date: 2026-11-05. Working name: **TankPilot** (companion of BorePilot; **name not checked** for collisions, web search was unavailable). Nothing here is drawn or built. You lay out the PCB yourself in EasyEDA: this plan gives the structure, nets, GPIO table, BOM and placement hints only.
 
 ## 1. What it is
-A small low-cost board that sits at the water tank, reads the level with **whichever sensor you have**, and sends it to BorePilot (ESP-NOW) or to Wi-Fi / MQTT / Home Assistant. One board, three sensor ports, all active at once in firmware (use one, two or all three).
+A small low-cost board that sits at the water tank, reads the level (down to 20 %, 40 %, 60 %, 80 % and FULL with the probe kit) with **whichever sensor you have**, and sends it to BorePilot (ESP-NOW) or to Wi-Fi / MQTT / Home Assistant. One board, three sensor ports, all active at once in firmware (use one, two or all three).
 
 | Port | Sensor | Connector |
 |---|---|---|
 | ULTRASONIC | JSN-SR04T (waterproof), HC-SR04 / HC-SR04P, A02YYUW-type UART module | J2, 1x4 2.54 header: +5V, TRIG, ECHO, GND |
 | FLOAT 1 and FLOAT 2 | any dry-contact float switch (low / full) | J3 and J7, 2P 5.08 screw terminals |
-| PROBES | stainless-steel conductive probe kit (the "controller indicator" type: common + low + high probe) | J4, 3P 5.08 screw terminal: COM, LOW, HIGH |
+| PROBES | stainless-steel conductive probe kit: **COM (bottom reference) + 5 level probes at 20 %, 40 %, 60 %, 80 % and FULL** | J4 and J8, two 3P 5.08 screw terminals side by side: J4 = COM, 20 %, 40 %; J8 = 60 %, 80 %, FULL |
 | Power | 5 V DC adapter (barrel jack) or USB-C | J1 DC jack, J5 USB-C |
-| Expansion | spare GPIOs, 3V3, 5V (I2C / UART / ADC sensors) | J6, 1x6 header, not fitted by default |
+| Expansion | spare GPIO, 3V3, 5V | J6, 1x4 header (5V, 3V3, GND, IO2), not fitted by default |
 
-**Assumption to confirm (Q1):** your Amazon link was cut off and I could not open it. I read "Stainless ... Controller Indicator" as a water-level controller with **3 stainless probes** (common, low, high) and a screw-terminal controller. If it is something else (for example a 4-wire controller or a 12/24 V unit), tell me.
+**Assumption to confirm (Q1):** your Amazon link was cut off and I could not open it. You answered that the probe kit has 5 or 6 wires: I designed **COM + 5 level probes (20, 40, 60, 80, FULL = 6 wires)**. If your kit has a different wiring (for example a 12/24 V controller board instead of bare probes), tell me.
 
 ## 2. Which MCU: advice
 | Option | Price (LCSC) | Wi-Fi / BLE | ESP-NOW | Verdict |
@@ -36,36 +36,41 @@ flowchart LR
   MCU -->|TRIG| US
   US -->|"ECHO 5 V"| DIV["R12/R13 divider"] --> MCU
   FL["J3, J7 float switches"] --> U4["U4 ESD + 1k + pull-up"] --> MCU
-  PR["J4 probes COM LOW HIGH"] --> U5["U5 ESD + 1k + 470k"] --> MCU
+  PR["J4 + J8 probes COM 20 40 60 80 FULL"] --> U5["U5-U7 ESD + 1k + 470k"] --> MCU
   MCU -->|"PROBE_COM through C11 1 uF"| PR
   MCU --> LED["LED1 power, LED2 status"]
 ```
 
 ## 4. Circuit notes per port (design intent, not verified)
 **Ultrasonic (J2).** +5V, TRIG, ECHO, GND. ECHO is a 5 V output on most modules: a 1 k series resistor (R12) and a 2 k resistor to GND (R13) give about 3.3 V at the GPIO. For a 3.3 V sensor such as HC-SR04P, replace R12 by 0 ohm and leave R13 off. TRIG is a 3.3 V output (works with most 5 V modules; test with your JSN-SR04T). A UART-type module (A02YYUW) uses the same two pins as UART RX / TX with the same divider. The sensor is powered from +5V (about 30 mA).
+**Your sensor (JSN-SR04T type, Robocraze page read 2026-11-05):** 5 V supply, TRIG / ECHO, range 25 to 450 cm, 40 kHz, IP67 probe on a cable. Two consequences for the tank: (1) the **blind zone is 25 cm**, so mount the probe at least 25 cm above the highest water level, pointing straight down at the water; (2) ECHO is 5 V, so the R12 / R13 divider is needed (that is what the board has). The product page does not give the trigger voltage; a 3.3 V TRIG usually works but test it.
 **Float switches (J3, J7).** Each is a dry contact between FLOATn and GND. 10 k pull-up to 3V3 (R4, R5), 1 k series (R8, R9), 100 nF to GND, and a pair of U4's ESD channels (U4 pin 5 to 3V3, pin 2 to GND) so long tank cables cannot kill the GPIO. Firmware reads NO or NC with a software setting.
-**Conductive probes (J4).** Water between COM and a probe lets current flow. DC would electrolyse and corrode the probes, so the COM line is driven by a GPIO through a **1 uF series capacitor (C11)**: only AC pulses reach the water, no DC. LOW and HIGH each go through a 1 k series resistor to an ADC pin with a 470 k pull-down; firmware sends bursts (about 1 kHz) on COM and measures the amplitude on LOW and HIGH, so it works from clean to dirty water and ignores hum. U5 protects both lines. **This is a design idea I have not bench-tested** (Q4): the resistor values will need tuning with your probes and your tank water.
+**Conductive probes (J4 + J8).** The kit has 6 wires: COM at the bottom of the tank and five level probes at 20 %, 40 %, 60 %, 80 % and FULL. Water between COM and a probe lets current flow. DC would electrolyse and corrode the probes, so COM is driven by a GPIO through a **1 uF series capacitor (C11)**: only AC pulses reach the water, no DC. Each of the five probe lines goes through a 1 k series resistor to a **digital GPIO input with a 470 k pull-down**; firmware sends short bursts (about 1 kHz) on COM and samples each probe line during the burst, so a wet probe follows the pulses and a dry one stays low. The level is the highest wet probe (for example 60 % wet and 80 % dry = 60 to 80 %), with a debounce of a few seconds against slosh. U5 to U7 (ESD, optional, can be left off if the cables are short and inside the box) protect the six lines. With 470 k pull-downs, water up to about 100 k between COM and a probe still gives more than 2.7 V. **This is a design idea I have not bench-tested** (Q4): the resistor values will need tuning with your probes and your tank water; the probe terminals must stay out of any mains wiring.
 **Power.** 5 V from the barrel jack through F1 (0.5 A PTC) and D1 (SMAJ5.0A TVS), or 5 V VBUS from USB-C; D2 / D3 (Schottky) OR them onto +5V, C1 470 uF bulk. U2 (AP2112K-3.3) makes 3.3 V. The C3 draws up to about 0.35 A in Wi-Fi bursts, so the 600 mA part is acceptable here (BorePilot used a bigger LDO for the S3). Do not feed more than 5.5 V into the jack: print "5 V DC ONLY" on the silkscreen.
 **USB-C (J5).** Same part as BorePilot (C165948): 5.1 k on CC1 / CC2, D+ / D- through U3 to GPIO19 / GPIO18; native USB programming, no CH340. EN and BOOT buttons for recovery. BOOT also works as the **PAIR** button (hold 3 s after power-up).
 
 ## 5. GPIO table (ESP32-C3-MINI-1)
-Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are not used for sensors (GPIO8 drives only the status LED, GPIO9 is BOOT).
+Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided for sensors (GPIO8 drives only the status LED, GPIO9 is BOOT, GPIO2 goes to the expansion header only). GPIO11 to GPIO17 are used by the module's flash and are not available.
 
 | GPIO | Net | Dir | Notes |
 |---|---|---|---|
-| 0 | PROBE_LOW | ADC in | ADC1_CH0, 470 k pull-down |
-| 1 | PROBE_HIGH | ADC in | ADC1_CH1 |
 | 4 | PROBE_COM | out | AC burst through C11 |
-| 5 | FLOAT1 | in | pull-up, dry contact |
-| 6 | FLOAT2 | in | pull-up, dry contact |
-| 7 | US_TRIG | out | to J2 TRIG |
-| 10 | US_ECHO | in | from J2 ECHO through the divider |
-| 8 | LED_ST | out | green LED2 (strapping pin: LED only, keep it high-impedance at boot) |
+| 0 | PROBE_20 | in | 470 k pull-down, 1 k series |
+| 1 | PROBE_40 | in | same |
+| 3 | PROBE_60 | in | same |
+| 5 | PROBE_80 | in | same |
+| 6 | PROBE_FULL | in | same |
+| 7 | FLOAT1 | in | pull-up, dry contact |
+| 10 | FLOAT2 | in | pull-up, dry contact |
+| 20 | US_TRIG | out | to J2 TRIG (UART0 pin, USB is used for logs) |
+| 21 | US_ECHO | in | from J2 ECHO through the divider |
+| 8 | LED_ST | out | green LED2 (strapping pin: LED only) |
 | 9 | BOOT / PAIR | in | SW2 to GND |
 | 18 / 19 | USB_DN / USB_DP | io | J5 through U3 |
-| 3, 20, 21 | EXP1, EXP2, EXP3 | io | J6 expansion header |
-| 2 | - | - | not used (strapping) |
+| 2 | EXP | io | J6 expansion header (strapping pin: keep it unloaded at boot) |
 | EN | EN | in | SW1, 10 k pull-up, 100 nF |
+
+All 15 usable GPIOs are assigned. A UART-type ultrasonic module (A02YYUW) uses GPIO20 / GPIO21 as UART1 pins remapped in firmware.
 
 ## 6. BOM (LCSC, looked up 2026-11-05; "verified" = C# matched on the page earlier in the BorePilot work)
 Source: [hardware/bom/tank-node-bom-v0.csv](hardware/bom/tank-node-bom-v0.csv). Prices are the lowest tier shown (USD) and change daily; resistor and capacitor counts are estimates.
@@ -97,12 +102,12 @@ Source: [hardware/bom/tank-node-bom-v0.csv](hardware/bom/tank-node-bom-v0.csv). 
 | R13 | 1 | 2 k 1206: echo divider lower leg (5 V to 3.3 V) | 1206W4F2001T5E | [C17944](https://www.lcsc.com/product-detail/C17944.html) | 1321900 | 0.0078 (100+) | LISTING 2026-11-05 |
 | R14,R15 | 2 | 470 k 1206: probe line pull-downs (LOW, HIGH) | 1206W4F4703T5E | [C17997](https://www.lcsc.com/product-detail/C17997.html) | 9000 | 0.0074 (100+) | LISTING 2026-11-05; value to tune on the bench |
 
-**Rough parts total: about USD 5.8** (46 pieces, PCB and sensors not included). Sensors you supply: JSN-SR04T about Rs 400 to 600, float switch about Rs 100 to 300, the probe kit (your Amazon item), a 5 V adapter.
+**Rough parts total: about USD 6.7** (59 pieces, PCB and sensors not included). Sensors you supply: JSN-SR04T about Rs 400 to 600, float switch about Rs 100 to 300, the probe kit (your Amazon item), a 5 V adapter.
 
 ## 7. PCB size and placement hints (for your EasyEDA layout)
-- **Size: 60 x 45 mm, 2 layers, 1.6 mm, 1 oz.** Four M3 holes, 3.2 mm, non-plated, 4 mm from the corners. This stays far under the 100 x 100 mm cheapest-tier limit.
-- **Edges:** left edge J1 (DC jack) and J5 (USB-C); top edge J2 (ultrasonic header) and J6; bottom edge J3, J7, J4 (screw terminals, cable entry downward). Module U1 at the right edge with its **antenna end over the board edge or a copper keep-out under it** (ESP32-C3-MINI-1 has a PCB antenna): nothing under the antenna.
-- **Silkscreen:** one dashed box per port with its title (ULTRASONIC, FLOAT 1, FLOAT 2, PROBES, POWER, USB) like the BorePilot guide; label every terminal pin (COM, LOW, HIGH, F, GND, 5V, TRIG, ECHO) and "5 V DC ONLY" at the jack.
+- **Size: 70 x 50 mm, 2 layers, 1.6 mm, 1 oz** (the two 3P probe terminals alone are about 31 mm wide). Four M3 holes, 3.2 mm, non-plated, 4 mm from the corners. This stays far under the 100 x 100 mm cheapest-tier limit.
+- **Edges:** left edge J1 (DC jack) and J5 (USB-C); top edge J2 (ultrasonic header), J3 and J7 (floats) and J6; bottom edge J4 and J8 side by side (the six probe wires, cable entry downward). Module U1 at the right edge with its **antenna end over the board edge or a copper keep-out under it** (ESP32-C3-MINI-1 has a PCB antenna): nothing under the antenna.
+- **Silkscreen:** one dashed box per port with its title (ULTRASONIC, FLOAT 1, FLOAT 2, PROBES, POWER, USB) like the BorePilot guide; label every terminal pin (COM, 20%, 40%, 60%, 80%, FULL, F, GND, 5V, TRIG, ECHO) and "5 V DC ONLY" at the jack.
 - **Placement:** U2 and its capacitors next to C1; F1, D1, D2 and D3 between the jack and C1; U3 close to J5; U4 and U5 close to their terminals; R12 / R13 near U1's echo pin; decoupling caps next to U1's 3V3 pin.
 - **Water and outdoors:** put the board in a plastic IP65 box near the tank; conformal coating recommended; keep probe and float cables away from the antenna.
 
@@ -116,8 +121,8 @@ ESPHome `esp32` (board `esp32-c3-devkitm-1`, esp-idf): `ultrasonic` sensor on GP
 | # | Question | Default |
 |---|---|---|
 | Q1 | What exactly is the Amazon probe terminal (3 stainless probes + controller)? Please paste the full link or the product title. | 3 probes: COM, LOW, HIGH |
-| Q2 | Is a 4th probe (MID) wanted? | no (3P terminal) |
-| Q3 | Which ultrasonic module(s) do you own: JSN-SR04T, HC-SR04, A02YYUW? | support all three |
+| Q2 | **ANSWERED 2026-11-05:** 5 or 6 wires: COM + level probes 20 %, 40 %, 60 %, 80 %, FULL. | decided |
+| Q3 | **ANSWERED 2026-11-05:** you own the Robocraze waterproof sensor (JSN-SR04T type, Rs 345): 5 V, 25 to 450 cm, TRIG / ECHO. The board still supports HC-SR04 and A02YYUW. | JSN-SR04T first |
 | Q4 | OK that the probe circuit is untested and may need resistor changes? | yes, bench-tune |
 | Q5 | Power only from the 5 V adapter, or also battery / solar later? | adapter + USB only |
 | Q6 | Name: TankPilot or another? (collision check still to do) | working name |
