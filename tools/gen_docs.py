@@ -1,6 +1,6 @@
 """Generate the HTML pages and BOM files for TankPilot. Run from the repo root:
     python -X utf8 -I tools/gen_docs.py
-Writes docs/bom-by-section.html, docs/schematic-guide.html, docs/wiring-by-section.html,
+Writes docs/page1-power.html, page2-esp32-core.html, page3-sensors.html (BOM + wiring), docs/schematic-guide.html,
 docs/connection-diagram.html, docs/pcb-section-guide.html, docs/images/pcb-floorplan.svg/png and
 hardware/bom/tank-node-bom-v1.csv. All connections are PLANNED (no schematic exists yet)."""
 import os, sys, csv, html
@@ -30,7 +30,7 @@ button{background:var(--card);color:var(--fg);border:1px solid var(--line);borde
 .step{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line)}a{color:#3b82f6}.rec{border-left:4px solid #2fbf71;padding:6px 12px;background:rgba(47,191,113,.1);border-radius:6px;margin:8px 0}
 svg.plan,svg.dia{max-width:100%;height:auto}svg.dia text{fill:var(--fg);font-family:system-ui,Segoe UI,sans-serif}.ref{font-size:12px;font-weight:700}.role{font-size:10.5px;fill:var(--mut)!important}.lab{font-size:9.5px;fill:var(--mut)!important}
 .pin{font-size:11px}.net{font-size:11px;font-weight:700}.flag{font-size:10px;font-weight:700;fill:#10151c!important}.pill{font-size:11px;font-weight:700;fill:#fff!important}
-.w{cursor:pointer;transition:opacity .15s}svg.hl .w{opacity:.15}svg.hl .w.on{opacity:1}.w.done line{stroke-dasharray:4 4}.pt{cursor:pointer}.pt.ok rect{fill-opacity:.1;stroke-dasharray:.6 .6}.pt.ok text{opacity:.4}
+.bx{cursor:pointer}.bx.ok{opacity:.35}.w{cursor:pointer;transition:opacity .15s}svg.hl .w{opacity:.15}svg.hl .w.on{opacity:1}.w.done line{stroke-dasharray:4 4}.pt{cursor:pointer}.pt.ok rect{fill-opacity:.1;stroke-dasharray:.6 .6}.pt.ok text{opacity:.4}
 .legend span{display:inline-block;margin-right:12px;font-size:12px;color:var(--mut)}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:middle}
 .wire{display:inline-block;width:46px;height:7px;border-radius:4px;vertical-align:middle}@media print{nav{display:none}}"""
 
@@ -55,8 +55,8 @@ def head(title, sub, nav=""):
 
 
 def links():
-    return ('<p class="mut">Pages: <a href="bom-by-section.html">BOM by section</a> &middot; <a href="schematic-guide.html">schematic guide</a> &middot; '
-            '<a href="wiring-by-section.html">wiring by section</a> &middot; <a href="connection-diagram.html">connection map</a> &middot; <a href="pcb-section-guide.html">PCB layout guide</a></p>')
+    return ('<p class="mut" id="top-all">Pages: <a href="page1-power.html">1 Power</a> &middot; <a href="page2-esp32-core.html">2 ESP32-C3 core</a> &middot; <a href="page3-sensors.html">3 Sensors</a> &middot; '
+            '<a href="schematic-guide.html">schematic guide</a> &middot; <a href="connection-diagram.html">connection map</a> &middot; <a href="pcb-section-guide.html">PCB layout guide</a></p>')
 
 
 # ------------------------------------------------------------------ BOM files
@@ -76,35 +76,6 @@ def bom_md():
     for refs, q, name, c, mpn, mk, st, pr, tier, status, sub in rows:
         o.append(f"| {refs} | {q} | {name} | [{c}](https://www.lcsc.com/product-detail/{c}.html) {mpn} | {st} | {pr:.4f} ({tier}) | {status} |")
     return "\n".join(o)
-
-
-# ------------------------------------------------------------------ BOM page
-def page_bom():
-    total = len(D.PARTS)
-    o = [head("TankPilot - BOM by section", f"{total} part lines ({D.TOTAL_PIECES} pieces) in {len(D.SECTIONS)} sections. Tick each part when you add it to your EasyEDA schematic; progress is saved in this browser. Prices are LCSC quantity tiers from 2026-11-05 / 2026-10-28.",
-             '<div class="bar-wrap" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5"><input type="search" id="q" placeholder="Filter by ref, name, LCSC #" style="padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);min-width:220px"><progress id="pg" value="0" max="%d" style="width:220px"></progress><span id="pt" class="mut"></span><button id="rs">Reset ticks</button></div>' % total)]
-    o.append('<div class="rec"><b>Parts total: about USD %.2f</b> (all %d pieces) = <b>USD %.2f without</b> the optional HLK 230 V block (HLK-5M05, fuse + clips, varistor, AC terminal, diode, capacitor: USD %.2f). Excluding PCB, sensors, enclosure and the 5 V adapter. Stock and prices change daily.</div>' % (D.totals()[0], D.TOTAL_PIECES, D.totals()[2], D.totals()[1]))
-    o.append('<div class="mut">' + " ".join(f'<a class="chip" style="background:{s[2]}" href="#{s[0]}">{e(s[1])}</a>' for s in D.SECTIONS) + "</div>")
-    for sid, title, col, desc in D.SECTIONS:
-        parts = [p for p in D.PARTS if p[1] == sid]
-        cost = sum(p[4] * D.INFO[p[3]][3] for p in parts)
-        o.append(f'<section class="card" id="{sid}" style="--c:{col}"><h2>{e(title)}<span class="cnt">{len(parts)} parts, about ${cost:.2f}</span></h2><p class="mut">{e(desc)}</p><div class="scroll"><table><thead><tr><th></th><th>Ref</th><th>Part</th><th>LCSC #</th><th>MPN</th><th>Qty</th><th>Stock</th><th>$</th><th>Planned connections</th></tr></thead><tbody>')
-        for ref, s, name, c, q, pins in parts:
-            mpn, mk, st, pr, tier, status = D.INFO[c]
-            opt = ' <span class="tag opt">optional</span>' if ref in D.OPTIONAL else ""
-            conn = "<br>".join(e(a + " -> " + (b or "no connect")) for a, b in D.pins_of(ref))
-            o.append(f'<tr data-ref="{ref}"><td><input type="checkbox" class="ck" data-k="{ref}"></td><td><b>{ref}</b></td><td>{e(name)}{opt}</td><td><a href="https://www.lcsc.com/product-detail/{c}.html" target="_blank" rel="noopener">{c}</a></td><td>{e(mpn)}</td><td>{q}</td><td class="mut">{st}</td><td class="mut">{pr:.4f}</td><td><details><summary>{len(D.pins_of(ref))} pins</summary>{conn}</details></td></tr>')
-        o.append("</tbody></table></div></section>")
-    o.append(links() + """<script>
-const K='tank-bom-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
-const cks=[...document.querySelectorAll('.ck')];
-function upd(){const n=cks.filter(c=>c.checked).length;document.getElementById('pg').value=n;document.getElementById('pt').textContent=n+' / '+cks.length+' placed';cks.forEach(c=>c.closest('tr').classList.toggle('ok',c.checked));try{localStorage.setItem(K,JSON.stringify(Object.fromEntries(cks.filter(c=>c.checked).map(c=>[c.dataset.k,1]))))}catch(e){}}
-cks.forEach(c=>{c.checked=!!st[c.dataset.k];c.addEventListener('change',upd)});
-document.getElementById('rs').onclick=()=>{cks.forEach(c=>c.checked=false);upd()};
-document.getElementById('q').oninput=ev=>{const v=ev.target.value.toLowerCase();document.querySelectorAll('tbody tr').forEach(r=>r.style.display=r.innerText.toLowerCase().includes(v)?'':'none')};
-upd();
-</script></main></body></html>""")
-    return "".join(o)
 
 
 # ------------------------------------------------------------------ wiring diagrams
@@ -137,7 +108,7 @@ def section_svg(sid):
     o = [f'<svg viewBox="0 0 {Wd} {Ht}" width="{Wd}" height="{Ht}" class="dia" data-sec="{sid}">']
     for ref, name, c, pl, by, bh in boxes:
         opt = ref in D.OPTIONAL
-        o.append(f'<g><rect x="8" y="{by}" width="{PXR-8}" height="{bh}" rx="7" fill="var(--card)" stroke="var(--line)" stroke-width="2" {"stroke-dasharray=\"5 3\"" if opt else ""}/>'
+        o.append(f'<g class="bx" data-ref="{ref}"><rect x="8" y="{by}" width="{PXR-8}" height="{bh}" rx="7" fill="var(--card)" stroke="var(--line)" stroke-width="2" {"stroke-dasharray=\"5 3\"" if opt else ""}/>'
                  f'<text x="16" y="{by+14}" class="ref">{e(ref)}</text><text x="{16+8*len(ref)+8}" y="{by+14}" class="role">{e(name[:44])}</text><text x="16" y="{by+27}" class="lab">[{c}]{" optional" if opt else ""}</text></g>')
     for ref, pin, net, py in pinpos:
         o.append(f'<text x="{PXR-14}" y="{py+3.5}" text-anchor="end" class="pin">{e(pin)}</text>')
@@ -165,28 +136,71 @@ def section_svg(sid):
 D_RAILS = set(RAILS)
 
 
-def page_wiring():
-    o = [head("TankPilot - wiring by section", "One pin-to-net diagram per section, same sections as the BOM. Each box is a part (dashed = optional) with its pins; the coloured flag on a pin is the net name: put the same net label in EasyEDA and the pins join. Hover a wire to highlight a net, click to mark it wired (saved).",
-              '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5"><progress id="pg" value="0" max="1" style="width:240px"></progress><span id="pt" class="mut"></span><button id="rs">Reset ticks</button></div>')]
-    o.append('<p class="legend"><span><i style="background:#e53935"></i>AC (optional HLK)</span><span><i style="background:#fb8c00"></i>5 V / VBUS</span><span><i style="background:#f4b400"></i>3.3 V</span><span><i style="background:#8a93a3"></i>GND</span><span><i style="background:#2fbf71"></i>sensor signals</span><span><i style="background:#ec407a"></i>probes</span><span><i style="background:#8e24aa"></i>USB</span><span><i style="background:#a66cff"></i>MCU control</span></p>')
-    for sid, title, col, desc in D.SECTIONS:
-        o.append(f'<section class="card" id="sec-{sid}" data-sec="{sid}" style="--c:{col}"><h2><label style="cursor:pointer"><input type="checkbox" class="seccb" data-sec="{sid}" style="width:20px;height:20px"> {e(title)}</label><span class="cnt secprog" data-sec="{sid}"></span></h2><p class="mut">{e(desc)}</p><div class="scroll">{section_svg(sid)}</div></section>')
-    o.append(links() + """<script>
-const K='tank-wiring-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
-const svgs=[...document.querySelectorAll('svg.dia')];
+# ------------------------------------------------------------------ combined BOM + wiring pages
+PAGE_FILES = {"p1": "page1-power.html", "p2": "page2-esp32-core.html", "p3": "page3-sensors.html"}
+PAGE_BY = {p[0]: p for p in D.PAGES}
+
+
+def sec_cost(sid):
+    return sum(p[4] * D.INFO[p[3]][3] for p in D.PARTS if p[1] == sid)
+
+
+def page_combo(pid):
+    _, ptitle, secs = PAGE_BY[pid]
+    refs = [p[0] for p in D.PARTS if p[1] in secs]
+    n_pieces = sum(p[4] for p in D.PARTS if p[1] in secs)
+    cost = sum(sec_cost(s) for s in secs)
+    nav = "<nav>"
+    for k in PAGE_FILES:
+        col = D.SEC[PAGE_BY[k][2][0]][2]
+        cur = ";outline:3px solid var(--fg)" if k == pid else ""
+        nav += f'<a style="background:{col}{cur}" href="{PAGE_FILES[k]}">{e(PAGE_BY[k][1])}</a>'
+    nav += "</nav>"
+    sub = (f"BOM and wiring together: for every section the parts table (tick each part when placed in EasyEDA) sits above its pin-to-net diagram. "
+           f"Tick a part and its box in the diagram fades; click a wire to mark the net wired. {len(refs)} part lines, {n_pieces} pieces, about ${cost:.2f} on this page. Progress is saved in this browser.")
+    o = [head("TankPilot - " + ptitle, sub, nav)]
+    o.append('<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><progress id="pg" value="0" max="1" style="width:240px"></progress><span id="pt" class="mut"></span><input type="search" id="q" placeholder="Filter parts" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)"><button id="rs">Reset ticks</button></div>')
+    o.append('<p class="legend"><span><i style="background:#e53935"></i>AC (optional HLK)</span><span><i style="background:#fb8c00"></i>5 V / VBUS</span><span><i style="background:#f4b400"></i>3.3 V</span><span><i style="background:#8a93a3"></i>GND</span><span><i style="background:#2fbf71"></i>sensor signals</span><span><i style="background:#ec407a"></i>probes</span><span><i style="background:#8e24aa"></i>USB</span><span><i style="background:#a66cff"></i>MCU control</span><span><i style="background:#00bcd4"></i>other nets</span></p>')
+    tot = D.totals()
+    if pid == "p1":
+        o.append('<div class="rec"><b>Whole board: about USD %.2f</b> (%d pieces); <b>USD %.2f without</b> the optional HLK 230 V parts (USD %.2f: HLK-5M05, fuse + clips, varistor, AC terminal, diode, capacitor). PCB, sensors, enclosure and the 5 V adapter are not included. Stock and prices change daily (LCSC tiers from 2026-11-05 / 2026-10-28).</div>' % (tot[0], D.TOTAL_PIECES, tot[2], tot[1]))
+    for sid in secs:
+        _, title, col, desc = D.SEC[sid]
+        parts = [p for p in D.PARTS if p[1] == sid]
+        o.append(f'<section class="card" id="sec-{sid}" data-sec="{sid}" style="--c:{col}"><h2>{e(title)}<span class="cnt">{len(parts)} parts, about ${sec_cost(sid):.2f} &middot; <span class="pdone">0</span> placed &middot; <span class="secprog"></span></span></h2><p class="mut">{e(desc)}</p>')
+        o.append('<div class="scroll"><table><thead><tr><th></th><th>Ref</th><th>Part</th><th>LCSC #</th><th>MPN</th><th>Qty</th><th>Stock</th><th>$</th></tr></thead><tbody>')
+        for ref, s, name, c, q, pins in parts:
+            mpn, mk, st, pr, tier, status = D.INFO[c]
+            opt = ' <span class="tag opt">optional</span>' if ref in D.OPTIONAL else ""
+            o.append(f'<tr data-ref="{ref}"><td><input type="checkbox" class="ck" data-k="{ref}"></td><td><b>{ref}</b></td><td>{e(name)}{opt}</td><td><a href="https://www.lcsc.com/product-detail/{c}.html" target="_blank" rel="noopener">{c}</a></td><td>{e(mpn)}</td><td>{q}</td><td class="mut">{st}</td><td class="mut">{pr:.4f}</td></tr>')
+        o.append('</tbody></table></div><h3>Wiring (pin to net)</h3><div class="scroll">' + section_svg(sid) + '</div></section>')
+    o.append(links() + COMBO_JS)
+    return "".join(o)
+
+
+COMBO_JS = """<script>
+const K='tank-combo-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
+const cks=[...document.querySelectorAll('.ck')],svgs=[...document.querySelectorAll('svg.dia')];
 function nets(svg){return [...new Set([...svg.querySelectorAll('.w[data-net]')].map(w=>w.dataset.net))]}
-function apply(){let done=0,total=0;svgs.forEach(svg=>{const sid=svg.dataset.sec,ns=nets(svg);let d=0;
- svg.querySelectorAll('.w[data-net]').forEach(w=>w.classList.toggle('done',!!st[sid+'|'+w.dataset.net]));ns.forEach(n=>{if(st[sid+'|'+n])d++});
- const card=document.getElementById('sec-'+sid);card.querySelector('.seccb').checked=(d===ns.length&&ns.length>0);card.querySelector('.secprog').textContent=d+' / '+ns.length+' nets wired';done+=d;total+=ns.length});
- document.getElementById('pg').max=total;document.getElementById('pg').value=done;document.getElementById('pt').textContent=done+' / '+total+' nets wired';try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
-svgs.forEach(svg=>{const sid=svg.dataset.sec;svg.querySelectorAll('.w[data-net]').forEach(w=>{
+function apply(){let pd=0,nd=0,nt=0;
+ cks.forEach(c=>{const on=!!st['p|'+c.dataset.k];c.checked=on;c.closest('tr').classList.toggle('ok',on);if(on)pd++});
+ document.querySelectorAll('g.bx').forEach(g=>g.classList.toggle('ok',!!st['p|'+g.dataset.ref]));
+ document.querySelectorAll('section.card[data-sec]').forEach(sec=>{const sid=sec.dataset.sec,svg=sec.querySelector('svg.dia'),ns=nets(svg);let d=0;
+  svg.querySelectorAll('.w[data-net]').forEach(w=>w.classList.toggle('done',!!st['n|'+sid+'|'+w.dataset.net]));ns.forEach(n=>{if(st['n|'+sid+'|'+n])d++});
+  sec.querySelector('.secprog').textContent=d+' / '+ns.length+' nets wired';sec.querySelector('.pdone').textContent=sec.querySelectorAll('.ck:checked').length+' / '+sec.querySelectorAll('.ck').length;nd+=d;nt+=ns.length});
+ const total=cks.length+nt,done=pd+nd;document.getElementById('pg').max=total;document.getElementById('pg').value=done;document.getElementById('pt').textContent=pd+' / '+cks.length+' parts, '+nd+' / '+nt+' nets';
+ try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
+cks.forEach(c=>c.addEventListener('change',()=>{if(c.checked)st['p|'+c.dataset.k]=1;else delete st['p|'+c.dataset.k];apply()}));
+svgs.forEach(svg=>{const sid=svg.closest('section').dataset.sec;
+ svg.querySelectorAll('g.bx').forEach(g=>g.addEventListener('click',()=>{const k='p|'+g.dataset.ref;if(st[k])delete st[k];else st[k]=1;apply()}));
+ svg.querySelectorAll('.w[data-net]').forEach(w=>{
  w.addEventListener('mouseenter',()=>{svg.classList.add('hl');svg.querySelectorAll('.w[data-net="'+w.dataset.net+'"]').forEach(x=>x.classList.add('on'))});
  w.addEventListener('mouseleave',()=>{svg.classList.remove('hl');svg.querySelectorAll('.w.on').forEach(x=>x.classList.remove('on'))});
- w.addEventListener('click',()=>{const k=sid+'|'+w.dataset.net;if(st[k])delete st[k];else st[k]=1;apply()})})});
-document.querySelectorAll('.seccb').forEach(cb=>cb.addEventListener('change',()=>{const sid=cb.dataset.sec,svg=document.querySelector('svg.dia[data-sec="'+sid+'"]');nets(svg).forEach(n=>{if(cb.checked)st[sid+'|'+n]=1;else delete st[sid+'|'+n]});apply()}));
-document.getElementById('rs').onclick=()=>{if(confirm('Clear all ticks?')){st={};apply()}};apply();
-</script></main></body></html>""")
-    return "".join(o)
+ w.addEventListener('click',()=>{const k='n|'+sid+'|'+w.dataset.net;if(st[k])delete st[k];else st[k]=1;apply()})})});
+document.getElementById('rs').onclick=()=>{if(confirm('Clear all ticks on all TankPilot pages?')){st={};apply()}};
+document.getElementById('q').oninput=ev=>{const v=ev.target.value.toLowerCase();document.querySelectorAll('tbody tr').forEach(r=>r.style.display=r.innerText.toLowerCase().includes(v)?'':'none')};
+apply();
+</script></main></body></html>"""
 
 
 # ------------------------------------------------------------------ connection map
@@ -434,9 +448,9 @@ def standalone_svg():
 
 def main():
     write_bom()
-    open(os.path.join(DOCS, "bom-by-section.html"), "w", encoding="utf-8").write(page_bom())
+    for k, fn in PAGE_FILES.items():
+        open(os.path.join(DOCS, fn), "w", encoding="utf-8").write(page_combo(k))
     open(os.path.join(DOCS, "schematic-guide.html"), "w", encoding="utf-8").write(page_schem())
-    open(os.path.join(DOCS, "wiring-by-section.html"), "w", encoding="utf-8").write(page_wiring())
     open(os.path.join(DOCS, "connection-diagram.html"), "w", encoding="utf-8").write(page_map())
     open(os.path.join(DOCS, "pcb-section-guide.html"), "w", encoding="utf-8").write(page_pcb())
     open(os.path.join(DOCS, "images", "pcb-floorplan.svg"), "w", encoding="utf-8").write(standalone_svg())
