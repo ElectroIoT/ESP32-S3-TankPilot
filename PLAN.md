@@ -3,7 +3,7 @@
 Date: 2026-11-05. Working name: **TankPilot** (companion of BorePilot; **name not checked** for collisions, web search was unavailable). Nothing here is drawn or built. You lay out the PCB yourself in EasyEDA: this plan gives the structure, nets, GPIO table, BOM and placement hints only.
 
 ## 1. What it is
-A small low-cost board that sits at the water tank, measures the water level in % with **whichever sensor you have** (ultrasonic, five-level probes, float; automatic fallback if one fails) and reports it to BorePilot (ESP-NOW) and Home Assistant. BorePilot then starts the pump automatically when the level falls below a set % (for example 20 %) and stops it when the tank is full. See section 8. One board, three sensor ports, all active at once in firmware (use one, two or all three).
+A small low-cost board that sits at the water tank, measures the water level in % with **whichever sensor you have** (ultrasonic, five-level probes, float; automatic fallback if one fails) and reports it to **Home Assistant through ESPHome (Wi-Fi)**. It is a **separate, stand-alone board: nothing in the BorePilot project changes.** A Home Assistant automation then starts the pump (using BorePilot's existing Start Pump switch) when the level falls below a set % (for example 20 %) and stops it when the tank is full. See section 8. One board, three sensor ports, all active at once in firmware (use one, two or all three).
 
 | Port | Sensor | Connector |
 |---|---|---|
@@ -23,7 +23,7 @@ A small low-cost board that sits at the water tank, measures the water level in 
 | ESP-12F (ESP8266) | about $1 (not looked up) | yes / no BLE | yes | Cheaper, but no native USB, ESP8266 is end-of-line and has 1 ADC pin only: bad for 2 probe inputs. Not recommended. |
 | Dev board (C3 SuperMini, ESP32 DevKit) | Rs 200 to 500 in India | yes | yes | Not on the board in v1. A v2 can add two 1x8 sockets "use your own dev board". |
 
-All ports and the pinout below are for the C3-MINI-1. ESP-NOW range and the BorePilot link are the same as in the BorePilot plan (its section 5A).
+All ports and the pinout below are for the C3-MINI-1. The node talks to Home Assistant over Wi-Fi (ESPHome native API); ESP-NOW is not needed.
 
 ## 3. Block diagram
 ```mermaid
@@ -114,7 +114,9 @@ Source: [hardware/bom/tank-node-bom-v0.csv](hardware/bom/tank-node-bom-v0.csv). 
 
 ## 8. Level measurement, auto-start logic, Home Assistant and display (requirements from 2026-11-05)
 
-**What you asked for.** Measure the water level in % with a probe kit **or** an ultrasonic sensor (you buy either one, or both); when the water falls below a set level (for example below 20 %) the pump starts by itself and stops when the tank is full; everything is controlled from Home Assistant through ESPHome; the level is also shown on the BorePilot pump-controller display; if the ultrasonic sensor ever fails, the board must carry on with the probes (you said you would use the probe if the ultrasonic is unreliable).
+**What you asked for.** Measure the water level in % with a probe kit **or** an ultrasonic sensor (you buy either one, or both); when the water falls below a set level (for example below 20 %) the pump starts by itself and stops when the tank is full; everything is controlled from Home Assistant through ESPHome; the level may also be shown on the BorePilot display later (optional, see 8.5); if the ultrasonic sensor ever fails, the board must carry on with the probes (you said you would use the probe if the ultrasonic is unreliable).
+
+**Scope (2026-11-05): the tank board is a separate extra board; the BorePilot project is not changed.** The tank node talks only to Home Assistant (ESPHome native API over Wi-Fi). It already has everything for this requirement; the rest is firmware.
 
 **Hardware answer:** the board already has three independent level sources (ultrasonic, five-level probes, float). Nothing more is needed for this requirement; it is firmware logic.
 
@@ -139,24 +141,26 @@ Buy one of them now: for **auto-start at 20 %** the probes are the safer main se
    - Both unhealthy: use the float if present; otherwise **do not start the pump automatically** and raise an alert.
 5. **Source indicator** is always sent with the level (ULTRASONIC, PROBES, FLOAT, NONE) so you always see what is being used.
 
-### 8.3 Pump control (who decides)
-- **BorePilot decides** (it owns the relays and has the PZEM protection); the tank node only measures and reports. Home Assistant sets the thresholds and can override.
-- **Start** when level < `start_below` (default 20 %, set in HA, any value) **and** level data is fresh **and** the pump is off, a minimum off time has passed (default 5 min) and no alarm is active. BorePilot pulses its start relay as before.
-- **Stop** when level >= `stop_at` (default FULL / 100 %) **or** the float says full, **or** a maximum run time is reached (default 60 min), **or** the PZEM dry-run protection trips.
-- **Stale data:** no message from the tank for `tank_timeout` (default 120 s): never start automatically; if the pump is running keep the run-time cap; fall back to the BorePilot wired float inputs if they exist; raise "tank link lost".
-- **Manual / HA override:** an "Auto mode" switch in HA enables or disables all of the above; the physical START / STOP buttons always work.
+### 8.3 Pump control (who decides): Home Assistant, no change on BorePilot
+- The tank node only measures and reports. **Home Assistant decides**, with an automation that uses the entities BorePilot already has (`Start Pump`, `Stop Pump`, `Pump Amps`, `Pump Running Status`).
+- **Start** when `Tank level %` < `start_below` (default 20 %, any value you set in Home Assistant) **and** the tank data is fresh **and** the pump is off, a minimum off time has passed (default 5 min) and no alarm is active: press `Start Pump` (BorePilot pulses its start relay as it does today).
+- **Stop** when the level reaches `stop_at` (default FULL / 100 %) or the float says full: press `Stop Pump`. Also stop after a maximum run time (default 60 min). BorePilot's own dry-run protection stays as it is.
+- **Stale or unavailable data:** if the tank node is `unavailable` for more than 2 minutes, the automation never starts the pump and sends a notification.
+- **Manual override:** an input_boolean `Tank auto mode` in Home Assistant turns the automation on or off; BorePilot's physical buttons keep working.
+- **If Home Assistant is down** the pump is simply not started automatically (same as having no automation). If you later want a fully offline auto-start, a small option is to run the same rules inside the tank node and give it its own relay output: not in v1.
+- Home Assistant automation example (YAML) will be added to `docs/` when you confirm the entity names.
 
 ### 8.4 Home Assistant (ESPHome) entities
 Tank node: `Tank level %` (sensor), `Tank level source`, `Ultrasonic distance cm`, `Probe 20 / 40 / 60 / 80 / FULL` (binary sensors), `Float 1`, `Ultrasonic OK`, `Probes OK`, `Sensor mode` (select), `D_empty cm`, `D_full cm` (numbers), `Node link OK`.
-BorePilot: `Auto mode` (switch), `Start below %`, `Stop at %` (numbers), `Max run time min`, `Min off time min`, `Auto-start status`, plus the existing pump / PZEM entities. A Home Assistant automation is not required for the core logic (it runs on BorePilot even if Home Assistant is down).
+Home Assistant helpers (created in Home Assistant, not in BorePilot): `Tank auto mode` (input_boolean), `Start below %` and `Stop at %` (input_number), `Max run time min`, `Min off time min`. The automation uses BorePilot's existing `Start Pump`, `Stop Pump`, `Pump Amps` and `Pump Running Status`. The core logic is a Home Assistant automation, so it needs Home Assistant running.
 
-### 8.5 Display on the BorePilot controller
-A tank screen with: a level bar (0 to 100 %), the percentage in large digits, the source name (ULTRASONIC / PROBES / FLOAT), and a status line (AUTO ON, NODE LINK OK, PUMP RUNNING, or an alert such as TANK LINK LOST). It fits all three display options (16x2: `TANK 45% US OK` / `AUTO ON  PUMP OFF`; OLED and 12864: bar + text). The MENU button cycles the screens.
+### 8.5 Showing the level on the pump controller (optional, your choice)
+No hardware or project change is needed for this. When you want the tank level on the BorePilot display, add one `homeassistant` sensor to BorePilot's own ESPHome YAML (it can import `sensor.tank_level` from Home Assistant) and a tank screen: bar, big percentage, source name, and an AUTO ON / LINK LOST status line. I have not touched BorePilot; this is for later, only if you ask.
 
 ### 8.6 Link and firmware
-- **ESP-NOW** from the tank node to BorePilot every 5 s (level %, source, flags, battery n/a, sequence number) with a shared key; **ESPHome** on both ends (esp32 / esp-idf). Wi-Fi / MQTT to Home Assistant as a second path from the tank node when the router reaches it.
-- **Work on the BorePilot side is not done and I have not touched that project:** a tank screen, the `Auto mode` logic above, ESP-NOW receive. It needs a go-ahead and a decision about ESPHome ESP-NOW support (**unverified**).
-- The probe-burst measurement needs a small custom component (**unverified**, bench test first).
+- **ESPHome native API over Wi-Fi to Home Assistant** (esp32-c3, esp-idf, API encryption key, OTA password, fallback hotspot), plus MQTT if you prefer. ESP-NOW is **not needed** now (no BorePilot link); it stays possible later.
+- The probe-burst measurement needs a small custom component (**unverified**, bench test first). Everything else uses built-in ESPHome components (`ultrasonic`, `gpio` binary sensors, template sensors for the level and fallback logic).
+- The tank node must have good Wi-Fi at the tank. If the signal is weak, use the external-antenna variant (ESP32-C3-MINI-1U) or an access point near the tank.
 
 ## 9. Phases
 0 answer section 10 and check the name -> 1 read datasheets (C3-MINI-1, AP2112K, DC-005 jack, KF128, USBLC6) -> 2 schematic in EasyEDA (one page per block) -> 3 footprint check -> 4 layout by you (silkscreen boxes) -> 5 firmware -> 6 bench test with a bucket: ultrasonic distance vs a ruler, floats, probe amplitudes in clean and salty water -> 7 order 5 boards.
@@ -168,11 +172,12 @@ A tank screen with: a level bar (0 to 100 %), the percentage in large digits, th
 | Q2 | **ANSWERED 2026-11-05:** 5 or 6 wires: COM + level probes 20 %, 40 %, 60 %, 80 %, FULL. | decided |
 | Q3 | **ANSWERED 2026-11-05:** you own the Robocraze waterproof sensor (JSN-SR04T type, Rs 345): 5 V, 25 to 450 cm, TRIG / ECHO. The board still supports HC-SR04 and A02YYUW. | JSN-SR04T first |
 | Q4 | OK that the probe circuit is untested and may need resistor changes? | yes, bench-tune |
+| Q12 | Is Wi-Fi coverage good at the tank? (If not: external-antenna module or a nearby access point.) | assume good |
 | Q5 | Power only from the 5 V adapter, or also battery / solar later? | adapter + USB only |
 | Q6 | Name: TankPilot or another? (collision check still to do) | working name |
 | Q9 | **ANSWERED 2026-11-05:** you have the HYDRO FLOW float switch (single cable float, 3 m, mains-type pump float). Used as FLOAT 1 dry contact only. | decided |
 | Q7 | **ANSWERED 2026-11-05:** both. BorePilot decides auto-start / stop; Home Assistant (ESPHome) sets the thresholds, shows the level and can override. The level is also shown on the BorePilot display. | decided |
-| Q10 | May I update the BorePilot plan (tank screen, Auto mode, ESP-NOW receive)? Not touched yet. | not yet |
+| Q10 | **ANSWERED 2026-11-05:** the tank board is separate; BorePilot is not changed. Pump start / stop is a Home Assistant automation using BorePilot's existing switches. | decided |
 | Q11 | Which sensor do you buy first: ultrasonic or probes? Default start-below level 20 %, stop at FULL: OK? | probes first, 20 % / FULL |
 | Q8 | A v2 with sockets for your own dev board wanted? | not in v1 |
 
