@@ -411,6 +411,44 @@ cks.forEach(c=>{c.checked=!!st[c.dataset.k];c.addEventListener('change',upd)});d
 
 
 # ------------------------------------------------------------------ PCB guide
+
+# ------------------------------------------------------------------ enclosure
+ENC_OUT = (120.0, 80.0)
+ENC_POST = 11.5       # corner screw post, square, measured from the outer wall (data-sheet drawing, approx.)
+ENC_BOSS_X = 11.5     # mid-side boss reaches this far from the outer wall
+ENC_BOSS_Y = (40.0, 4.5)   # boss centre height and half-height (approx.)
+PCB_OFF = ((ENC_OUT[0] - PL.BOARD_W) / 2, (ENC_OUT[1] - PL.BOARD_H) / 2)
+
+
+def enclosure_svg():
+    W, H = ENC_OUT
+    ox, oy = PCB_OFF
+    o = [f'<svg viewBox="-6 -6 {W+12} {H+14}" width="720" class="plan" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,Segoe UI,sans-serif">']
+    o.append(f'<rect x="0" y="0" width="{W}" height="{H}" rx="3" fill="none" stroke="var(--ink)" stroke-width="0.5"/>')
+    o.append(f'<rect x="2.6" y="2.6" width="{W-5.2}" height="{H-5.2}" rx="3" fill="var(--board)" stroke="var(--ink)" stroke-width="0.3"/>')
+    for (cx, cy) in ((0, 0), (W - ENC_POST, 0), (0, H - ENC_POST), (W - ENC_POST, H - ENC_POST)):
+        o.append(f'<rect x="{cx}" y="{cy}" width="{ENC_POST}" height="{ENC_POST}" rx="2" fill="#9aa5b5" fill-opacity=".55" stroke="#64748b" stroke-width="0.3"/>')
+        o.append(f'<circle cx="{cx+ENC_POST/2 if cx == 0 else cx+ENC_POST/2}" cy="{cy+ENC_POST/2}" r="2.1" fill="var(--board)" stroke="#64748b" stroke-width="0.25"/>')
+    for sx in (0, 1):
+        bx = 0 if sx == 0 else W - ENC_BOSS_X
+        o.append(f'<rect x="{bx}" y="{ENC_BOSS_Y[0]-ENC_BOSS_Y[1]}" width="{ENC_BOSS_X}" height="{2*ENC_BOSS_Y[1]}" rx="3" fill="#9aa5b5" fill-opacity=".55" stroke="#64748b" stroke-width="0.3"/>')
+    o.append(f'<rect x="{ox}" y="{oy}" width="{PL.BOARD_W}" height="{PL.BOARD_H}" rx="3" fill="#2fbf71" fill-opacity=".18" stroke="#2fbf71" stroke-width="0.5"/>')
+    o.append(f'<text x="{W/2}" y="{H/2+1}" text-anchor="middle" font-size="5" font-weight="700" fill="var(--ink)">PCB {PL.BOARD_W:.0f} x {PL.BOARD_H:.0f}</text>')
+    o.append(f'<text x="{W/2}" y="{H+4.5}" text-anchor="middle" font-size="3.2" fill="var(--mute)">box 120 x 80 mm outside; grey = screw posts and bosses (approximate, from the data-sheet drawing); green = the PCB, centred</text>')
+    o.append("</svg>")
+    return "".join(o)
+
+
+ENCL_HTML = (
+    '<div class="rec"><b>Fit check.</b> The data sheet gives 120 x 80 mm outside and about 115 x 75 mm inside, but the four lid-screw posts (about 11.5 mm square) and two mid-side bosses (105 mm apart) reduce the free floor to about <b>96 x 75 mm</b>. '
+    f'The board is <b>{PL.BOARD_W:.0f} x {PL.BOARD_H:.0f} mm</b>, so it fits with about 1 mm to the bosses and 2.5 mm top and bottom, and stays well under the 100 x 100 mm limit. '
+    'A 100 mm wide board would NOT fit. Height inside is about 43 mm: the tallest parts (470 uF C1 about 12 mm, HLK module 18 mm, screw terminals about 10 mm) are fine.</div>'
+    '<div class="scroll">' + enclosure_svg() + '</div>'
+    '<ul class="rules"><li><b>Mounting:</b> the box has no documented PCB posts, so use 3 M3 standoffs on adhesive pads or a small mounting plate through the three holes of the board; confirm the real posts on the box before ordering the PCB.</li>'
+    '<li><b>Cable entries (IP67):</b> drill the box for cable glands (PG7 / PG9): 5 V, ultrasonic, float, probes (one gland for the 6 wires), LDR and DHT11 cable. Keep the glands on the bottom edge next to the screw terminals J4, J8, J10, J11. Because the box is sealed, <b>use the J10 screw terminal for the 5 V supply</b>; the DC jack J1 and the USB-C J5 are only for use with the lid open.</li>'
+    '<li><b>230 V option:</b> only with an engineer review; keep the mains gland and wiring away from the probe cables, and note the clear lid shows everything.</li>'
+    '<li>The drawing file (.dwg, AutoCAD 2018) could not be opened on this PC; the numbers above come from the data-sheet image (120 / 80 / 55 mm, holes 111.5 x 71.5 mm, 105 mm between inner bosses, 43 mm inside height). Export the DWG as PDF or DXF if you want the exact inner shape checked.</li></ul>')
+
 BW, BH = PL.BOARD_W, PL.BOARD_H
 BLK = {b[0]: b for b in PL.BLOCKS}
 REF_NAME = {p[0]: p[2] for p in D.PARTS}
@@ -433,7 +471,7 @@ BLOCK_NOTES = {
 NETS = [("AC_L, AC_N, AC_LF (option)", "1.0 mm min, 6.4 mm to low-voltage copper", "Mains side only, right of the slot."), ("+5V_HLK, +5V, DC_F", "0.8 mm", "Peak about 0.5 A."), ("+3V3", "0.6 mm", "ESP32-C3 bursts to about 0.35 A."),
         ("GND", "pour on both layers", "Low-voltage side only; no pour on the mains side or across the slot."), ("USB_DP / USB_DN", "0.2 mm pair, 90 ohm", "Short, no stubs."), ("PROBE_*, FLOAT*, US_*, others", "0.25 mm", "Plain signals; keep probe lines away from the antenna."),
         ("Isolation slot", "1.3 mm wide", "Routed slot; ends 3.2 mm past the mains copper (only needed if the HLK block is fitted).")]
-STEPS = ["In EasyEDA PCB draw the outline 100 x 70 mm, 3 mm corners, four 3.2 mm non-plated holes at (4,4), (96,4), (4,66), (96,66) mm, and (if you fit the HLK block) the slot x 77.4 to 78.7 mm, y 5 to 66 mm.",
+STEPS = ["In EasyEDA PCB draw the outline " + f"{BW:.0f} x {BH:.0f}" + " mm, 3 mm corners, three 3.2 mm non-plated holes at " + ", ".join(f"({x:g},{y:g})" for x, y in PL.HOLES) + " mm, and (if you fit the HLK block) the slot x " + f"{PL.SLOT['x']:.1f} to {PL.SLOT['x']+PL.SLOT['w']:.1f}" + " mm, y " + f"{PL.SLOT['y0']:g} to {PL.SLOT['y1']:g}" + " mm.",
          "Import the schematic (Design > Update/Convert Schematic to PCB). Check every footprint against its datasheet first.", "Place block by block with the X / Y tables, ticking each part here.",
          "Draw one rectangle per block on the Top Silkscreen layer with its title (the dashed boxes).", "Draw the net classes from the table above, then pour GND on the low-voltage side.", "Route the HLK block (if fitted) and the USB pair first, then power, then sensors.",
          "Run DRC with a 6.4 mm clearance rule between mains and low-voltage nets. Add silkscreen: 5 V DC ONLY, MAINS WARNING, terminal pin names (COM, 20%, 40%, 60%, 80%, FULL, F, GND, 5V, TRIG, ECHO).", "Export Gerber and have the PCB maker check the slot and the spacing."]
@@ -499,13 +537,13 @@ def parts_table(block):
 def page_pcb():
     total = len(PL.L)
     used = sum(v[2] * v[3] for v in PL.L.values())
-    o = [head("TankPilot - PCB floorplan 100 x 70 mm", "100 x 70 mm, 2 layers. One zoomed drawing, one dashed silkscreen box and one X / Y table per block; tick each part as you place it in EasyEDA (saved in this browser).",
+    o = [head(f"TankPilot - PCB floorplan {PL.BOARD_W:.0f} x {PL.BOARD_H:.0f} mm", f"{PL.BOARD_W:.0f} x {PL.BOARD_H:.0f} mm, fits the 120 x 80 x 55 mm IP67 clear box, 2 layers. One zoomed drawing, one dashed silkscreen box and one X / Y table per block; tick each part as you place it in EasyEDA (saved in this browser).",
               '<div class="chips">' + '<a style="background:#607d8b" href="#size">Board size</a><a style="background:#607d8b" href="#plan">Floor plan</a>' + "".join(f'<a style="background:{b[2]}" href="#{b[0]}">{e(b[1])}</a>' for b in PL.BLOCKS) + f'<a style="background:#607d8b" href="#nets">Nets</a><a style="background:#607d8b" href="#steps">Steps</a><span class="mut">placed <b id="tot">0</b> / {total}</span><div class="pbar"><div id="barfill"></div></div><button class="ghost" id="reset">Reset ticks</button></div>', "pcb-floorplan.html")]
-    o.append(f'<section class="card" id="size"><h2>Board size: 100 x 70 mm</h2><div class="rec"><b>2 layers, 1.6 mm FR-4, 1 oz copper, 100 x 70 mm, 3 mm corners, four M3 holes (3.2 mm, non-plated, no pad).</b> Parts add up to about {used:.0f} mm&sup2; of 7000 mm&sup2; ({used/70:.0f} %). The size is set by the optional 230 V block: the HLK-5M05 module alone is 38 x 23 mm and needs the fuse, varistor, AC terminal and a 6.4 mm slot. <b>Without the HLK block</b> the board shrinks to about 60 x 50 mm (nothing right of x 58 mm is needed). Both stay under 100 x 100 mm, the cheapest PCB price tier.</div>'
-             f'<h3>Outline, holes, slot</h3><div class="scroll"><table><thead><tr><th>Item</th><th>X mm</th><th>Y mm</th><th>Size</th></tr></thead><tbody><tr><td>Board outline</td><td class="num">0 - 100</td><td class="num">0 - 70</td><td>100 x 70, corner radius 3 mm</td></tr>'
+    o.append(f'<section class="card" id="size"><h2>Board size: {BW:.0f} x {BH:.0f} mm</h2><div class="rec"><b>2 layers, 1.6 mm FR-4, 1 oz copper, {BW:.0f} x {BH:.0f} mm, 3 mm corners, three M3 holes (3.2 mm, non-plated, no pad).</b> Parts add up to about {used:.0f} mm&sup2; of {BW*BH:.0f} mm&sup2; ({used/(BW*BH/100):.0f} %). The size is set by the optional 230 V block: the HLK-5M05 module alone is 38 x 23 mm and needs the fuse, varistor, AC terminal and a 6.4 mm slot. <b>Without the HLK block</b> the board shrinks to about 72 x 70 mm (nothing right of x 72 mm is needed). Both stay under 100 x 100 mm, the cheapest PCB price tier, and the full board fits the enclosure below.</div>'
+             f'<h3>Outline, holes, slot</h3><div class="scroll"><table><thead><tr><th>Item</th><th>X mm</th><th>Y mm</th><th>Size</th></tr></thead><tbody><tr><td>Board outline</td><td class="num">0 - {BW:.0f}</td><td class="num">0 - {BH:.0f}</td><td>{BW:.0f} x {BH:.0f}, corner radius 3 mm</td></tr>'
              + "".join(f'<tr><td>MH{i} M3 hole</td><td class="num">{hx:.1f}</td><td class="num">{hy:.1f}</td><td>3.2 mm, non-plated, no pad</td></tr>' for i, (hx, hy) in enumerate(PL.HOLES, 1))
              + f'<tr><td>Isolation slot (HLK block only)</td><td class="num">{PL.SLOT["x"]:.1f} - {PL.SLOT["x"]+PL.SLOT["w"]:.1f}</td><td class="num">{PL.SLOT["y0"]:.0f} - {PL.SLOT["y1"]:.0f}</td><td>{PL.SLOT["w"]} mm wide, routed</td></tr></tbody></table></div>'
-             '<h3>Edge plan</h3><ul class="rules"><li><b>Top edge:</b> J2 (ultrasonic), J3 (float), J12 (DHT11), J6 (expansion), antenna end of the ESP32-C3 module.</li><li><b>Left edge:</b> J1 (DC jack) and J5 (USB-C).</li><li><b>Bottom edge:</b> J4 and J8 (probe terminals, cables down).</li><li><b>Right side:</b> J10 (5 V terminal) and J11 (LDR) in the free low-voltage area, then the optional 230 V block with J9 (AC in) on the far right.</li></ul>'
+             '<h3>Enclosure: 120 x 80 x 55 mm IP67 transparent ABS box (IDIS SKU 10188)</h3>' + ENCL_HTML + '<h3>Edge plan</h3><ul class="rules"><li><b>Top edge:</b> J2 (ultrasonic), J3 (float), J12 (DHT11), J6 (expansion), antenna end of the ESP32-C3 module.</li><li><b>Left edge:</b> J1 (DC jack) and J5 (USB-C).</li><li><b>Bottom edge:</b> J4 and J8 (probe terminals, cables down).</li><li><b>Right side:</b> J10 (5 V terminal) and J11 (LDR) in the free low-voltage area, then the optional 230 V block with J9 (AC in) on the far right.</li></ul>'
              '<p class="mut">Silkscreen box per block: one dashed rectangle with its title on the Top Silkscreen layer (as in the BorePilot guide). The checker confirmed: no overlaps, no part outside its own box, no box touching a mounting hole or another box, 3.2 mm from low-voltage parts to the mains parts, and nothing above the antenna end.</p></section>')
     o.append('<section class="card" id="plan"><h2>Floor plan<span class="cnt">dashed boxes = silkscreen boxes; dashed part outlines = optional parts; click a part to tick it</span></h2><div class="scroll">' + board_svg() + '</div></section>')
     for b in PL.BLOCKS:
@@ -534,7 +572,7 @@ def standalone_svg():
     leg = "".join(f'<rect x="{-3 + (i % 5) * 21}" y="{4.6 + (i // 5) * 2.6:.1f}" width="1.6" height="1.6" fill="{b[2]}"/><text x="{-3 + (i % 5) * 21 + 2.2}" y="{5.9 + (i // 5) * 2.6:.1f}" font-size="1.35" fill="#1c2330">{e(b[1])}</text>' for i, b in enumerate(PL.BLOCKS))
     vh = BH + 16
     return (f'<svg viewBox="-3 {-(BH+5)} {BW+6} {vh}" width="1000" height="{1000*vh/(BW+6):.0f}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,Segoe UI,sans-serif"><rect x="-3" y="{-(BH+5)}" width="{BW+6}" height="{vh}" fill="#ffffff"/>'
-            f'<text x="-2" y="{-(BH+2.5)}" font-size="2" font-weight="700" fill="#1c2330">TankPilot PCB floor plan - 100 x 70 mm, 2 layers, one silkscreen box per block (planning estimate)</text>{inner}{leg}</svg>')
+            f'<text x="-2" y="{-(BH+2.5)}" font-size="2" font-weight="700" fill="#1c2330">TankPilot PCB floor plan - {PL.BOARD_W:.0f} x {PL.BOARD_H:.0f} mm, 2 layers, one silkscreen box per block (planning estimate)</text>{inner}{leg}</svg>')
 
 
 def main():

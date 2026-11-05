@@ -110,9 +110,9 @@ Power now has **three sources (the DC jack J1 or the 2-pin screw terminal J10 fo
 | R17, R18, R19, R20, R21 | 5 | 470 k 1206 | [C17997](https://www.lcsc.com/product-detail/C17997.html) 1206W4F4703T5E | 9000 | 0.0074 (100+) | LISTING 2026-11-05; value to tune on the bench |
 
 ## 7. PCB size and placement (for your EasyEDA layout)
-- **Size: 100 x 70 mm with the HLK 230 V block (about 60 x 50 mm if you leave that block out), 2 layers, 1.6 mm, 1 oz.** Four M3 holes, non-plated, 4 mm from the corners. Under the 100 x 100 mm cheapest tier.
+- **Size: 94 x 70 mm with the HLK 230 V block (about 72 x 70 mm if you leave that block out), 2 layers, 1.6 mm, 1 oz.** Three M3 holes, non-plated. Under the 100 x 100 mm limit and sized for the **120 x 80 x 55 mm IP67 transparent ABS enclosure** (IDIS India SKU 10188): about 96 x 75 mm of free floor between the lid-screw posts and side bosses, about 43 mm inside height, so a 100 mm wide board would not fit. Use the J10 screw terminal for 5 V (the box is sealed), cable glands for the sensor wires, and confirm the PCB mounting posts on the real box. The DWG drawing could not be opened on this PC (no CAD reader); dimensions come from the data-sheet image.
 - **Thirteen silkscreen blocks**, each part inside its own rectangle (ULTRASONIC, FLOAT SWITCH, DHT11, 5 V POWER, 5 V IN TERMINAL, LDR, USB-C, PROBES, ESP32-C3, EXPANSION, HLK 5V OUT, HLK 230 V, AC IN 230 V): see [docs/pcb-floorplan.html](docs/pcb-floorplan.html) with X / Y tables and the checked floor plan (planning estimates, not EasyEDA footprints; checker reports 0 problems).
-- Mains zone on the right, isolation slot (1.3 mm) at x 77.4 to 78.7, low-voltage parts at least 3.2 mm from the mains-only parts; U1 antenna end at the top edge with nothing above it.
+- Mains zone on the right, isolation slot (1.3 mm) at x 72.4 to 73.7, y 1.5 to 67, low-voltage parts at least 3.2 mm from the mains-only parts; U1 antenna end at the top edge with nothing above it.
 - Other pages: [wiring](docs/wiring-by-section.html), [schematic](docs/schematic-sections.html).
 - **Water and outdoors:** plastic IP65 box near the tank; conformal coating recommended; keep probe and float cables away from the antenna.
 

@@ -5,9 +5,9 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import REF_SEC
 
-BOARD_W, BOARD_H = 100.0, 70.0
-SLOT = dict(x=77.4, w=1.3, y0=5.0, y1=66.0)             # isolation slot: mains zone to the right, low voltage to the left
-HOLES = [(4.0, 4.0), (96.0, 4.0), (4.0, 66.0), (96.0, 66.0)]
+BOARD_W, BOARD_H = 94.0, 70.0
+SLOT = dict(x=72.4, w=1.3, y0=1.5, y1=67.0)             # isolation slot: mains zone to the right, low voltage to the left
+HOLES = [(4.0, 4.0), (4.0, 66.0), (90.0, 66.0)]
 R1206 = (4.6, 2.6)
 S603 = (2.6, 1.6)
 SOT6 = (3.4, 3.2)
@@ -37,11 +37,11 @@ put("U4", 33, 55, *SOT6)
 put("J12", 39.5, 66, 2.5, 7.6)
 put("R23", 39.5, 59.5, 4.6, 2.6, 90)
 # ---- extra 5 V terminal and LDR (low-voltage free area right of the MCU)
-put("J10", 66, 61.2, 10.2, 8)
-put("J11", 66, 52.2, 10.2, 8)
-small("R22", 61.9, 44.4)
-small("R24", 66.6, 44.4)
-small("C15", 71.3, 44.4)
+put("J10", 65.5, 61.2, 10.2, 8)
+put("J11", 65.5, 52.2, 10.2, 8)
+small("R22", 62.0, 44.4)
+small("R24", 67.0, 44.4)
+small("C15", 62.0, 41.2)
 # ---- 5 V power (left side)
 put("J1", 7.5, 43, 14.5, 9)
 small("F1", 19, 46)
@@ -84,15 +84,15 @@ small("R6", 50.5, 31)
 put("LED2", 46, 28.5, *S603)
 small("R7", 50.5, 28.5)
 # ---- expansion header
-put("J6", 64.5, 68.7, 10.2, 2.5)
+put("J6", 65.0, 68.7, 10.2, 2.5)
 # ---- HLK 5 V output parts
-put("D4", 54, 12, 5.4, 4.4)
-small("C6", 54, 18)
+put("D4", 49.5, 12, 5.4, 4.4)
+small("C6", 49.5, 18)
 # ---- HLK 230 V option
-put("U8", 78, 19.5, 38, 23)
-put("F2", 83, 47, 7, 24)
-put("RV1", 91, 49, 6, 11)
-put("J9", 95, 38, 8, 10.2)
+put("U8", 74.5, 14.5, 38, 23)
+put("F2", 79, 47, 7, 24)
+put("RV1", 88, 54, 6, 11)
+put("J9", 89.5, 40, 8, 10.2)
 
 # id, title, colour, refs, (x0, y0, x1, y1) silkscreen rectangle
 BLOCKS = [
@@ -103,12 +103,12 @@ BLOCKS = [
     ("usb", "USB-C", "#4895ef", ["J5", "R1", "R2", "U3", "C7"], (0.0, 21.8, 24.0, 33.2)),
     ("probes", "PROBES (COM + 5)", "#ec407a", ["J4", "J8", "C11", "R10", "R11", "R12", "R13", "R14", "R17", "R18", "R19", "R20", "R21", "U5", "U6", "U7"], (7.4, 0.0, 45.5, 21.0)),
     ("mcu", "ESP32-C3", "#a66cff", ["U1", "SW1", "SW2", "R3", "C8", "C10", "C4", "C9", "LED1", "R6", "LED2", "R7"], (43.0, 26.8, 57.8, 69.6)),
-    ("exp", "EXPANSION", "#9aa5b5", ["J6"], (59.0, 65.8, 70.5, 70.0)),
-    ("hlk_out", "HLK 5V OUT", "#ff7043", ["D4", "C6"], (50.5, 9.0, 57.4, 20.6)),
-    ("vin", "5 V IN (TERMINAL)", "#ff9f43", ["J10"], (59.4, 57.0, 72.6, 65.4)),
-    ("ldr", "LDR (LIGHT)", "#c0ca33", ["J11", "R22", "R24", "C15"], (59.4, 42.6, 73.8, 56.4)),
-    ("hlk", "HLK 230 V (OPTION)", "#ff4d4d", ["U8"], (58.4, 7.6, 99.4, 31.6)),
-    ("hlk_ac", "AC IN 230 V (OPTION)", "#ff4d4d", ["F2", "RV1", "J9"], (79.3, 32.2, 99.4, 60.0)),
+    ("exp", "EXPANSION", "#9aa5b5", ["J6"], (59.4, 65.8, 70.6, 70.0)),
+    ("hlk_out", "HLK 5V OUT", "#ff7043", ["D4", "C6"], (46.2, 9.0, 52.8, 20.6)),
+    ("vin", "5 V IN (TERMINAL)", "#ff9f43", ["J10"], (59.4, 57.0, 71.2, 65.4)),
+    ("ldr", "LDR (LIGHT)", "#c0ca33", ["J11", "R22", "R24", "C15"], (59.4, 38.9, 71.2, 56.4)),
+    ("hlk", "HLK 230 V (OPTION)", "#ff4d4d", ["U8"], (55.0, 2.6, 93.8, 26.4)),
+    ("hlk_ac", "AC IN 230 V (OPTION)", "#ff4d4d", ["F2", "RV1", "J9"], (75.2, 27.0, 93.9, 62.0)),
 ]
 REF_BLOCK = {r: b[0] for b in BLOCKS for r in b[3]}
 
