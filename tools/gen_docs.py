@@ -6,6 +6,7 @@ import os, sys, csv, html
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import data as D
 import layout as PL
+import sheets as SH
 
 e = html.escape
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -335,7 +336,7 @@ PAGE_STEPS = {
  "p2": [
   ("Place U1 ESP32-C3-MINI-1-N4 (C2838502). Pins 1, 2, 11, 14 and the pad pins 36-53 to GND, pin 3 to +3V3. Add C4 10 uF and C9, C10 100 nF on +3V3.", "mcu"),
   ("EN (pin 8): R3 10 k to +3V3, C8 100 nF to GND, SW1 to GND. BOOT: SW2 from net <b>BOOT</b> (pin 23, GPIO9) to GND. Tact switch pins 1+2 are joined, 3+4 are joined: use pin 1 and pin 3.", "mcu"),
-  ("USB: pin 26 (IO18) to <b>USB_DN</b>, pin 27 (IO19) to <b>USB_DP</b> (page 1).", "mcu"),
+  ("USB: pin 26 (IO18) to <b>USB_DN</b>, pin 27 (IO19) to <b>USB_DP</b> (sheet 1).", "mcu"),
   ("Net labels on the sensor pins: pin 12 IO0 <b>PROBE_20</b>, pin 13 IO1 <b>PROBE_40</b>, pin 6 IO3 <b>PROBE_60</b>, pin 19 IO5 <b>PROBE_80</b>, pin 20 IO6 <b>PROBE_FULL</b>, pin 18 IO4 <b>PROBE_COM</b>, pin 21 IO7 <b>FLOAT1</b>, pin 16 IO10 <b>DHT</b>, pin 5 IO2 <b>LDR</b>, pin 30 (IO20) <b>US_TRIG</b>, pin 31 (IO21) <b>US_ECHO</b>.", "mcu"),
   ("LED_ST: pin 22 (IO8) to R7 1 k to LED2 (green) to GND. LED1 (red) with R6 1 k from +3V3 to GND (power LED). LDR: pin 5 (IO2) also to J6 pin 4; J6 pins 1 +5V, 2 +3V3, 3 GND (not fitted by default).", "mcu"),
   ("Leave the NC pins (4, 7, 9, 10, 15, 17, 24, 25, 28, 29, 32-35) unconnected with No-Connect flags. Nothing except SW2 on GPIO9.", "mcu"),
@@ -351,37 +352,59 @@ PAGE_STEPS = {
 }
 PAGE_NOTES = {
  "p1": ["Nets leaving this page: +5V, +3V3, VBUS, GND, USB_DP, USB_DN, +5V_HLK. AC_L / AC_N / AC_LF stay on this page only.", "Diode orientation: the bar (cathode) is on the +5V side of D2, D3, D4 and at DC_F for D1."],
- "p2": ["Every GPIO net label here must appear again on page 3 (or page 1 for USB). Single-use labels are typos.", "Antenna end of the module: nothing above it on the PCB (see the layout guide)."],
+ "p2": ["Every GPIO net label here must appear again on sheet 3 (or sheet 1 for USB). Single-use labels are typos.", "Antenna end of the module: nothing above it on the PCB (see the layout guide)."],
  "p3": ["Terminal-side nets end in _T so the pull-ups and series resistors sit between the cable and the GPIO.", "The probe circuit is an untested design idea: keep the resistor footprints so values can be changed on the bench."],
 }
-SETUP = ["Open EasyEDA Pro (web), new project TankPilot with one schematic and one PCB.", "Make 3 schematic pages named as above (page names 1_POWER_USB, 2_MCU, 3_SENSORS).",
+SETUP = ["Open EasyEDA Pro (web), new project TankPilot with one schematic and one PCB.", "Make 3 schematic sheets named as above (page names 1_POWER_USB, 2_MCU, 3_SENSORS).",
          "Place parts by searching the LCSC number (C#) in the library search; set the Designator to the Ref in the table.", "Use net labels for every connection that leaves a page; use the same name on both pages. Names are case-sensitive.",
          "Mark optional parts (HLK block, ESD U5-U7, J6) with the Not-in-BOM attribute when you do not fit them.", "Run the schematic check after each page and fix every warning."]
 FINAL = ["Every net label is used at least twice. One GND, one +5V, one +3V3. AC_* nets exist only if you fit the HLK block.", "Compare the part count with the BOM page (%d pieces, optional parts included)." % D.TOTAL_PIECES,
          "Compare every footprint with its datasheet before the layout: C165948 USB-C, DC-005 jack (centre pin), ESP32-C3-MINI-1, KF128 terminals, SOT-25 LDO.", "Export the schematic PDF and send it for a check."]
 
 
+def sheet_parts_table(secs):
+    groups, order = {}, []
+    for ref, s, name, c, q, pins in D.PARTS:
+        if s in secs:
+            if c not in groups:
+                groups[c] = [[], 0, name]
+                order.append(c)
+            groups[c][0].append(ref)
+            groups[c][1] += q
+    body = ""
+    for c in order:
+        refs, q, name = groups[c]
+        mpn = D.INFO[c][0]
+        fn = name if len(refs) == 1 else " / ".join(dict.fromkeys(D.BYREF[r][2].split(",")[0] for r in refs))
+        opt = ' <span class="tag opt">optional</span>' if all(r in D.OPTIONAL or D.BYREF[r][1] == "hlk" for r in refs) else ""
+        body += (f'<tr><td><b>{e(", ".join(refs))}</b></td><td class="n">{q}</td><td>{e(fn)}{opt}</td><td><span class="mpn">{e(mpn)}</span></td>'
+                 f'<td><a href="https://www.lcsc.com/product-detail/{c}.html" target="_blank" rel="noopener">{c}</a></td></tr>')
+    return f'<div class="scroll"><table><thead><tr><th>Ref</th><th>Qty</th><th>Function</th><th>Part</th><th>LCSC</th></tr></thead><tbody>{body}</tbody></table></div>'
+
+
 def page_schem():
     total = len(D.PARTS) + sum(len(v) for v in PAGE_STEPS.values()) + len(SETUP) + len(FINAL)
-    o = [head("TankPilot - Schematic by section", "Draw the schematic by hand, sheet by sheet: parts to search by LCSC number, wiring steps in order, net names, checks. Progress is saved in this browser.",
-              f'<div class="bar"><progress id="pg" value="0" max="{total}" style="width:220px"></progress><span id="pt" class="mut"></span><button class="ghost" id="rs">Reset ticks</button></div>', "schematic-sections.html")]
-    o.append('<section class="card" id="setup"><h2>0. Setup</h2>' + "".join(f'<div class="step"><input type="checkbox" class="ck" data-k="setup{i}"><span><b>{i}.</b> {e(s)}</span></div>' for i, s in enumerate(SETUP, 1)) + "</section>")
+    o = [head("TankPilot - Schematic by section", "Three sheets, simplified symbols, with the parts of each sheet; the same Sheet 1, 2, 3 as on the BOM and Wiring pages. Draw the real schematic in EasyEDA.",
+              "", "schematic-sections.html")]
+    o.append('<div class="warn"><b>Planning drawing.</b> Symbols are simplified: draw the real schematic in EasyEDA from this page and the Wiring page. Check all pin numbers in the EasyEDA symbols (the module pin numbers p1 to p36 are from the ESP32-C3-MINI-1 datasheet v1.7).</div>')
+    o.append('<p class="legend"><span><i style="background:#e53935"></i>AC mains</span><span><i style="background:#fb8c00"></i>5 V</span><span><i style="background:#f4b400"></i>3.3 V</span><span><i style="background:#8a93a3"></i>GND</span><span><i style="background:#a66cff"></i>MCU control</span><span><i style="background:#8e24aa"></i>USB</span><span><i style="background:#16a34a"></i>ultrasonic</span><span><i style="background:#00bcd4"></i>float</span><span><i style="background:#ec407a"></i>probes</span><span><i style="background:#8bc34a"></i>LDR / DHT11</span></p>')
+    o.append(f'<div class="bar"><progress id="pg" value="0" max="{total}" style="width:240px"></progress><span id="pt" class="mut"></span><button class="ghost" id="rs">Clear ticks</button></div>')
+    o.append('<section class="card" id="setup" style="--c:#475569"><h2>Setup in EasyEDA</h2>' + "".join(f'<div class="step"><input type="checkbox" class="ck" data-k="setup{i}"><span><b>{i}.</b> {e(s)}</span></div>' for i, s in enumerate(SETUP, 1)) + "</section>")
     for n, (pid, ptitle, secs) in enumerate(D.PAGES, 1):
         col = D.SEC[secs[0]][2]
-        o.append(f'<section class="card" id="{pid}" style="--c:{col}"><h2>{e(ptitle)}</h2><h3>1. Place these parts</h3><div class="scroll"><table><thead><tr><th></th><th>Ref</th><th>Part</th><th>Search in EasyEDA</th><th>Qty</th><th>Pins (planned)</th></tr></thead><tbody>')
-        for ref, s, name, c, q, pins in D.PARTS:
-            if s in secs:
-                opt = ' <span class="tag opt">optional</span>' if ref in D.OPTIONAL else ""
-                o.append(f'<tr><td><input type="checkbox" class="ck" data-k="part-{ref}"></td><td><b>{ref}</b></td><td>{e(name)}{opt}</td><td><b>{c}</b> {e(D.INFO[c][0])}</td><td>{q}</td><td>{e("; ".join(a + "=" + (b or "NC") for a, b in D.pins_of(ref)))}</td></tr>')
-        o.append("</tbody></table></div><h3>2. Wire in this order</h3>")
+        o.append(f'<section class="card" id="{pid}" style="--c:{col}"><h2>{e(ptitle)}</h2><div class="scroll">{SH.SHEETS[pid]()}</div>')
+        for tx in PAGE_NOTES[pid]:
+            o.append(f'<p class="mut">{e(tx)}</p>')
+        o.append('<h3>Parts of this sheet</h3>' + sheet_parts_table(secs))
+        o.append('<details><summary><b>Build steps</b> (tick as you draw this sheet)</summary>')
         for i, (txt, sec) in enumerate(PAGE_STEPS[pid], 1):
             o.append(f'<div class="step"><input type="checkbox" class="ck" data-k="{pid}-s{i}"><span><b>{i}.</b> {txt}</span></div>')
-        o.append('<h3>3. Check before leaving the page</h3><ul class="rules">' + "".join(f"<li>{e(t)}</li>" for t in PAGE_NOTES[pid]) + "</ul></section>")
-    o.append('<section class="card" id="final" style="--c:#2fbf71"><h2>Final checks</h2>' + "".join(f'<div class="step"><input type="checkbox" class="ck" data-k="final{i}"><span><b>{i}.</b> {e(s)}</span></div>' for i, s in enumerate(FINAL, 1)) + "</section>")
+        o.append("</details></section>")
+    o.append('<section class="card" id="final" style="--c:#10b981"><h2>Final checks</h2>' + "".join(f'<div class="step"><input type="checkbox" class="ck" data-k="final{i}"><span><b>{i}.</b> {e(s)}</span></div>' for i, s in enumerate(FINAL, 1)) + "</section>")
     o.append(links() + """<script>
 const K='tank-schem-ticks';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
 const cks=[...document.querySelectorAll('.ck')];
-function upd(){const n=cks.filter(c=>c.checked).length;document.getElementById('pg').value=n;document.getElementById('pt').textContent=n+' / '+cks.length+' done';cks.forEach(c=>{const r=c.closest('tr')||c.closest('.step');if(r)r.classList.toggle('ok',c.checked)});try{localStorage.setItem(K,JSON.stringify(Object.fromEntries(cks.filter(c=>c.checked).map(c=>[c.dataset.k,1]))))}catch(e){}}
+function upd(){const n=cks.filter(c=>c.checked).length;document.getElementById('pg').value=n;document.getElementById('pt').textContent=n+' / '+cks.length+' done';cks.forEach(c=>{const r=c.closest('.step');if(r)r.classList.toggle('ok',c.checked)});try{localStorage.setItem(K,JSON.stringify(Object.fromEntries(cks.filter(c=>c.checked).map(c=>[c.dataset.k,1]))))}catch(e){}}
 cks.forEach(c=>{c.checked=!!st[c.dataset.k];c.addEventListener('change',upd)});document.getElementById('rs').onclick=()=>{cks.forEach(c=>c.checked=false);upd()};upd();
 </script></div></body></html>""")
     return "".join(o)
