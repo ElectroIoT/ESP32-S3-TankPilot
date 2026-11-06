@@ -8,8 +8,8 @@ SECTIONS = [
  ("usb", "USB-C PROGRAMMING", "#4895ef", "C165948 USB-C, native USB on GPIO18 / GPIO19, 5.1 k CC resistors, ESD part."),
  ("mcu", "ESP32-C3 CORE", "#a66cff", "ESP32-C3-MINI-1-N4 module, EN / BOOT buttons, status LEDs, decoupling, expansion header."),
  ("ultra", "ULTRASONIC PORT", "#2fbf71", "J2 header for JSN-SR04T / HC-SR04: +5V, TRIG, ECHO (5 V to 3.3 V divider), GND."),
- ("floats", "FLOAT SWITCH PORTS", "#00bcd4", "J3: one dry-contact float switch input, with pull-up, series resistor, filter capacitor and ESD (the second float input was dropped to free GPIO10 for the DHT11)."),
- ("sens", "EXTRA SENSORS (LDR light, DHT11)", "#8bc34a", "J11 2-pin terminal for an LDR (light sensor) with a 10 k divider into the ADC pin GPIO2, and J12 3-pin header for a DHT11 temperature / humidity sensor on GPIO10 with a 10 k pull-up."),
+ ("floats", "FLOAT SWITCH PORTS", "#00bcd4", "J3: one dry-contact float switch input, with pull-up, series resistor, filter capacitor and ESD (the second float input was dropped to free a GPIO for the DHT11)."),
+ ("sens", "EXTRA SENSORS (LDR light, DHT11)", "#8bc34a", "J11 2-pin terminal for an LDR (light sensor) with a 10 k divider into the ADC pin GPIO0, and J12 3-pin header for a DHT11 temperature / humidity sensor on GPIO2 (strapping pin, must be high at reset: the DHT11 idles high with its 10 k pull-up) ."),
  ("probes", "PROBE PORT (COM + 5 LEVELS)", "#ec407a", "J4 + J8: COM (AC-coupled drive) and five level probes 20 / 40 / 60 / 80 / FULL, each with a series resistor and a pull-down."),
 ]
 SEC = {s[0]: s for s in SECTIONS}
@@ -82,7 +82,7 @@ PARTS = [
  ("R2", "usb", "5.1 k 1206, CC2 pull-down", "C26033", 1, "1=CC2,2=GND"),
  ("C7", "usb", "100 nF 1206 on VBUS", "C24497", 1, "1=VBUS,2=GND"),
  # ---- mcu
- ("U1", "mcu", "ESP32-C3-MINI-1-N4 module", "C2838502", 1, "1 GND=GND,2 GND=GND,3 3V3=+3V3,5 IO2=LDR,6 IO3=PROBE_60,8 EN=EN,11 GND=GND,12 IO0=PROBE_20,13 IO1=PROBE_40,14 GND=GND,16 IO10=DHT,18 IO4=PROBE_COM,19 IO5=PROBE_80,20 IO6=PROBE_FULL,21 IO7=FLOAT1,22 IO8=LED_ST,23 IO9=BOOT,26 IO18=USB_DN,27 IO19=USB_DP,30 RXD0 IO20=US_TRIG,31 TXD0 IO21=US_ECHO,36-53 GND pads=GND"),
+ ("U1", "mcu", "ESP32-C3-MINI-1-N4 module", "C2838502", 1, "1 GND=GND,2 GND=GND,3 3V3=+3V3,5 IO2=DHT,6 IO3=PROBE_60,8 EN=EN,11 GND=GND,12 IO0=LDR,13 IO1=PROBE_40,14 GND=GND,16 IO10=PROBE_20,18 IO4=PROBE_COM,19 IO5=PROBE_80,20 IO6=PROBE_FULL,21 IO7=FLOAT1,22 IO8=LED_ST,23 IO9=BOOT,26 IO18=USB_DN,27 IO19=USB_DP,30 RXD0 IO20=US_TRIG,31 TXD0 IO21=US_ECHO,36-53 GND pads=GND"),
  ("SW1", "mcu", "Reset button (EN)", "C318884", 1, "1=EN,3=GND"),
  ("SW2", "mcu", "BOOT / PAIR button (GPIO9)", "C318884", 1, "1=BOOT,3=GND"),
  ("R3", "mcu", "10 k 1206, EN pull-up", "C17902", 1, "1=+3V3,2=EN"),
@@ -94,7 +94,7 @@ PARTS = [
  ("R6", "mcu", "1 k 1206, LED1 series", "C4410", 1, "1=+3V3,2=LED1_A"),
  ("LED2", "mcu", "Green LED: status (GPIO8)", "C2986059", 1, "A=LED2_A,K=GND"),
  ("R7", "mcu", "1 k 1206, LED2 series", "C4410", 1, "1=LED_ST,2=LED2_A"),
- ("J6", "mcu", "OPTIONAL expansion header 1x4 (5V, 3V3, GND, IO2 shared with the LDR input)", "C2691448", 1, "1=+5V,2=+3V3,3=GND,4=LDR"),
+ ("J6", "mcu", "OPTIONAL expansion header 1x4 (5V, 3V3, GND, IO2 shared with the DHT11 line)", "C2691448", 1, "1=+5V,2=+3V3,3=GND,4=DHT"),
  # ---- ultrasonic
  ("J2", "ultra", "Ultrasonic sensor header 1x4 (JSN-SR04T / HC-SR04)", "C2691448", 1, "1 +5V=+5V,2 TRIG=US_TRIG,3 ECHO=ECHO_5V,4 GND=GND"),
  ("R15", "ultra", "1 k 1206, ECHO series (divider top)", "C4410", 1, "1=ECHO_5V,2=US_ECHO"),

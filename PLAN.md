@@ -11,7 +11,7 @@ A small low-cost board that sits at the water tank, measures the water level in 
 | FLOAT 1 and FLOAT 2 | any dry-contact float switch (low / full) | J3 and J7, 2P 5.08 screw terminals |
 | PROBES | stainless-steel conductive probe kit: **COM (bottom reference) + 5 level probes at 20 %, 40 %, 60 %, 80 % and FULL** | J4 and J8, two 3P 5.08 screw terminals side by side: J4 = COM, 20 %, 40 %; J8 = 60 %, 80 %, FULL |
 | Power | 5 V DC adapter (barrel jack) or USB-C | J1 DC jack, J5 USB-C |
-| Expansion | spare GPIO, 3V3, 5V | J6, 1x4 header (5V, 3V3, GND, IO2), not fitted by default |
+| Expansion | spare GPIO, 3V3, 5V | J6, 1x4 header (5V, 3V3, GND, IO2 = DHT11 line), not fitted by default |
 
 **Your probe kit (Q1, answered 2026-11-05):** Imagine Technologies stainless steel sensors, 5 probes with coloured wires about 1.5 m long, Rs 299 (part IT05SS, Amazon B0GT55JTZR, page read 2026-11-05). Listed for 25 / 50 / 75 / 100 % levels. With 5 probes you use **COM + 4 levels (25, 50, 75, 100 %)**; the fifth level terminal stays empty (firmware: not fitted). A 3-probe pack (Rs 199) would give the full 20/40/60/80/FULL. Wire gauge not stated: check on arrival; join a longer cable if the box is not next to the tank.
 
@@ -51,24 +51,24 @@ flowchart LR
 **USB-C (J5).** Same part as BorePilot (C165948): 5.1 k on CC1 / CC2, D+ / D- through U3 to GPIO19 / GPIO18; native USB programming, no CH340. EN and BOOT buttons for recovery. BOOT also works as the **PAIR** button (hold 3 s after power-up).
 
 ## 5. GPIO table (ESP32-C3-MINI-1)
-Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided for sensors (GPIO8 drives only the status LED, GPIO9 is BOOT, GPIO2 is the LDR input). GPIO11 to GPIO17 are used by the module's flash and are not available.
+Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided for sensors (GPIO8 drives only the status LED, GPIO9 is BOOT, GPIO2 is the DHT11 line (idles high)). GPIO11 to GPIO17 are used by the module's flash and are not available.
 
 | GPIO | Net | Dir | Notes |
 |---|---|---|---|
 | 4 | PROBE_COM | out | AC burst through C11 |
-| 0 | PROBE_20 | in | 470 k pull-down, 1 k series |
+| 0 | LDR | in (ADC1 ch0) | LDR on J11: 1 k series, 10 k pull-up to 3V3, 100 nF (not a strapping pin) |
 | 1 | PROBE_40 | in | same |
 | 3 | PROBE_60 | in | same |
 | 5 | PROBE_80 | in | same |
 | 6 | PROBE_FULL | in | same |
 | 7 | FLOAT1 | in | pull-up, dry contact |
-| 10 | DHT | io | DHT11 data on J12, 10 k pull-up (the second float input was dropped for this) |
+| 10 | PROBE_20 | in | 470 k pull-down, 1 k series |
 | 20 | US_TRIG | out | to J2 TRIG (UART0 pin, USB is used for logs) |
 | 21 | US_ECHO | in | from J2 ECHO through the divider |
 | 8 | LED_ST | out | green LED2 (strapping pin: LED only) |
 | 9 | BOOT / PAIR | in | SW2 to GND |
 | 18 / 19 | USB_DN / USB_DP | io | J5 through U3 |
-| 2 | LDR | in (ADC1) | LDR on J11: 1 k series, 10 k pull-up to 3V3, 100 nF; also on J6 pin 4. Strapping pin: dark / unplugged = high at boot; bright light could pull it low (unverified, bench check) |
+| 2 | DHT | io | DHT11 data on J12, 10 k pull-up (also J6 pin 4). Strapping pin: must be high at reset (data sheet table 6): the DHT11 idles high through the pull-up |
 | EN | EN | in | SW1, 10 k pull-up, 100 nF |
 
 All 15 usable GPIOs are assigned. A UART-type ultrasonic module (A02YYUW) uses GPIO20 / GPIO21 as UART1 pins remapped in firmware.
@@ -119,9 +119,9 @@ Power now has **three sources (the DC jack J1 or the 2-pin screw terminal J10 fo
 ## 7b. Extra ports added 2026-11-05
 - **J10:** 2-pin screw terminal for an external 5 V supply (in addition to the DC jack J1; same net, use one at a time).
 - **Probes:** two 3-pin terminals J4 + J8 = 6 wires (COM + 5 levels). The 5-probe kit you chose uses COM + 4 of them.
-- **J11 + R22 / R24 / C15:** LDR (light sensor) on a 2-pin terminal, read by the ADC on GPIO2.
-- **J12 + R23:** DHT11 on a 1x3 header (3V3, DATA, GND) on GPIO10. **Check the pin order of your DHT11 board** before ordering.
-- **Trade-off:** all usable GPIOs were already used, so the **second float input (FLOAT2 / old J7) was removed** to free GPIO10 for the DHT11. One float input remains (J3).
+- **J11 + R22 / R24 / C15:** LDR (light sensor) on a 2-pin terminal, read by the ADC on GPIO0.
+- **J12 + R23:** DHT11 on a 1x3 header (3V3, DATA, GND) on GPIO2. **Check the pin order of your DHT11 board** before ordering.
+- **Trade-off:** all usable GPIOs were already used, so the **second float input (FLOAT2 / old J7) was removed** to free a GPIO. One float input remains (J3). **Pin swap 2026-11-06:** GPIO2 must be high at reset, so the LDR (which can pull low in bright light) moved to GPIO0 (ADC), PROBE_20 moved to GPIO10 and the DHT11 (idles high) took GPIO2.
 
 ## 8. Level measurement, auto-start logic, Home Assistant and display (requirements from 2026-11-05)
 

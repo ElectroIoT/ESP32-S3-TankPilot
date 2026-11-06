@@ -86,12 +86,12 @@ def sheet2():
     right = ["IO7  p21", "IO8  p22", "IO9  p23", "IO10  p16", "IO18  p26", "IO19  p27", "IO20  p30", "IO21  p31", "GND  p36"]
     u1, p = ic(380, 30, 240, 330, "U1", "ESP32-C3-MINI-1-N4 (PCB antenna on top)", left, right, C_SIG, y0=56, step=28)
     o.append(u1)
-    lab = {"IO0  p12": ("PROBE_20", C_PRB), "IO1  p13": ("PROBE_40", C_PRB), "IO2  p5": ("LDR", C_LDR), "IO3  p6": ("PROBE_60", C_PRB),
+    lab = {"IO0  p12": ("LDR", C_LDR), "IO1  p13": ("PROBE_40", C_PRB), "IO2  p5": ("DHT", C_LDR), "IO3  p6": ("PROBE_60", C_PRB),
            "IO4  p18": ("PROBE_COM", C_PRB), "IO5  p19": ("PROBE_80", C_PRB), "IO6  p20": ("PROBE_FULL", C_PRB), "EN  p8": ("EN", C_SIG)}
     for k, (n, c) in lab.items():
         x, y = p[k]
         o.append(line([(x, y), (x - 70, y)], c) + label(x - 76, y + 4, n, c, "end"))
-    rl = {"IO7  p21": ("FLOAT1", C_FLT), "IO8  p22": ("LED_ST", C_SIG), "IO9  p23": ("BOOT", C_SIG), "IO10  p16": ("DHT", C_LDR),
+    rl = {"IO7  p21": ("FLOAT1", C_FLT), "IO8  p22": ("LED_ST", C_SIG), "IO9  p23": ("BOOT", C_SIG), "IO10  p16": ("PROBE_20", C_PRB),
           "IO18  p26": ("USB_DN", C_USB), "IO19  p27": ("USB_DP", C_USB), "IO20  p30": ("US_TRIG", C_ULT), "IO21  p31": ("US_ECHO", C_ULT)}
     for k, (n, c) in rl.items():
         x, y = p[k]
@@ -128,7 +128,7 @@ def sheet2():
     o.append(box(730, 590, 340, 160, "", "", "#9aa5b5", "8 6", False) + text(744, 610, "J6 expansion header (not fitted by default)", 12, "start", "#64748b", "700"))
     j6, p6 = ic(760, 626, 140, 110, "J6", "1x4 header", [], ["1  +5V", "2  +3V3", "3  GND", "4  IO2"], "#9aa5b5", y0=50, step=15)
     o.append(j6)
-    for k, (n, c) in (("1  +5V", ("+5V", C_5V)), ("2  +3V3", ("+3V3", C_3V3)), ("3  GND", ("GND", C_GND)), ("4  IO2", ("LDR (IO2)", C_LDR))):
+    for k, (n, c) in (("1  +5V", ("+5V", C_5V)), ("2  +3V3", ("+3V3", C_3V3)), ("3  GND", ("GND", C_GND)), ("4  IO2", ("DHT (IO2)", C_LDR))):
         x, y = p6[k]
         o.append(line([(x, y), (x + 20, y)], c) + label(x + 26, y + 4, n, c))
     return svg(1100, 770, "".join(o))
@@ -189,10 +189,10 @@ def sheet3():
     for k, rs, rp, sig in (("1  60 %", "R12", "R19", "PROBE_60"), ("2  80 %", "R13", "R20", "PROBE_80"), ("3  FULL", "R14", "R21", "PROBE_FULL")):
         x0, y = p8[k]
         o.append(probe_chain(x0, y, rs, rp, sig))
-    o.append(text(24, P + 305, "U5, U6, U7 (optional USBLC6): terminal-side nets on pins 1+6 and 3+4 (COM + 20 %, 40 % + 60 %, 80 % + FULL), pin 5 +3V3, pin 2 GND.   Signals go to U1 IO4, IO0, IO1, IO3, IO5, IO6.", 10.5, "start", MUTE))
+    o.append(text(24, P + 305, "U5, U6, U7 (optional USBLC6): terminal-side nets on pins 1+6 and 3+4 (COM + 20 %, 40 % + 60 %, 80 % + FULL), pin 5 +3V3, pin 2 GND.   Signals go to U1 IO4, IO10, IO1, IO3, IO5, IO6.", 10.5, "start", MUTE))
     # ---- LDR
     L = 575
-    o.append(box(10, L, 520, 215, "", "", C_LDR, "8 6", False) + text(24, L + 20, "LDR LIGHT SENSOR (J11) on GPIO2 (ADC)", 12, "start", "#4d7c0f", "700"))
+    o.append(box(10, L, 520, 215, "", "", C_LDR, "8 6", False) + text(24, L + 20, "LDR LIGHT SENSOR (J11) on GPIO0 (ADC)", 12, "start", "#4d7c0f", "700"))
     j11, p = ic(30, L + 40, 120, 110, "J11", "LDR 2P", [], ["1", "2  GND"], C_LDR, y0=52, step=40)
     o.append(j11)
     x, y = p["1"]
@@ -201,9 +201,9 @@ def sheet3():
     o.append(line([(x + 100, y), (x + 200, y)], C_LDR) + label(x + 206, y + 4, "LDR", C_LDR))
     x, y = p["2  GND"]
     o.append(line([(x, y), (x + 20, y)], C_GND) + gnd(x + 20, y))
-    o.append(text(24, L + 190, "Dark = near 3.3 V, bright = low (invert in firmware). To U1 IO2: strapping pin, bench check.", 10.5, "start", MUTE))
+    o.append(text(24, L + 190, "Dark = near 3.3 V, bright = low (invert in firmware). To U1 IO0 (ADC1 channel 0).", 10.5, "start", MUTE))
     # ---- DHT11
-    o.append(box(550, L, 520, 215, "", "", C_LDR, "8 6", False) + text(564, L + 20, "DHT11 TEMPERATURE / HUMIDITY (J12) on GPIO10", 12, "start", "#4d7c0f", "700"))
+    o.append(box(550, L, 520, 215, "", "", C_LDR, "8 6", False) + text(564, L + 20, "DHT11 TEMPERATURE / HUMIDITY (J12) on GPIO2", 12, "start", "#4d7c0f", "700"))
     j12, p = ic(570, L + 40, 130, 130, "J12", "1x3 header", [], ["1  +3V3", "2  DATA", "3  GND"], C_LDR, y0=52, step=30)
     o.append(j12)
     x, y = p["1  +3V3"]
@@ -212,7 +212,7 @@ def sheet3():
     o.append(label(x + 6, y - 8, "DHT", C_LDR) + line([(x, y), (x + 170, y)], C_LDR) + dot(x + 100, y, C_LDR) + rail(x + 100, y - 50, "+3V3", C_3V3) + res(x + 100, y - 50, "R23", "10k", False, 50) + label(x + 176, y + 4, "DHT", C_LDR))
     x, y = p["3  GND"]
     o.append(line([(x, y), (x + 20, y)], C_GND) + gnd(x + 20, y))
-    o.append(text(564, L + 190, "To U1 IO10. Check the pin order of your DHT11 board against J12 before ordering.", 10.5, "start", MUTE))
+    o.append(text(564, L + 190, "To U1 IO2 (strapping pin, must be high at reset: R23 keeps it high). Check the pin order of your DHT11 board against J12 before ordering.", 10.5, "start", MUTE))
     return svg(1090, L + 235, "".join(o))
 
 
