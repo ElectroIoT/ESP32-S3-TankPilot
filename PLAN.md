@@ -194,3 +194,9 @@ No hardware or project change is needed for this. When you want the tank level o
 
 ## 11. Unverified items
 No datasheet read yet for: ESP32-C3-MINI-1, AP2112K (reused from an earlier list), DC-005-20A (centre-pin size), KF128 terminals (rating), SMAJ5.0A, 1206L050YR, USBLC6 as a 3.3 V-referenced clamp, JSN-SR04T trigger and echo levels, the probe circuit values. Prices and stock are page values from 2026-11-05 or 2026-10-28. No footprint compared. Mains is not involved, but long cables into outdoor tanks need ESD and lightning care.
+
+## 12. PCB status (EasyEDA, 2026-11-06)
+- Board 94 x 70 mm, three M3 holes, isolation slot x 72.4 to 73.7, y 1.5 to 50.5 (HLK block only), antenna keep-out (no tracks, pours or fills) on both layers at x 0 to 5.8, y 30.9 to 45.9.
+- Rules: custom rule set "TankPilot" (default clearance 0.2, track 0.25), net classes Power (0.6 / 0.3 clearance), Mains_AC (1.0 / 3.0 mm clearance) and USB; the auto-router ignored the class widths, so only the power segments that fit were widened to 0.5 mm and the AC segments to 0.8 mm.
+- Auto-routed (538 track segments, 57 vias) with GND pours on both layers on the low-voltage side; DRC: 0 errors. The USB pair is routed as plain tracks (no length matching needed for full-speed USB).
+- Open items: RV1 missing in the schematic, USB-C shell pins not grounded, mains tracks should be re-checked by hand (0.8 mm, 3 mm clearance, slot) before any 230 V use, and the 4 mm hole at (4, 66) sits close to J10.

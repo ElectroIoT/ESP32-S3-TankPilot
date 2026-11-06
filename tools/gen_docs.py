@@ -230,6 +230,31 @@ upd();money();
     return "".join(o)
 
 
+
+ASBUILT = [
+ ("J1", "DC jack", "1 tip (+5 V in), 2 sleeve (GND), 3 switch pin not used"),
+ ("J10", "5 V terminal", "<b>1 = GND, 2 = +5 V</b> (the drawings show the reverse: follow this table and put + / - on the silkscreen)"),
+ ("J2", "ultrasonic header", "<b>1 = GND, 2 = ECHO, 3 = TRIG, 4 = +5 V</b> (reverse of the drawings)"),
+ ("J3", "float switch", "<b>1 = GND, 2 = FLOAT1_T</b> (either wire order works)"),
+ ("J4", "probes", "<b>1 = 40 %, 2 = 20 %, 3 = COM</b>"),
+ ("J8", "probes", "<b>1 = FULL, 2 = 80 %, 3 = 60 %</b>"),
+ ("J11", "LDR", "<b>1 = GND, 2 = LDR_T</b> (either wire order works)"),
+ ("J12", "DHT11", "<b>1 = GND, 2 = DATA, 3 = +3V3</b>: check your DHT11 board order before plugging it in"),
+ ("J6", "expansion (not fitted)", "<b>1 = IO2 (DHT), 2 = GND, 3 = +3V3, 4 = +5 V</b>"),
+ ("J9", "AC in (option)", "<b>1 = N, 2 = L</b> (L goes to fuse F2)"),
+ ("U8", "HLK-5M05", "1 = AC after fuse (AC_LF), 2 = N, 3 = -Vo (GND), 4 = +Vo"),
+]
+ASBUILT_HTML = (
+    '<section class="card" style="--c:#0f766e"><h2>As-built pin order (read from your EasyEDA schematic, 2026-11-06)</h2>'
+    '<p class="mut">Your schematic uses the <b>reverse pin order</b> on most connectors compared with the drawings on this site. Everything is electrically correct: it only matters when you crimp cables and print the silkscreen. Use this table for the cables.</p>'
+    '<div class="scroll"><table><thead><tr><th>Part</th><th>What</th><th>Pin order in your schematic / PCB</th></tr></thead><tbody>'
+    + "".join(f"<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td></tr>" for a, b, c in ASBUILT)
+    + '</tbody></table></div>'
+    '<div class="warn"><b>Checks found in your schematic:</b> (1) <b>RV1 (varistor 10D561K) is missing</b>: the HLK-5M05 data sheet asks for it across L and N after the fuse; add it if you fit the HLK block. '
+    '(2) The four USB-C shell pins (J5 pins 1 to 4) are not connected: connect them to GND. '
+    '(3) Check the polarity of the LEDs and diodes against the silkscreen when you place the parts (pin 1 is the cathode in your wiring). '
+    '(4) F2 is placed but the two fuse clips (C3131) are not in the schematic: add them or use a fuse holder.</div></section>')
+
 EXTERNAL = [
  ("5 V in (J1, J10 or J5)", "Regulated <b>5 V only</b>. Use <b>one</b> of: J1 DC jack 5.5 / 2.1 mm (centre +), J10 2-pin screw terminal (pin 1 = +5 V, pin 2 = GND) or USB-C J5. The PTC F1 limits to about 0.5 A on J1 / J10. Never 12 V."),
  ("Optional mains (J9, HLK block)", "L and N from a breaker, strain-relieved, in an IP65 box, away from the probe wiring. Leave the whole HLK block off unless an engineer has reviewed it. Mains is near water here."),
@@ -249,6 +274,7 @@ def page_wiring():
     o.append('<section class="card" style="--c:#1e3a8a"><h2>System wiring (connection map)</h2>' + map_body() + '</section>')
     o.append('<section class="card" style="--c:#dc2626"><h2>External wiring (what you connect by hand)</h2><div class="scroll"><table><thead><tr><th>Connection</th><th>How</th></tr></thead><tbody>'
              + "".join(f"<tr><td><b>{a}</b></td><td>{b}</td></tr>" for a, b in EXTERNAL) + '</tbody></table></div></section>')
+    o.append(ASBUILT_HTML)
     o.append('<div class="bar"><progress id="pg" value="0" max="1" style="width:240px"></progress><span id="pt" class="mut"></span><button class="ghost" id="rs">Clear ticks</button></div><p class="mut">Pin-to-net per section: each box is a part (dashed = optional); the flag on a pin is the net name, put the same net label in EasyEDA and the pins join. Hover a wire to highlight its net, click to mark it wired (saved in this browser).</p>')
     for n, (pid, ptitle, secs) in enumerate(D.PAGES, 1):
         o.append(f'<section class="card" id="{pid}" style="--c:{sheet_color(secs)}"><h2>{e(ptitle)}</h2>')
