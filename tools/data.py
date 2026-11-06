@@ -127,9 +127,6 @@ PARTS = [
  ("R19", "probes", "470 k 1206, probe 60 % pull-down", "C17997", 1, "1=PROBE_60,2=GND"),
  ("R20", "probes", "470 k 1206, probe 80 % pull-down", "C17997", 1, "1=PROBE_80,2=GND"),
  ("R21", "probes", "470 k 1206, probe FULL pull-down", "C17997", 1, "1=PROBE_FULL,2=GND"),
- ("U5", "probes", "OPTIONAL USBLC6 ESD: COM + 20 %", "C7519", 1, "1 I/O1=PROBE_COM_T,6 I/O1=PROBE_COM_T,3 I/O2=PROBE_20_T,4 I/O2=PROBE_20_T,5 VBUS=+3V3,2 GND=GND"),
- ("U6", "probes", "OPTIONAL USBLC6 ESD: 40 % + 60 %", "C7519", 1, "1 I/O1=PROBE_40_T,6 I/O1=PROBE_40_T,3 I/O2=PROBE_60_T,4 I/O2=PROBE_60_T,5 VBUS=+3V3,2 GND=GND"),
- ("U7", "probes", "OPTIONAL USBLC6 ESD: 80 % + FULL", "C7519", 1, "1 I/O1=PROBE_80_T,6 I/O1=PROBE_80_T,3 I/O2=PROBE_FULL_T,4 I/O2=PROBE_FULL_T,5 VBUS=+3V3,2 GND=GND"),
 ]
 REF_SEC = {p[0]: p[1] for p in PARTS}
 BYREF = {p[0]: p for p in PARTS}

@@ -36,7 +36,7 @@ flowchart LR
   MCU -->|TRIG| US
   US -->|"ECHO 5 V"| DIV["R12/R13 divider"] --> MCU
   FL["J3, J7 float switches"] --> U4["U4 ESD + 1k + pull-up"] --> MCU
-  PR["J4 + J8 probes COM 20 40 60 80 FULL"] --> U5["U5-U7 ESD + 1k + 470k"] --> MCU
+  PR["J4 + J8 probes COM 20 40 60 80 FULL"] --> U5["1k + 470k"] --> MCU
   MCU -->|"PROBE_COM through C11 1 uF"| PR
   MCU --> LED["LED1 power, LED2 status"]
 ```
@@ -74,7 +74,7 @@ Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided 
 All 15 usable GPIOs are assigned. A UART-type ultrasonic module (A02YYUW) uses GPIO20 / GPIO21 as UART1 pins remapped in firmware.
 
 ## 6. BOM (LCSC, looked up 2026-11-05)
-Source: [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv); the BOM page is [docs/bom.html](docs/bom.html) and [hardware/bom/bom-table.md](hardware/bom/bom-table.md). **68 pieces, about USD 10.39 in total; about USD 6.74 without the optional HLK 230 V block** (PCB and sensors not included). Stock and prices change daily.
+Source: [hardware/bom/tank-node-bom-v1.csv](hardware/bom/tank-node-bom-v1.csv); the BOM page is [docs/bom.html](docs/bom.html) and [hardware/bom/bom-table.md](hardware/bom/bom-table.md). **65 pieces, about USD 9.84 in total; about USD 6.19 without the optional HLK 230 V block** (PCB and sensors not included). Stock and prices change daily.
 
 Power now has **three sources (the DC jack J1 or the 2-pin screw terminal J10 for 5 V DC, USB-C, or the optional HLK), OR-ed with Schottky diodes D2 / D3 / D4**: 5 V DC jack J1 (PTC F1 + TVS D1), USB-C J5 (VBUS), and the **optional HLK-5M05 (230 V AC to 5 V, U8)** with its fuse F2, varistor RV1 and AC terminal J9. The HLK block is DNP by default. It is a **mains circuit next to a water tank: engineer review required before any build**; the datasheet asks for a 0.5 A slow fuse and a 10D561K varistor, the board has a milled isolation slot, and the box must be IP65 with the mains part separated from the probe wiring.
 
@@ -94,7 +94,7 @@ Power now has **three sources (the DC jack J1 or the 2-pin screw terminal J10 fo
 | RV1 | 1 | OPTIONAL varistor 560 V (10D561K) across L-N | [C2839517](https://www.lcsc.com/product-detail/C2839517.html) 10D561K | 38910 | 0.0494 (10+) | LISTING 2026-10-28; varistor value from the HLK datasheet |
 | U8 | 1 | OPTIONAL HLK-5M05 AC-DC 5 V 1 A module | [C209907](https://www.lcsc.com/product-detail/C209907.html) HLK-5M05 | 3052 | 2.9474 (1+) | VERIFIED + datasheet read (BorePilot work); 38 x 23 x 18 mm, 90-265 VAC, 3000 VAC isolation |
 | J5 | 1 | USB-C 16-pin receptacle (programming and 5 V) | [C165948](https://www.lcsc.com/product-detail/C165948.html) TYPE-C-31-M-12 | 283620 | 0.1886 (5+) | VERIFIED 2026-10-28 (same as BorePilot) |
-| U3, U4, U5, U6, U7 | 5 | OPTIONAL USBLC6 ESD: 40 % + 60 % / OPTIONAL USBLC6 ESD: 80 % + FULL / OPTIONAL USBLC6 ESD: | [C7519](https://www.lcsc.com/product-detail/C7519.html) USBLC6-2SC6 | 39325 | 0.1814 (5+) | LISTING (stock from 2026-10-28) |
+| U3, U4 | 2 | USBLC6-2SC6 ESD for the float line (second channel unused) / USBLC6-2SC6 ESD on USB D+/D- | [C7519](https://www.lcsc.com/product-detail/C7519.html) USBLC6-2SC6 | 39325 | 0.1814 (5+) | LISTING (stock from 2026-10-28) |
 | R1, R2 | 2 | 5.1 k 1206 | [C26033](https://www.lcsc.com/product-detail/C26033.html) 1206W4F5101T5E | 166000 | 0.0050 (100+) | VERIFIED listing |
 | U1 | 1 | ESP32-C3-MINI-1-N4 module | [C2838502](https://www.lcsc.com/product-detail/C2838502.html) ESP32-C3-MINI-1-N4 | 15184 | 3.0672 (1+) | LISTING 2026-11-05; datasheet v1.7 pin table read |
 | SW1, SW2 | 2 | BOOT / PAIR button (GPIO9) / Reset button (EN) | [C318884](https://www.lcsc.com/product-detail/C318884.html) TS-1187A-B-A-B | 887660 | 0.0208 (20+) | LISTING (stock from 2026-10-28) |

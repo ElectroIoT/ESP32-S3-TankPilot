@@ -189,7 +189,7 @@ def sheet3():
     for k, rs, rp, sig in (("1  60 %", "R12", "R19", "PROBE_60"), ("2  80 %", "R13", "R20", "PROBE_80"), ("3  FULL", "R14", "R21", "PROBE_FULL")):
         x0, y = p8[k]
         o.append(probe_chain(x0, y, rs, rp, sig))
-    o.append(text(24, P + 305, "U5, U6, U7 (optional USBLC6): terminal-side nets on pins 1+6 and 3+4 (COM + 20 %, 40 % + 60 %, 80 % + FULL), pin 5 +3V3, pin 2 GND.   Signals go to U1 IO4, IO10, IO1, IO3, IO5, IO6.", 10.5, "start", MUTE))
+    o.append(text(24, P + 305, "Signals go to U1 IO4, IO10, IO1, IO3, IO5, IO6. No ESD parts on the probe lines (U5 to U7 were removed); the 1 k series resistors still limit current into the pins.", 10.5, "start", MUTE))
     # ---- LDR
     L = 575
     o.append(box(10, L, 520, 215, "", "", C_LDR, "8 6", False) + text(24, L + 20, "LDR LIGHT SENSOR (J11) on GPIO0 (ADC)", 12, "start", "#4d7c0f", "700"))

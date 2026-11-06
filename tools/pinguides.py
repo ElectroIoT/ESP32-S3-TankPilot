@@ -1,5 +1,5 @@
 """Footprint-style pin guides for TankPilot: U1 ESP32-C3-MINI-1 (top view, pad numbers as in the Espressif data sheet v1.7, figure 3)
-and the SOT-23-6 ESD parts USBLC6-2SC6 (U3 to U7). Used by gen_docs.py (schematic page)."""
+and the SOT-23-6 ESD parts USBLC6-2SC6 (U3 and U4). Used by gen_docs.py (schematic page)."""
 import html
 
 e = html.escape
@@ -160,12 +160,6 @@ ESD = [
      "The data line goes IN on pin 1 and OUT on pin 6 (D+), IN on pin 3 and OUT on pin 4 (D-). Do not join pin 1 to pin 6 with a wire: the two pins are joined inside the chip."),
     ("U4", "float switch J3", {1: ("FLOAT1_T", "terminal net (before R8)"), 2: ("GND", ""), 3: (None, ""), 4: (None, ""), 5: ("+3V3", ""), 6: ("FLOAT1_T", "same net as pin 1")},
      "Used only as a clamp: pins 1 and 6 on the same net. The second channel (pins 3, 4) is not used: No-Connect flags."),
-    ("U5", "probe COM + 20 % (optional)", {1: ("PROBE_COM_T", "J4 pin 1 side of C11"), 2: ("GND", ""), 3: ("PROBE_20_T", "J4 pin 2 (before R10)"), 4: ("PROBE_20_T", "same net as pin 3"), 5: ("+3V3", ""), 6: ("PROBE_COM_T", "same net as pin 1")},
-     "Optional part. Channel 1 = pins 1 and 6 (COM), channel 2 = pins 3 and 4 (20 %)."),
-    ("U6", "probes 40 % + 60 % (optional)", {1: ("PROBE_40_T", "J4 pin 3 (before R11)"), 2: ("GND", ""), 3: ("PROBE_60_T", "J8 pin 1 (before R12)"), 4: ("PROBE_60_T", "same net as pin 3"), 5: ("+3V3", ""), 6: ("PROBE_40_T", "same net as pin 1")},
-     "Optional part. Channel 1 = pins 1 and 6 (40 %), channel 2 = pins 3 and 4 (60 %)."),
-    ("U7", "probes 80 % + FULL (optional)", {1: ("PROBE_80_T", "J8 pin 2 (before R13)"), 2: ("GND", ""), 3: ("PROBE_FULL_T", "J8 pin 3 (before R14)"), 4: ("PROBE_FULL_T", "same net as pin 3"), 5: ("+3V3", ""), 6: ("PROBE_80_T", "same net as pin 1")},
-     "Optional part. Channel 1 = pins 1 and 6 (80 %), channel 2 = pins 3 and 4 (FULL)."),
 ]
 NETKIND = {"GND": "gnd", "+3V3": "pwr", "VBUS": "usb"}
 

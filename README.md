@@ -12,7 +12,7 @@ Small low-cost board for the water tank. One board, three sensor ports, use whic
 | What | Where |
 |---|---|
 | Plan | [PLAN.md](PLAN.md) |
-| BOM (68 pieces, about $10.4; $6.7 without HLK) | [docs/bom.html](docs/bom.html), [CSV](hardware/bom/tank-node-bom-v1.csv) |
+| BOM (65 pieces, about $9.8; $6.2 without HLK) | [docs/bom.html](docs/bom.html), [CSV](hardware/bom/tank-node-bom-v1.csv) |
 | Wiring (system map, external wiring, pin-to-net) | [docs/wiring-by-section.html](docs/wiring-by-section.html) |
 | Schematic by section | [docs/schematic-sections.html](docs/schematic-sections.html) |
 | PCB floorplan 94 x 70 mm (fits the 120 x 80 x 55 mm IP67 clear box) | [docs/pcb-floorplan.html](docs/pcb-floorplan.html) |

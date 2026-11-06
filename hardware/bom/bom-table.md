@@ -14,7 +14,7 @@
 | RV1 | 1 | OPTIONAL varistor 560 V (10D561K) across L-N | [C2839517](https://www.lcsc.com/product-detail/C2839517.html) 10D561K | 38910 | 0.0494 (10+) | LISTING 2026-10-28; varistor value from the HLK datasheet |
 | U8 | 1 | OPTIONAL HLK-5M05 AC-DC 5 V 1 A module | [C209907](https://www.lcsc.com/product-detail/C209907.html) HLK-5M05 | 3052 | 2.9474 (1+) | VERIFIED + datasheet read (BorePilot work); 38 x 23 x 18 mm, 90-265 VAC, 3000 VAC isolation |
 | J5 | 1 | USB-C 16-pin receptacle (programming and 5 V) | [C165948](https://www.lcsc.com/product-detail/C165948.html) TYPE-C-31-M-12 | 283620 | 0.1886 (5+) | VERIFIED 2026-10-28 (same as BorePilot) |
-| U3, U4, U5, U6, U7 | 5 | OPTIONAL USBLC6 ESD: 40 % + 60 % / OPTIONAL USBLC6 ESD: 80 % + FULL / OPTIONAL USBLC6 ESD: | [C7519](https://www.lcsc.com/product-detail/C7519.html) USBLC6-2SC6 | 39325 | 0.1814 (5+) | LISTING (stock from 2026-10-28) |
+| U3, U4 | 2 | USBLC6-2SC6 ESD for the float line (second channel unused) / USBLC6-2SC6 ESD on USB D+/D- | [C7519](https://www.lcsc.com/product-detail/C7519.html) USBLC6-2SC6 | 39325 | 0.1814 (5+) | LISTING (stock from 2026-10-28) |
 | R1, R2 | 2 | 5.1 k 1206 | [C26033](https://www.lcsc.com/product-detail/C26033.html) 1206W4F5101T5E | 166000 | 0.0050 (100+) | VERIFIED listing |
 | U1 | 1 | ESP32-C3-MINI-1-N4 module | [C2838502](https://www.lcsc.com/product-detail/C2838502.html) ESP32-C3-MINI-1-N4 | 15184 | 3.0672 (1+) | LISTING 2026-11-05; datasheet v1.7 pin table read |
 | SW1, SW2 | 2 | BOOT / PAIR button (GPIO9) / Reset button (EN) | [C318884](https://www.lcsc.com/product-detail/C318884.html) TS-1187A-B-A-B | 887660 | 0.0208 (20+) | LISTING (stock from 2026-10-28) |
