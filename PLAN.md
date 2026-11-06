@@ -63,8 +63,8 @@ Strapping pins GPIO2, GPIO8, GPIO9 and the USB pins GPIO18 / GPIO19 are avoided 
 | 6 | PROBE_FULL | in | same |
 | 7 | FLOAT1 | in | pull-up, dry contact |
 | 10 | PROBE_20 | in | 470 k pull-down, 1 k series |
-| 20 | US_TRIG | out | to J2 TRIG (UART0 pin, USB is used for logs) |
-| 21 | US_ECHO | in | from J2 ECHO through the divider |
+| 20 | US_ECHO | in | from J2 ECHO through the divider (RXD0 pin 30) |
+| 21 | US_TRIG | out | to J2 TRIG (TXD0 pin 31; USB is used for logs) |
 | 8 | LED_ST | out | green LED2 (strapping pin: LED only) |
 | 9 | BOOT / PAIR | in | SW2 to GND |
 | 18 / 19 | USB_DN / USB_DP | io | J5 through U3 |

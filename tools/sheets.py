@@ -92,7 +92,7 @@ def sheet2():
         x, y = p[k]
         o.append(line([(x, y), (x - 70, y)], c) + label(x - 76, y + 4, n, c, "end"))
     rl = {"IO7  p21": ("FLOAT1", C_FLT), "IO8  p22": ("LED_ST", C_SIG), "IO9  p23": ("BOOT", C_SIG), "IO10  p16": ("PROBE_20", C_PRB),
-          "IO18  p26": ("USB_DN", C_USB), "IO19  p27": ("USB_DP", C_USB), "IO20  p30": ("US_TRIG", C_ULT), "IO21  p31": ("US_ECHO", C_ULT)}
+          "IO18  p26": ("USB_DN", C_USB), "IO19  p27": ("USB_DP", C_USB), "IO20  p30": ("US_ECHO", C_ULT), "IO21  p31": ("US_TRIG", C_ULT)}
     for k, (n, c) in rl.items():
         x, y = p[k]
         o.append(line([(x, y), (x + 70, y)], c) + label(x + 76, y + 4, n, c))
@@ -158,7 +158,7 @@ def sheet3():
     x, y = p["4  GND"]
     o.append(line([(x, y), (x + 20, y)], C_GND) + gnd(x + 20, y))
     o.append(rail(400, 50, "+5V", C_5V) + cap(400, 50, "C14", "100n", False, 40) + gnd(400, 90))
-    o.append(text(30, 207, "to U1 IO20 (TRIG) and IO21 (ECHO)", 10.5, "start", MUTE))
+    o.append(text(30, 207, "to U1 IO21 (TXD0, TRIG) and IO20 (RXD0, ECHO)", 10.5, "start", MUTE))
     # ---- float
     o.append(box(480, 10, 590, 205, "", "", C_FLT, "8 6", False) + text(494, 30, "FLOAT SWITCH (J3): dry contact", 12, "start", C_FLT, "700"))
     j3, p = ic(500, 44, 120, 110, "J3", "float 2P", [], ["1", "2  GND"], C_FLT, y0=52, step=40)

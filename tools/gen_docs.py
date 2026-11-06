@@ -301,7 +301,7 @@ def map_body():
     s.append(box(20, 20, 330, 150, "#ff9f43", "5 V INPUTS (use any one)", ["J1 DC jack 5.5/2.1 mm  or J10 2-pin terminal", "F1 PTC 0.5 A + D1 TVS, D2 Schottky", "J5 USB-C (VBUS) + D3 Schottky", "D4 Schottky from the HLK module (option)"]))
     s.append(box(20, 210, 330, 130, "#ff4d4d", "HLK 230 V OPTION (leave off if unsure)", ["J9 AC in (L, N)", "F2 fuse 0.5 A + RV1 varistor", "U8 HLK-5M05  230 V AC -> 5 V 1 A", "isolation slot to the low-voltage side"], dash=True))
     s.append(box(420, 20, 330, 150, "#ff9f43", "+5 V RAIL AND 3.3 V", ["C1 470 uF bulk, C2 / C5 decoupling", "U2 AP2112K-3.3 LDO", "+3V3 to the ESP32 and the sensor ports", "LED1 power LED"]))
-    s.append(box(420, 210, 330, 190, "#a66cff", "ESP32-C3 CORE", ["U1 ESP32-C3-MINI-1-N4 (PCB antenna)", "SW1 EN reset, SW2 BOOT / PAIR", "LED2 status (GPIO8), J6 expansion", "GPIO10, 1, 3, 5, 6 = probes 20..FULL", "GPIO4 = probe COM, GPIO7 = float", "GPIO0 = LDR (ADC), GPIO2 = DHT11", "GPIO20 TRIG, GPIO21 ECHO"]))
+    s.append(box(420, 210, 330, 190, "#a66cff", "ESP32-C3 CORE", ["U1 ESP32-C3-MINI-1-N4 (PCB antenna)", "SW1 EN reset, SW2 BOOT / PAIR", "LED2 status (GPIO8), J6 expansion", "GPIO10, 1, 3, 5, 6 = probes 20..FULL", "GPIO4 = probe COM, GPIO7 = float", "GPIO0 = LDR (ADC), GPIO2 = DHT11", "GPIO21 TRIG, GPIO20 ECHO"]))
     s.append(box(820, 20, 400, 150, "#8e24aa", "USB-C PROGRAMMING (J5)", ["native USB: GPIO18 D-, GPIO19 D+", "U3 USBLC6 ESD, R1 / R2 5.1 k on CC1 / CC2", "flash, logs, 5 V power", "no USB-UART chip"]))
     s.append(box(820, 210, 400, 120, "#2fbf71", "ULTRASONIC (J2)", ["+5V, TRIG, ECHO (5 V), GND", "R15 1 k + R16 2 k divider on ECHO", "JSN-SR04T / HC-SR04 / A02YYUW"]))
     s.append(box(820, 360, 400, 130, "#00bcd4", "FLOAT SWITCH (J3)", ["dry contact to GND, 3 m cable ok", "R8 1 k, R4 10 k pull-up, C12 100 nF", "U4 ESD (clamps to 3.3 V)", "LDR J11 (GPIO0) and DHT11 J12 (GPIO2) are on sheet 3"]))
@@ -317,7 +317,7 @@ def map_body():
     s.append("</svg>")
     leg = '<p class="legend"><span><i style="background:#fb8c00"></i>5 V</span><span><i style="background:#f4b400"></i>3.3 V</span><span><i style="background:#2fbf71"></i>ultrasonic / float signals</span><span><i style="background:#ec407a"></i>probes</span><span><i style="background:#8e24aa"></i>USB</span><span><i style="background:#e53935"></i>230 V option</span></p>'
     gp = [("10", "PROBE_20", "J4 pin 2 via R10 / R17"), ("1", "PROBE_40", "J4 pin 3 via R11 / R18"), ("3", "PROBE_60", "J8 pin 1 via R12 / R19"), ("5", "PROBE_80", "J8 pin 2 via R13 / R20"), ("6", "PROBE_FULL", "J8 pin 3 via R14 / R21"),
-          ("4", "PROBE_COM", "C11 to J4 pin 1"), ("7", "FLOAT1", "J3 via R8, R4"), ("2", "DHT", "J12 pin 2, R23 10 k pull-up; also J6 pin 4"), ("20", "US_TRIG", "J2 pin 2"), ("21", "US_ECHO", "J2 pin 3 via R15 / R16"),
+          ("4", "PROBE_COM", "C11 to J4 pin 1"), ("7", "FLOAT1", "J3 via R8, R4"), ("2", "DHT", "J12 pin 2, R23 10 k pull-up; also J6 pin 4"), ("21", "US_TRIG", "J2 pin 2 (TXD0)"), ("20", "US_ECHO", "J2 pin 3 via R15 / R16 (RXD0)"),
           ("8", "LED_ST", "LED2 via R7"), ("9", "BOOT / PAIR", "SW2"), ("18 / 19", "USB D- / D+", "J5 via U3"), ("0", "LDR (ADC)", "J11 via R24, R22 divider, C15"), ("EN", "EN", "SW1, R3, C8")]
     tab = "".join(f"<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td></tr>" for a, b, c in gp)
     return (leg + f'<div class="scroll" style="background:var(--card);border-radius:12px;padding:8px">{"".join(s)}</div>'
@@ -338,7 +338,7 @@ PAGE_STEPS = {
   ("Place U1 ESP32-C3-MINI-1-N4 (C2838502). Pins 1, 2, 11, 14 and the pad pins 36-53 to GND, pin 3 to +3V3. Add C4 10 uF and C9, C10 100 nF on +3V3.", "mcu"),
   ("EN (pin 8): R3 10 k to +3V3, C8 100 nF to GND, SW1 to GND. BOOT: SW2 from net <b>BOOT</b> (pin 23, GPIO9) to GND. Tact switch pins 1+2 are joined, 3+4 are joined: use pin 1 and pin 3.", "mcu"),
   ("USB: pin 26 (IO18) to <b>USB_DN</b>, pin 27 (IO19) to <b>USB_DP</b> (sheet 1).", "mcu"),
-  ("Net labels on the sensor pins: pin 16 IO10 <b>PROBE_20</b>, pin 13 IO1 <b>PROBE_40</b>, pin 6 IO3 <b>PROBE_60</b>, pin 19 IO5 <b>PROBE_80</b>, pin 20 IO6 <b>PROBE_FULL</b>, pin 18 IO4 <b>PROBE_COM</b>, pin 21 IO7 <b>FLOAT1</b>, pin 5 IO2 <b>DHT</b>, pin 12 IO0 <b>LDR</b>, pin 30 (IO20) <b>US_TRIG</b>, pin 31 (IO21) <b>US_ECHO</b>.", "mcu"),
+  ("Net labels on the sensor pins: pin 16 IO10 <b>PROBE_20</b>, pin 13 IO1 <b>PROBE_40</b>, pin 6 IO3 <b>PROBE_60</b>, pin 19 IO5 <b>PROBE_80</b>, pin 20 IO6 <b>PROBE_FULL</b>, pin 18 IO4 <b>PROBE_COM</b>, pin 21 IO7 <b>FLOAT1</b>, pin 5 IO2 <b>DHT</b>, pin 12 IO0 <b>LDR</b>, pin 30 (RXD0, IO20) <b>US_ECHO</b>, pin 31 (TXD0, IO21) <b>US_TRIG</b>.", "mcu"),
   ("LED_ST: pin 22 (IO8) to R7 1 k to LED2 (green) to GND. LED1 (red) with R6 1 k from +3V3 to GND (power LED). DHT: pin 5 (IO2) also to J6 pin 4; J6 pins 1 +5V, 2 +3V3, 3 GND (not fitted by default).", "mcu"),
   ("Leave the NC pins (4, 7, 9, 10, 15, 17, 24, 25, 28, 29, 32-35) unconnected with No-Connect flags. Nothing except SW2 on GPIO9.", "mcu"),
  ],
@@ -404,7 +404,7 @@ def page_schem():
     o.append('<section class="card" id="u1pins" style="--c:#7c3aed"><h2>Pin guide: U1 ESP32-C3-MINI-1 (all 53 pads)</h2>'
              '<p class="mut">Top view exactly as the footprint: antenna at the top, pads 1 to 11 down the left, 12 to 24 along the bottom, 25 to 35 up the right, pads 36 to 48 along the top and the centre pad 49. '
              'Coloured line = wire or net label to put on the pin; <b style="color:#dc2626">red X = place a No-Connect flag</b>. Pin names and numbers are from the Espressif data sheet v1.7 (checked against its pin-layout figure).</p>'
-             '<div class="scroll">' + PG.u1_svg() + '</div><h3>What to do on each pin</h3>' + PG.u1_table() +
+             '<h3>1. Symbol view (the symbol you have in EasyEDA: pins 1 to 26 on the left, 53 down to 27 on the right)</h3><div class="scroll">' + PG.u1_symbol_svg() + '</div><p class="mut">"ok" = matches your schematic screenshot of 2026-11-06. <b style="color:#ea580c">TODO</b> = still to be wired: pin 31 (TXD0) = US_TRIG and pin 30 (RXD0) = US_ECHO.</p><h3>2. Footprint view (as the pads sit on the PCB)</h3><div class="scroll">' + PG.u1_svg() + '</div><h3>3. What to do on each pin</h3>' + PG.u1_table() +
              '<div class="warn"><b>GPIO2 (pin 5)</b> is a strapping pin and must be high at reset (data sheet table 6), so it carries the DHT11 line, which idles high through R23. The LDR is on GPIO0 (pin 12), which is not a strapping pin. GPIO8 (pin 22, status LED) and GPIO9 (pin 23, BOOT) are the other strapping pins: for USB download mode hold SW2 (BOOT) while pressing SW1 (EN).</div></section>')
     o.append('<section class="card" id="esdpins" style="--c:#8e24aa"><h2>Pin guide: USBLC6-2SC6 (C7519) for U3, U4, U5, U6, U7</h2>' + PG.esd_html() + '</section>')
     o.append('<section class="card" id="final" style="--c:#10b981"><h2>Final checks</h2>' + "".join(f'<div class="step"><input type="checkbox" class="ck" data-k="final{i}"><span><b>{i}.</b> {e(s)}</span></div>' for i, s in enumerate(FINAL, 1)) + "</section>")

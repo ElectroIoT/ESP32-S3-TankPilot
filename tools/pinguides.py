@@ -17,7 +17,7 @@ U1 = {
     16: ("IO10", "PROBE_20", "probe", "J4.2 via R10, R17"), 17: ("NC", None, "nc", ""), 18: ("IO4", "PROBE_COM", "probe", "J4.1 via C11"), 19: ("IO5", "PROBE_80", "probe", "J8.2 via R13, R20"),
     20: ("IO6", "PROBE_FULL", "probe", "J8.3 via R14, R21"), 21: ("IO7", "FLOAT1", "float", "J3 via R8, R4, C12"), 22: ("IO8", "LED_ST", "ctl", "R7 to LED2"), 23: ("IO9", "BOOT", "ctl", "SW2 to GND"),
     24: ("NC", None, "nc", ""), 25: ("NC", None, "nc", ""), 26: ("IO18", "USB_DN", "usb", "U3.4 (USB D-)"), 27: ("IO19", "USB_DP", "usb", "U3.6 (USB D+)"), 28: ("NC", None, "nc", ""), 29: ("NC", None, "nc", ""),
-    30: ("RXD0 / IO20", "US_TRIG", "ultra", "J2.2 (TRIG)"), 31: ("TXD0 / IO21", "US_ECHO", "ultra", "J2.3 via R15, R16 (ECHO)"),
+    30: ("RXD0 / IO20", "US_ECHO", "ultra", "J2.3 via R15, R16 (ECHO)"), 31: ("TXD0 / IO21", "US_TRIG", "ultra", "J2.2 (TRIG)"),
     32: ("NC", None, "nc", ""), 33: ("NC", None, "nc", ""), 34: ("NC", None, "nc", ""), 35: ("NC", None, "nc", ""),
 }
 for n in list(range(36, 54)):
@@ -224,3 +224,44 @@ def esd_html():
     for ref, title, pins, note in ESD:
         o.append(f'<div class="scroll">{esd_svg(ref, title, pins)}</div><p class="mut">{e(note)}</p>')
     return "".join(o)
+
+
+# ------------------------------------------------------------------ symbol view (as the EasyEDA / LCSC symbol of C2838502)
+SYM_TODO = {30, 31}   # not wired yet in the user's drawing (screenshot 2026-11-06)
+
+
+def u1_symbol_svg():
+    x0, x1, y0, pitch = 540, 790, 60, 25
+    rows_l = list(range(1, 27))
+    rows_r = list(range(53, 26, -1))
+    H = y0 + 27 * pitch + 50
+    o = [legend()]
+    o.append(f'<rect x="{x0}" y="{y0 - 14}" width="{x1 - x0}" height="{27 * pitch + 22}" fill="#fffbe6" fill-opacity=".55" stroke="#9a1c1c" stroke-width="2.5"/>')
+    o.append(tx((x0 + x1) / 2, y0 - 20, "U1  ESP32-C3-MINI-1-N4", 12, "middle", "#9a1c1c", "700", mono=False))
+    for side, rows in (("l", rows_l), ("r", rows_r)):
+        for i, n in enumerate(rows):
+            y = y0 + i * pitch + 8
+            nm, net, k, where = U1[n]
+            c = COL[k]
+            if side == "l":
+                xa, xb = x0 - 34, x0
+                o.append(ln([(xa, y), (xb, y)], "#9a1c1c", 2) + tx(xb - 6, y - 3, n, 9.5, "end", "#9a1c1c") + tx(xb + 6, y + 4, nm, 11, "start", INK, "700"))
+                ex = xa
+                if k == "nc":
+                    o.append(ln([(ex, y), (ex - 18, y)], c, 2, "3 3") + cross(ex - 26, y) + tx(ex - 40, y + 4, "NC flag", 11, "end", c, "700", mono=False))
+                elif k == "gnd":
+                    o.append(ln([(ex, y), (ex - 14, y)], c, 2) + tx(ex - 20, y + 4, "GND", 11, "end", c, "700"))
+                else:
+                    lab = "+3V3" if k == "pwr" else net
+                    o.append(ln([(ex, y), (ex - 14, y)], c, 2) + tx(ex - 20, y + 4, lab, 12, "end", c, "700") + tx(ex - 20 - 7.4 * len(lab) - 14, y + 4, "TODO" if n in SYM_TODO else "ok", 9, "end", "#ea580c" if n in SYM_TODO else "#16a34a", "700", mono=False))
+            else:
+                xa, xb = x1 + 34, x1
+                o.append(ln([(xb, y), (xa, y)], "#9a1c1c", 2) + tx(xb + 6, y - 3, n, 9.5, "start", "#9a1c1c") + tx(xb - 6, y + 4, nm, 11, "end", INK, "700"))
+                ex = xa
+                if k == "nc":
+                    o.append(ln([(ex, y), (ex + 18, y)], c, 2, "3 3") + cross(ex + 26, y) + tx(ex + 40, y + 4, "NC flag", 11, "start", c, "700", mono=False))
+                elif k == "gnd":
+                    o.append(ln([(ex, y), (ex + 14, y)], c, 2) + tx(ex + 20, y + 4, "GND", 11, "start", c, "700"))
+                else:
+                    o.append(ln([(ex, y), (ex + 14, y)], c, 2) + tx(ex + 20, y + 4, net, 12, "start", c, "700") + tx(ex + 20 + 7.4 * len(net) + 8, y + 4, ("TODO: " if n in SYM_TODO else "ok: ") + where, 9.5, "start", "#ea580c" if n in SYM_TODO else MUTE, "700" if n in SYM_TODO else "400", mono=False))
+    return f'<svg viewBox="0 0 1340 {H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Segoe UI,Roboto,Arial,sans-serif">' + "".join(o) + "</svg>"
