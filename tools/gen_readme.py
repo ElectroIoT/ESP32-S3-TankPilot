@@ -25,9 +25,13 @@ def bom_section(sid):
         sub += line
         name = g["name"] if len(g["refs"]) == 1 else " / ".join(dict.fromkeys(D.BYREF[r][2].split(",")[0].replace("OPTIONAL ", "") for r in g["refs"]))
         opt = " *(option)*" if sid == "hlk" or all(r in D.OPTIONAL for r in g["refs"]) else ""
-        rows.append(f"| {', '.join(g['refs'])} | {g['q']} | {name}{opt} | `{mpn}` | [{c}](https://www.lcsc.com/product-detail/{c}.html) | {st} | ${pr:.4f} | ${line:.2f} |")
-    head = "| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |\n|---|---:|---|---|---|---:|---:|---:|\n"
-    return head + "\n".join(rows) + f"\n\n**Subtotal: ${sub:.2f}**\n", sub
+        rows.append(f"| {', '.join(g['refs'])} | {g['q']} | {name}{opt} | `{mpn}` | [{c}](https://www.lcsc.com/product-detail/{c}.html) |")
+    head = "| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+"
+    return head + "
+".join(rows) + "
+", sub
 
 
 def bom_all():
@@ -170,7 +174,7 @@ The sources are combined with Schottky diodes, so the highest one wins and none 
 
 ## Bill of materials
 
-All parts are on LCSC (stock and prices read on 2026-11-05 and 2026-10-28; they change daily). Prices are the first quantity tier. Rows marked *(option)* belong to the optional 230 V block.
+All parts are on LCSC. The cost below uses first-tier prices read in November 2026 and changes daily. Rows marked *(option)* belong to the optional 230 V block.
 
 | | Pieces | Cost |
 |---|---:|---:|
