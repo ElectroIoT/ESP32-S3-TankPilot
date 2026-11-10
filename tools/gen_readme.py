@@ -185,7 +185,7 @@ Not in the BOM: the PCB, sensors (JSN-SR04T, probe kit, float switch, LDR, DHT11
 
 ## PCB and enclosure
 
-- 94 x 70 mm, 2 layers, 1.6 mm, JLCPCB-style rules: default track 0.25 mm / clearance 0.2 mm, net classes for power, 230 V AC and USB.
+- 94 x 70 mm, 2 layers, 1.6 mm, standard 2-layer fab rules: default track 0.25 mm / clearance 0.2 mm, net classes for power, 230 V AC and USB.
 - 63 parts, GND pours on both layers on the low-voltage side, antenna keep-out under the module end, isolation slot between the HLK module and the rest.
 - DRC: **0 errors**. Mains tracks are 0.8 mm with live and neutral on different layers, but **must be reviewed by an engineer before any 230 V use**.
 - Enclosure: 120 x 80 x 55 mm IP67 transparent ABS box. A 100 mm wide board would not fit; 94 x 70 mm does. Use cable glands for the sensor wires.
