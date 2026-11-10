@@ -26,12 +26,8 @@ def bom_section(sid):
         name = g["name"] if len(g["refs"]) == 1 else " / ".join(dict.fromkeys(D.BYREF[r][2].split(",")[0].replace("OPTIONAL ", "") for r in g["refs"]))
         opt = " *(option)*" if sid == "hlk" or all(r in D.OPTIONAL for r in g["refs"]) else ""
         rows.append(f"| {', '.join(g['refs'])} | {g['q']} | {name}{opt} | `{mpn}` | [{c}](https://www.lcsc.com/product-detail/{c}.html) |")
-    head = "| Ref | Qty | Function | Part | LCSC |
-|---|---:|---|---|---|
-"
-    return head + "
-".join(rows) + "
-", sub
+    head = "| Ref | Qty | Function | Part | LCSC |\n|---|---:|---|---|---|\n"
+    return head + "\n".join(rows) + "\n", sub
 
 
 def bom_all():

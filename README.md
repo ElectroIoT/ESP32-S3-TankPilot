@@ -139,7 +139,7 @@ The sources are combined with Schottky diodes, so the highest one wins and none 
 
 ## Bill of materials
 
-All parts are on LCSC (stock and prices read on 2026-11-05 and 2026-10-28; they change daily). Prices are the first quantity tier. Rows marked *(option)* belong to the optional 230 V block.
+All parts are on LCSC. The cost below uses first-tier prices read in November 2026 and changes daily. Rows marked *(option)* belong to the optional 230 V block.
 
 | | Pieces | Cost |
 |---|---:|---:|
@@ -154,117 +154,101 @@ Downloads: [`tank-node-bom-v1.csv`](hardware/bom/tank-node-bom-v1.csv) | [`bom-t
 **5 V POWER (DC jack, USB, 3.3 V)**  
 <sub>5 V from the DC jack J1 or the 2-pin screw terminal J10 (both through the PTC fuse + TVS), or USB-C, or the optional HLK module, OR-ed with Schottky diodes, then an AP2112K 3.3 V LDO.</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| J1 | 1 | DC barrel jack 5.5/2.1 mm: external 5 V in | `DC-005-20A` | [C136744](https://www.lcsc.com/product-detail/C136744.html) | 24115 | $0.1398 | $0.14 |
-| J10 | 1 | 5 V DC screw terminal 2P (+5 V, GND): external 5 V in | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) | 51090 | $0.1944 | $0.19 |
-| F1 | 1 | PTC fuse 0.5 A 6 V, 1206 | `1206L050YR` | [C163512](https://www.lcsc.com/product-detail/C163512.html) | 11040 | $0.0742 | $0.07 |
-| D1 | 1 | TVS 5 V (SMAJ5.0A) across the supply | `SMAJ5.0A` | [C5121739](https://www.lcsc.com/product-detail/C5121739.html) | 1750 | $0.1056 | $0.11 |
-| D2, D3 | 2 | Schottky OR-ing: DC jack to +5V / Schottky OR-ing: USB VBUS to +5V | `UMW SS34B` | [C2758511](https://www.lcsc.com/product-detail/C2758511.html) | 77840 | $0.0378 | $0.08 |
-| C1 | 1 | 470 uF 16 V bulk on +5V | `ERG16V470M8X12` | [C47344174](https://www.lcsc.com/product-detail/C47344174.html) | 64670 | $0.0579 | $0.06 |
-| U2 | 1 | AP2112K-3.3 LDO, SOT-25 | `AP2112K-3.3TRG1` | [C51118](https://www.lcsc.com/product-detail/C51118.html) | 4510 | $0.1792 | $0.18 |
-| C2, C3 | 2 | 10 uF 1206 | `CL31A106KAHNNNE` | [C9807](https://www.lcsc.com/product-detail/C9807.html) | 493250 | $0.0530 | $0.11 |
-| C5 | 1 | 100 nF 1206 on +5V | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | $0.0222 | $0.02 |
-
-**Subtotal: $0.95**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| J1 | 1 | DC barrel jack 5.5/2.1 mm: external 5 V in | `DC-005-20A` | [C136744](https://www.lcsc.com/product-detail/C136744.html) |
+| J10 | 1 | 5 V DC screw terminal 2P (+5 V, GND): external 5 V in | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) |
+| F1 | 1 | PTC fuse 0.5 A 6 V, 1206 | `1206L050YR` | [C163512](https://www.lcsc.com/product-detail/C163512.html) |
+| D1 | 1 | TVS 5 V (SMAJ5.0A) across the supply | `SMAJ5.0A` | [C5121739](https://www.lcsc.com/product-detail/C5121739.html) |
+| D2, D3 | 2 | Schottky OR-ing: DC jack to +5V / Schottky OR-ing: USB VBUS to +5V | `UMW SS34B` | [C2758511](https://www.lcsc.com/product-detail/C2758511.html) |
+| C1 | 1 | 470 uF 16 V bulk on +5V | `ERG16V470M8X12` | [C47344174](https://www.lcsc.com/product-detail/C47344174.html) |
+| U2 | 1 | AP2112K-3.3 LDO, SOT-25 | `AP2112K-3.3TRG1` | [C51118](https://www.lcsc.com/product-detail/C51118.html) |
+| C2, C3 | 2 | 10 uF 1206 | `CL31A106KAHNNNE` | [C9807](https://www.lcsc.com/product-detail/C9807.html) |
+| C5 | 1 | 100 nF 1206 on +5V | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) |
 
 **HLK 230 V -> 5 V (OPTIONAL)**  
 <sub>Optional mains supply: AC in terminal, fuse, varistor and the HLK-5M05 module. Leave all of these parts off if you power the board from a 5 V adapter.</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| J9 | 1 | OPTIONAL AC in screw terminal 2P (230 V) *(option)* | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) | 51090 | $0.1944 | $0.19 |
-| F2 | 1 | OPTIONAL fuse 0.5 A slow-blow 5x20 (ships separately) *(option)* | `0218.500MXP` | [C142727](https://www.lcsc.com/product-detail/C142727.html) | 900 | $0.2257 | $0.23 |
-| F2H | 2 | OPTIONAL 5x20 fuse clips (2 pieces) *(option)* | `BLX-A XC-7` | [C3131](https://www.lcsc.com/product-detail/C3131.html) | 85140 | $0.0854 | $0.17 |
-| RV1 | 1 | OPTIONAL varistor 560 V (10D561K) across L-N *(option)* | `10D561K` | [C2839517](https://www.lcsc.com/product-detail/C2839517.html) | 38910 | $0.0494 | $0.05 |
-| U8 | 1 | OPTIONAL HLK-5M05 AC-DC 5 V 1 A module *(option)* | `HLK-5M05` | [C209907](https://www.lcsc.com/product-detail/C209907.html) | 3052 | $2.9474 | $2.95 |
-| D4 | 1 | OPTIONAL Schottky OR-ing: HLK to +5V *(option)* | `UMW SS34B` | [C2758511](https://www.lcsc.com/product-detail/C2758511.html) | 77840 | $0.0378 | $0.04 |
-| C6 | 1 | OPTIONAL 100 nF 1206 on the HLK output *(option)* | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | $0.0222 | $0.02 |
-
-**Subtotal: $3.65**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| J9 | 1 | OPTIONAL AC in screw terminal 2P (230 V) *(option)* | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) |
+| F2 | 1 | OPTIONAL fuse 0.5 A slow-blow 5x20 (ships separately) *(option)* | `0218.500MXP` | [C142727](https://www.lcsc.com/product-detail/C142727.html) |
+| F2H | 2 | OPTIONAL 5x20 fuse clips (2 pieces) *(option)* | `BLX-A XC-7` | [C3131](https://www.lcsc.com/product-detail/C3131.html) |
+| RV1 | 1 | OPTIONAL varistor 560 V (10D561K) across L-N *(option)* | `10D561K` | [C2839517](https://www.lcsc.com/product-detail/C2839517.html) |
+| U8 | 1 | OPTIONAL HLK-5M05 AC-DC 5 V 1 A module *(option)* | `HLK-5M05` | [C209907](https://www.lcsc.com/product-detail/C209907.html) |
+| D4 | 1 | OPTIONAL Schottky OR-ing: HLK to +5V *(option)* | `UMW SS34B` | [C2758511](https://www.lcsc.com/product-detail/C2758511.html) |
+| C6 | 1 | OPTIONAL 100 nF 1206 on the HLK output *(option)* | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) |
 
 **USB-C PROGRAMMING**  
 <sub>C165948 USB-C, native USB on GPIO18 / GPIO19, 5.1 k CC resistors, ESD part.</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| J5 | 1 | USB-C 16-pin receptacle (programming and 5 V) | `TYPE-C-31-M-12` | [C165948](https://www.lcsc.com/product-detail/C165948.html) | 283620 | $0.1886 | $0.19 |
-| U3 | 1 | USBLC6-2SC6 ESD on USB D+/D- | `USBLC6-2SC6` | [C7519](https://www.lcsc.com/product-detail/C7519.html) | 39325 | $0.1814 | $0.18 |
-| R1, R2 | 2 | 5.1 k 1206 | `1206W4F5101T5E` | [C26033](https://www.lcsc.com/product-detail/C26033.html) | 166000 | $0.0050 | $0.01 |
-| C7 | 1 | 100 nF 1206 on VBUS | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | $0.0222 | $0.02 |
-
-**Subtotal: $0.40**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| J5 | 1 | USB-C 16-pin receptacle (programming and 5 V) | `TYPE-C-31-M-12` | [C165948](https://www.lcsc.com/product-detail/C165948.html) |
+| U3 | 1 | USBLC6-2SC6 ESD on USB D+/D- | `USBLC6-2SC6` | [C7519](https://www.lcsc.com/product-detail/C7519.html) |
+| R1, R2 | 2 | 5.1 k 1206 | `1206W4F5101T5E` | [C26033](https://www.lcsc.com/product-detail/C26033.html) |
+| C7 | 1 | 100 nF 1206 on VBUS | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) |
 
 #### Sheet 2: ESP32-C3 core
 
 **ESP32-C3 CORE**  
 <sub>ESP32-C3-MINI-1-N4 module, EN / BOOT buttons, status LEDs, decoupling, expansion header.</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| U1 | 1 | ESP32-C3-MINI-1-N4 module | `ESP32-C3-MINI-1-N4` | [C2838502](https://www.lcsc.com/product-detail/C2838502.html) | 15184 | $3.0672 | $3.07 |
-| SW1, SW2 | 2 | Reset button (EN) / BOOT / PAIR button (GPIO9) | `TS-1187A-B-A-B` | [C318884](https://www.lcsc.com/product-detail/C318884.html) | 887660 | $0.0208 | $0.04 |
-| R3 | 1 | 10 k 1206, EN pull-up | `1206W4F1002T5E` | [C17902](https://www.lcsc.com/product-detail/C17902.html) | 1059900 | $0.0079 | $0.01 |
-| C8, C9, C10 | 3 | 100 nF 1206 | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | $0.0222 | $0.07 |
-| C4 | 1 | 10 uF 1206, 3V3 at the module | `CL31A106KAHNNNE` | [C9807](https://www.lcsc.com/product-detail/C9807.html) | 493250 | $0.0530 | $0.05 |
-| LED1 | 1 | Red LED: power (3.3 V) | `XL-1608SURC-04` | [C965798](https://www.lcsc.com/product-detail/C965798.html) | 270700 | $0.0057 | $0.01 |
-| R6, R7 | 2 | 1 k 1206 | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) | 655650 | $0.0086 | $0.02 |
-| LED2 | 1 | Green LED: status (GPIO8) | `19-217/GHC-YR1S2/6T` | [C2986059](https://www.lcsc.com/product-detail/C2986059.html) | 718400 | $0.0180 | $0.02 |
-| J6 | 1 | OPTIONAL expansion header 1x4 (5V, 3V3, GND, IO2 shared with the DHT11 line) *(option)* | `PZ254V-11-04P` | [C2691448](https://www.lcsc.com/product-detail/C2691448.html) | 591680 | $0.0264 | $0.03 |
-
-**Subtotal: $3.30**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| U1 | 1 | ESP32-C3-MINI-1-N4 module | `ESP32-C3-MINI-1-N4` | [C2838502](https://www.lcsc.com/product-detail/C2838502.html) |
+| SW1, SW2 | 2 | Reset button (EN) / BOOT / PAIR button (GPIO9) | `TS-1187A-B-A-B` | [C318884](https://www.lcsc.com/product-detail/C318884.html) |
+| R3 | 1 | 10 k 1206, EN pull-up | `1206W4F1002T5E` | [C17902](https://www.lcsc.com/product-detail/C17902.html) |
+| C8, C9, C10 | 3 | 100 nF 1206 | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) |
+| C4 | 1 | 10 uF 1206, 3V3 at the module | `CL31A106KAHNNNE` | [C9807](https://www.lcsc.com/product-detail/C9807.html) |
+| LED1 | 1 | Red LED: power (3.3 V) | `XL-1608SURC-04` | [C965798](https://www.lcsc.com/product-detail/C965798.html) |
+| R6, R7 | 2 | 1 k 1206 | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) |
+| LED2 | 1 | Green LED: status (GPIO8) | `19-217/GHC-YR1S2/6T` | [C2986059](https://www.lcsc.com/product-detail/C2986059.html) |
+| J6 | 1 | OPTIONAL expansion header 1x4 (5V, 3V3, GND, IO2 shared with the DHT11 line) *(option)* | `PZ254V-11-04P` | [C2691448](https://www.lcsc.com/product-detail/C2691448.html) |
 
 #### Sheet 3: Sensor ports (ultrasonic, float, probes, LDR, DHT11)
 
 **ULTRASONIC PORT**  
 <sub>J2 header for JSN-SR04T / HC-SR04: +5V, TRIG, ECHO (5 V to 3.3 V divider), GND.</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| J2 | 1 | Ultrasonic sensor header 1x4 (JSN-SR04T / HC-SR04) | `PZ254V-11-04P` | [C2691448](https://www.lcsc.com/product-detail/C2691448.html) | 591680 | $0.0264 | $0.03 |
-| R15 | 1 | 1 k 1206, ECHO series (divider top) | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) | 655650 | $0.0086 | $0.01 |
-| R16 | 1 | 2 k 1206, ECHO divider to GND | `1206W4F2001T5E` | [C17944](https://www.lcsc.com/product-detail/C17944.html) | 1321900 | $0.0078 | $0.01 |
-| C14 | 1 | 100 nF 1206 on the sensor +5V | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | $0.0222 | $0.02 |
-
-**Subtotal: $0.07**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| J2 | 1 | Ultrasonic sensor header 1x4 (JSN-SR04T / HC-SR04) | `PZ254V-11-04P` | [C2691448](https://www.lcsc.com/product-detail/C2691448.html) |
+| R15 | 1 | 1 k 1206, ECHO series (divider top) | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) |
+| R16 | 1 | 2 k 1206, ECHO divider to GND | `1206W4F2001T5E` | [C17944](https://www.lcsc.com/product-detail/C17944.html) |
+| C14 | 1 | 100 nF 1206 on the sensor +5V | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) |
 
 **FLOAT SWITCH PORTS**  
 <sub>J3: one dry-contact float switch input, with pull-up, series resistor, filter capacitor and ESD (the second float input was dropped to free a GPIO for the DHT11).</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| J3 | 1 | Float switch terminal 2P (dry contact) | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) | 51090 | $0.1944 | $0.19 |
-| R8 | 1 | 1 k 1206, FLOAT1 series | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) | 655650 | $0.0086 | $0.01 |
-| R4 | 1 | 10 k 1206, FLOAT1 pull-up | `1206W4F1002T5E` | [C17902](https://www.lcsc.com/product-detail/C17902.html) | 1059900 | $0.0079 | $0.01 |
-| C12 | 1 | 100 nF 1206, FLOAT1 filter | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | $0.0222 | $0.02 |
-| U4 | 1 | USBLC6-2SC6 ESD for the float line (second channel unused) | `USBLC6-2SC6` | [C7519](https://www.lcsc.com/product-detail/C7519.html) | 39325 | $0.1814 | $0.18 |
-
-**Subtotal: $0.41**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| J3 | 1 | Float switch terminal 2P (dry contact) | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) |
+| R8 | 1 | 1 k 1206, FLOAT1 series | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) |
+| R4 | 1 | 10 k 1206, FLOAT1 pull-up | `1206W4F1002T5E` | [C17902](https://www.lcsc.com/product-detail/C17902.html) |
+| C12 | 1 | 100 nF 1206, FLOAT1 filter | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) |
+| U4 | 1 | USBLC6-2SC6 ESD for the float line (second channel unused) | `USBLC6-2SC6` | [C7519](https://www.lcsc.com/product-detail/C7519.html) |
 
 **PROBE PORT (COM + 5 LEVELS)**  
 <sub>J4 + J8: COM (AC-coupled drive) and five level probes 20 / 40 / 60 / 80 / FULL, each with a series resistor and a pull-down.</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| J4, J8 | 2 | Probe terminal 3P: COM / Probe terminal 3P: 60 % | `KF128-5.08-3P-AA` | [C474953](https://www.lcsc.com/product-detail/C474953.html) | 8510 | $0.3251 | $0.65 |
-| C11 | 1 | 1 uF 1206 coupling capacitor on PROBE_COM (no DC in the water) | `CL31B105KBHNNNE` | [C1848](https://www.lcsc.com/product-detail/C1848.html) | 147470 | $0.0628 | $0.06 |
-| R10, R11, R12, R13, R14 | 5 | 1 k 1206 | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) | 655650 | $0.0086 | $0.04 |
-| R17, R18, R19, R20, R21 | 5 | 470 k 1206 | `1206W4F4703T5E` | [C17997](https://www.lcsc.com/product-detail/C17997.html) | 9000 | $0.0074 | $0.04 |
-
-**Subtotal: $0.79**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| J4, J8 | 2 | Probe terminal 3P: COM / Probe terminal 3P: 60 % | `KF128-5.08-3P-AA` | [C474953](https://www.lcsc.com/product-detail/C474953.html) |
+| C11 | 1 | 1 uF 1206 coupling capacitor on PROBE_COM (no DC in the water) | `CL31B105KBHNNNE` | [C1848](https://www.lcsc.com/product-detail/C1848.html) |
+| R10, R11, R12, R13, R14 | 5 | 1 k 1206 | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) |
+| R17, R18, R19, R20, R21 | 5 | 470 k 1206 | `1206W4F4703T5E` | [C17997](https://www.lcsc.com/product-detail/C17997.html) |
 
 **EXTRA SENSORS (LDR light, DHT11)**  
 <sub>J11 2-pin terminal for an LDR (light sensor) with a 10 k divider into the ADC pin GPIO0, and J12 3-pin header for a DHT11 temperature / humidity sensor on GPIO2 (strapping pin, must be high at reset: the DHT11 idles high with its 10 k pull-up) .</sub>
 
-| Ref | Qty | Function | Part | LCSC | Stock | Unit | Line |
-|---|---:|---|---|---|---:|---:|---:|
-| J11 | 1 | LDR screw terminal 2P (light sensor on a cable) | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) | 51090 | $0.1944 | $0.19 |
-| R24 | 1 | 1 k 1206, LDR series | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) | 655650 | $0.0086 | $0.01 |
-| R22, R23 | 2 | 10 k 1206 | `1206W4F1002T5E` | [C17902](https://www.lcsc.com/product-detail/C17902.html) | 1059900 | $0.0079 | $0.02 |
-| C15 | 1 | 100 nF 1206, LDR filter | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) | 125980 | $0.0222 | $0.02 |
-| J12 | 1 | DHT11 header 1x3 (3V3, DATA, GND) | `PZ254V-11-03P` | [C492402](https://www.lcsc.com/product-detail/C492402.html) | not read | $0.0200 | $0.02 |
-
-**Subtotal: $0.26**
+| Ref | Qty | Function | Part | LCSC |
+|---|---:|---|---|---|
+| J11 | 1 | LDR screw terminal 2P (light sensor on a cable) | `KF128-5.08-2P-AA` | [C474952](https://www.lcsc.com/product-detail/C474952.html) |
+| R24 | 1 | 1 k 1206, LDR series | `1206W4F1001T5E` | [C4410](https://www.lcsc.com/product-detail/C4410.html) |
+| R22, R23 | 2 | 10 k 1206 | `1206W4F1002T5E` | [C17902](https://www.lcsc.com/product-detail/C17902.html) |
+| C15 | 1 | 100 nF 1206, LDR filter | `CL31B104KBCNNNC` | [C24497](https://www.lcsc.com/product-detail/C24497.html) |
+| J12 | 1 | DHT11 header 1x3 (3V3, DATA, GND) | `PZ254V-11-03P` | [C492402](https://www.lcsc.com/product-detail/C492402.html) |
 
 Not in the BOM: the PCB, sensors (JSN-SR04T, probe kit, float switch, LDR, DHT11), the enclosure and cable glands, and a 5 V supply. The fuse clips (F2H, C3131) are in the BOM but not yet drawn in the schematic; check that your F2 footprint matches the 5x20 fuse.
 
