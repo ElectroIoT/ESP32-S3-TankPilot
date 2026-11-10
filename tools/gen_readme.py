@@ -70,7 +70,7 @@ One small ESP32-C3 board. Three kinds of level sensors. Automatic fallback. Open
 ![License](https://img.shields.io/badge/License-MIT-f59e0b?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-PCB%20routed%2C%20not%20built%20yet-orange?style=for-the-badge)
 
-[Features](#-features) | [How it works](#-how-it-works) | [Hardware](#-hardware-at-a-glance) | [Pinout](#-ports-and-pinout) | [BOM](#-bill-of-materials) | [Firmware](#-firmware-and-home-assistant) | [Docs](#-documentation) | [Status](#-project-status)
+[Features](#-features) | [How it works](#-how-it-works) | [Hardware](#-hardware-at-a-glance) | [Pinout](#-ports-and-pinout) | [BOM](#-bill-of-materials) | [Gerbers](#manufacturing-files) | [Firmware](#-firmware-and-home-assistant) | [Docs](#-documentation) | [Status](#-project-status)
 
 <img src="docs/images/social/08_board_3d_angle_1600x900.png" alt="TankPilot 3D render" width="90%">
 
@@ -192,6 +192,19 @@ Not in the BOM: the PCB, sensors (JSN-SR04T, probe kit, float switch, LDR, DHT11
 
 Floor plan, silkscreen blocks and X/Y tables: [`docs/pcb-floorplan.html`](docs/pcb-floorplan.html).
 
+## Manufacturing files
+
+Exported from EasyEDA Pro on 2026-11-10 (PCB with the RV1 varistor, the USB-C shell grounded and the final routing):
+
+| File | What it is |
+|---|---|
+| [`hardware/gerber/Gerber_PCB1_2026-11-10.zip`](hardware/gerber/Gerber_PCB1_2026-11-10.zip) | Gerber + drill files (top, bottom, silkscreen, mask, paste, outline, PTH / NPTH drills) |
+| [`hardware/assembly/BOM_Board1_PCB1_2026-11-10.csv`](hardware/assembly/BOM_Board1_PCB1_2026-11-10.csv) | EasyEDA BOM with LCSC part numbers (for assembly services) |
+| [`hardware/assembly/PickAndPlace_PCB1_2026_11_10.csv`](hardware/assembly/PickAndPlace_PCB1_2026_11_10.csv) | pick-and-place (centroid) file: X, Y, rotation and side of every part |
+| [`hardware/schematic/SCH_Schematic1_2026-11-10.pdf`](hardware/schematic/SCH_Schematic1_2026-11-10.pdf) | the 3-sheet schematic as PDF |
+
+Notes: the boards are untested, so order a small batch first. Through-hole parts (screw terminals, DC jack, headers, HLK module, varistor) are hand-soldered. If you skip the 230 V option, leave off U8, F2, RV1, J9, D4 and C6. The fuse clips are not in this BOM.
+
 ## Firmware and Home Assistant
 
 **Planned entities (ESPHome):** `Tank level %`, `Tank level source`, `Ultrasonic distance cm`, `Probe 20 / 40 / 60 / 80 / FULL`, `Float 1`, `Ultrasonic OK`, `Probes OK`, `Sensor mode` (Auto, Ultrasonic only, Probes only, Float only), `D_empty cm`, `D_full cm`.
@@ -312,6 +325,9 @@ docs/                 HTML guides (BOM, wiring, schematic, PCB) and images
   images/social/      post graphics and 3D renders
   images/renders/     EasyEDA 3D screenshots used for the graphics
 hardware/bom/         BOM as CSV and Markdown
+hardware/gerber/      Gerber + drill zip
+hardware/assembly/    EasyEDA BOM and pick-and-place CSV
+hardware/schematic/   schematic PDF
 tools/                Python generators for the BOM, docs, SVGs, images and this README
 PLAN.md               full design plan
 ```
