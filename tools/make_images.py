@@ -421,8 +421,25 @@ def clean(name, src, w, h, label):
     save(im, name)
 
 
+def cover():
+    w, h = 1400, 1000                       # 7:5, used as the PCBWay project cover
+    im = bg(w, h, False)
+    d = ImageDraw.Draw(im, "RGBA")
+    title(d, w / 2, 50, 150, "ma")
+    text(d, (w / 2, 230), "Smart water tank level node  |  ESP32-C3 + ESPHome + Home Assistant", font(36), anchor="ma")
+    r = fit(ISO, w=1240, h=640)
+    paste_shadow(im, r, ((w - r.width) // 2, 300))
+    d = ImageDraw.Draw(im, "RGBA")
+    xs, f = ["Ultrasonic", "5 probes", "Float", "Auto pump start"], font(30, True)
+    total = sum(d.textlength(s, font=f) + 36 + 14 for s in xs) - 14
+    x = (w - total) / 2
+    for s in xs:
+        x += chip(d, x, 930, s, f, pad=18) + 14
+    save(im, "11_pcbway_cover_1400x1000.png")
+
+
 if __name__ == "__main__":
-    hero(); square(); story(); features(); how(); sensors(); specs()
+    hero(); square(); story(); features(); how(); sensors(); specs(); cover()
     clean("08_board_3d_angle_1600x900.png", ISO, 1600, 900, "ESP32-C3 water tank level node, 3D view")
     clean("09_board_3d_top_1600x900.png", TOP, 1600, 900, "Top side, 94 x 70 mm")
     clean("10_board_3d_bottom_1600x900.png", BOT, 1600, 900, "Bottom side")
